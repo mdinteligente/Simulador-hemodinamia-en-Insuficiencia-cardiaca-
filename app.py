@@ -96,15 +96,10 @@ ax2.set_ylabel('PCAP (mmHg)')
 ax2.set_title('Clasificación de perfiles de Stevenson')
 
 # Etiquetas de los cuadrantes
-ax2.text(3.2, 10, 'A
-Compensado', fontsize=10, ha='center')
-ax2.text(3.2, 28, 'B
-Congestivo', fontsize=10, ha='center')
-ax2.text(1.4, 28, 'C
-Congestivo e
-Hipoperfundido', fontsize=10, ha='center')
-ax2.text(1.4, 10, 'L
-Hipoperfundido seco', fontsize=10, ha='center')
+ax2.text(3.2, 10, 'A\nCompensado', fontsize=10, ha='center')
+ax2.text(3.2, 28, 'B\nCongestivo', fontsize=10, ha='center')
+ax2.text(1.4, 28, 'C\nCongestivo e\nHipoperfundido', fontsize=10, ha='center')
+ax2.text(1.4, 10, 'L\nHipoperfundido seco', fontsize=10, ha='center')
 
 # Marcar puntos del paciente antes y después
 ax2.plot(IC, PCAP, 'o', label='Inicial', color='blue')
