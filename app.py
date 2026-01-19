@@ -1,10 +1,11 @@
-# Simulador hemodinámico para perfiles de Stevenson (versión gráfica Streamlit)
+# Simulador clínico de perfiles de Stevenson - Generador de casos
 # Autor: Docente de Cardiología - VI semestre Medicina
 
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Clasificación de perfiles de Stevenson
+# --- Función para clasificación de perfiles de Stevenson ---
 def clasificar_stevenson(IC, PCAP):
     if IC >= 2.2 and PCAP <= 18:
         return "Perfil A - Compensado"
@@ -17,97 +18,109 @@ def clasificar_stevenson(IC, PCAP):
     else:
         return "No clasificado"
 
-# Cálculo de PAM (presión arterial media)
-def calcular_PAM(IC, RVS, PVC):
-    return round(IC * RVS / 80 + PVC, 1)
+# --- Título y descripción ---
+st.set_page_config(layout="wide")
+st.title("🩺 Generador de casos clínicos - Perfiles hemodinámicos de Stevenson")
+st.markdown("Este simulador permite construir casos clínicos personalizados para explorar perfiles hemodinámicos de Stevenson y simular efectos farmacológicos.")
 
-# Funciones para simular intervención farmacológica
-def aplicar_inotropico(IC, delta=0.5):
-    return round(IC + delta, 2)
+# --- Sección 1: Datos demográficos ---
+st.header("1️⃣ Datos demográficos")
+col1, col2 = st.columns(2)
+with col1:
+    ciudades = ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Cúcuta", "Pereira", "Manizales", "Armenia", "Ibagué", "Villavicencio"]
+    ciudad = st.selectbox("Ciudad o Municipio", ciudades)
+    edad = st.number_input("Edad (años)", min_value=1, max_value=110, step=1)
+with col2:
+    procedencia = st.radio("Procedencia", ["Urbana", "Rural"])
+    sexo = st.radio("Sexo", ["Masculino", "Femenino", "No binario", "Otro"])
 
-def aplicar_diuretico(PCAP, delta=-4):
-    return max(0, round(PCAP + delta, 2))
+# --- Sección 2: Síntomas ---
+st.header("2️⃣ Síntomas principales")
+sintomas = st.multiselect("Seleccione los síntomas presentes", [
+    "Disnea con esfuerzos grandes",
+    "Disnea con esfuerzos moderados",
+    "Disnea con esfuerzos pequeños",
+    "Disnea en reposo",
+    "Disnea que progresó del esfuerzo al reposo",
+    "Disnea en decúbito (ortopnea)",
+    "Disnea al agacharse o amarrarse los zapatos",
+    "Edemas de pies",
+    "Edema de pies a rodillas",
+    "Edema de pies a muslos",
+    "Fatiga"
+])
+dias_evol = st.number_input("Días de evolución", min_value=0, step=1)
 
-def aplicar_vasopresor(RVS, incremento_pct=0.3):
-    return round(RVS * (1 + incremento_pct), 1)
+# --- Sección 3: Antecedentes ---
+st.header("3️⃣ Antecedentes personales")
+antecedentes = st.multiselect("Seleccione los antecedentes", [
+    "Hipertensión arterial", "Diabetes tipo 2", "Dislipidemia", "Obesidad",
+    "Enfermedad coronaria", "Fibrilación auricular", "ACV isquémico",
+    "Cardiopatía isquémica", "Cardiopatía hipertensiva", "Cardiopatía chagásica",
+    "Cardiopatía valvular"
+])
 
-# Título
-title = "\U0001F4CA Simulador hemodinámico - Perfiles de Stevenson"
-st.title(title)
+# --- Sección 4: Signos vitales ---
+st.header("4️⃣ Signos vitales")
+col3, col4 = st.columns(2)
+with col3:
+    peso = st.number_input("Peso (kg)", min_value=20.0, max_value=200.0, step=0.5)
+    talla = st.number_input("Talla (cm)", min_value=100, max_value=220)
+    FC = st.number_input("Frecuencia cardíaca (lpm)", min_value=20)
+    FR = st.number_input("Frecuencia respiratoria (rpm)", min_value=8)
+    SatO2 = st.number_input("SatO2 sin oxígeno (%)", min_value=40.0, max_value=100.0)
+with col4:
+    ritmo = st.selectbox("Ritmo en monitor", ["Sinusal", "Fibrilación auricular", "Aleteo auricular", "Otro"])
+    PAS = st.number_input("PAS (mmHg)", min_value=50)
+    PAD = st.number_input("PAD (mmHg)", min_value=30)
 
-# Inputs iniciales
-IC = st.slider("Índice Cardíaco (L/min/m²)", 1.0, 4.0, 2.0, 0.1)
-PCAP = st.slider("PCAP (mmHg)", 5, 35, 20)
-PVC = st.slider("PVC (mmHg)", 0, 20, 8)
-RVS = st.slider("RVS (dinas·s·cm⁻⁵)", 800, 2400, 1600, 50)
+# Cálculos derivados
+IMC = round(peso / ((talla / 100) ** 2), 1) if talla > 0 else 0
+PAM = round((2 * PAD + PAS) / 3, 1)
+PP = PAS - PAD
+PPP = round(PP / PAS, 2) if PAS > 0 else 0
 
-# Cálculos iniciales
-perfil_inicial = clasificar_stevenson(IC, PCAP)
-PAM_inicial = calcular_PAM(IC, RVS, PVC)
+st.markdown(f"**IMC calculado:** {IMC} kg/m²")
+st.markdown(f"**PAM:** {PAM} mmHg")
+st.markdown(f"**Presión de pulso:** {PP} mmHg")
+st.markdown(f"**Presión de pulso proporcional:** {PPP}")
 
-# Intervenciones simuladas
-IC_inotropico = aplicar_inotropico(IC)
-PCAP_diuretico = aplicar_diuretico(PCAP)
-RVS_vasopresor = aplicar_vasopresor(RVS)
-PAM_post = calcular_PAM(IC_inotropico, RVS_vasopresor, PVC)
-perfil_post = clasificar_stevenson(IC_inotropico, PCAP_diuretico)
+# --- Sección 5: Parámetros hemodinámicos (para Stevenson) ---
+st.header("5️⃣ Parámetros hemodinámicos para perfil Stevenson")
+col5, col6 = st.columns(2)
+with col5:
+    IC = st.slider("Índice Cardíaco (L/min/m²)", 1.0, 4.0, 2.0, 0.1)
+with col6:
+    PCAP = st.slider("Presión capilar pulmonar (mmHg)", 5, 35, 20)
 
-# Resultados
-st.subheader("Resultados de la simulación")
-st.markdown(f"""
-- **Perfil inicial:** {perfil_inicial}  
-- **PAM inicial:** {PAM_inicial} mmHg  
-- **IC tras inotrópico:** {IC_inotropico} L/min/m²  
-- **PCAP tras diurético:** {PCAP_diuretico} mmHg  
-- **RVS tras vasopresor:** {RVS_vasopresor} dinas·s·cm⁻⁵  
-- **PAM post-intervención:** {PAM_post} mmHg  
-- **Perfil final:** {perfil_post}
-""")
+perfil = clasificar_stevenson(IC, PCAP)
+st.success(f"Perfil de Stevenson: {perfil}")
 
-# Gráfico comparativo
-fig1, ax1 = plt.subplots()
-etiquetas = ['IC', 'PCAP', 'RVS', 'PAM']
-iniciales = [IC, PCAP, RVS, PAM_inicial]
-post = [IC_inotropico, PCAP_diuretico, RVS_vasopresor, PAM_post]
-
-bar_width = 0.35
-index = range(len(etiquetas))
-
-ax1.bar(index, iniciales, bar_width, label='Inicial')
-ax1.bar([i + bar_width for i in index], post, bar_width, label='Post')
-
-ax1.set_xlabel('Variables')
-ax1.set_ylabel('Valores')
-ax1.set_title('Comparación hemodinámica')
-ax1.set_xticks([i + bar_width / 2 for i in index])
-ax1.set_xticklabels(etiquetas)
-ax1.legend()
-
-st.pyplot(fig1)
-
-# Diagrama de perfiles de Stevenson
-fig2, ax2 = plt.subplots(figsize=(6,6))
-ax2.axvline(2.2, color='gray', linestyle='--')
-ax2.axhline(18, color='gray', linestyle='--')
-ax2.set_xlim(1, 4)
-ax2.set_ylim(5, 35)
-ax2.set_xlabel('Índice Cardíaco (L/min/m²)')
-ax2.set_ylabel('PCAP (mmHg)')
-ax2.set_title('Clasificación de perfiles de Stevenson')
+# --- Gráfico de cuadrantes de Stevenson ---
+st.header("📊 Cuadrantes de Stevenson")
+fig, ax = plt.subplots(figsize=(6, 6))
+ax.axvline(2.2, color='gray', linestyle='--')
+ax.axhline(18, color='gray', linestyle='--')
+ax.set_xlim(1, 4)
+ax.set_ylim(5, 35)
+ax.set_xlabel('Índice Cardíaco (L/min/m²)')
+ax.set_ylabel('PCAP (mmHg)')
+ax.set_title('Clasificación de perfiles de Stevenson')
+ax.grid(True, linestyle=':')
 
 # Etiquetas de los cuadrantes
-ax2.text(3.2, 10, 'A\nCompensado', fontsize=10, ha='center')
-ax2.text(3.2, 28, 'B\nCongestivo', fontsize=10, ha='center')
-ax2.text(1.4, 28, 'C\nCongestivo e\nHipoperfundido', fontsize=10, ha='center')
-ax2.text(1.4, 10, 'L\nHipoperfundido seco', fontsize=10, ha='center')
+ax.text(3.3, 10, 'A\nCompensado', fontsize=10, ha='center')
+ax.text(3.3, 30, 'B\nCongestivo', fontsize=10, ha='center')
+ax.text(1.5, 30, 'C\nCongestivo e\nHipoperfundido', fontsize=10, ha='center')
+ax.text(1.5, 10, 'L\nHipoperfundido seco', fontsize=10, ha='center')
 
-# Marcar puntos del paciente antes y después
-ax2.plot(IC, PCAP, 'o', label='Inicial', color='blue')
-ax2.plot(IC_inotropico, PCAP_diuretico, 'o', label='Post-tratamiento', color='orange')
-ax2.legend()
+# Punto del paciente
+ax.plot(IC, PCAP, 'o', color='red', markersize=10, label='Paciente')
+ax.legend()
 
-st.pyplot(fig2)
+st.pyplot(fig)
 
-st.caption("\u24D8 Esta herramienta es solo educativa. No sustituye el juicio clínico ni la experiencia de un especialista.")
+st.caption("ℹ️ Esta herramienta es solo educativa. No sustituye el juicio clínico profesional.")
+
 
 
