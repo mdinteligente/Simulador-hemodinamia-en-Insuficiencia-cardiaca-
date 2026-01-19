@@ -18,6 +18,7 @@ st.markdown("""
     .stTabs [data-baseweb="tab-list"] { gap: 10px; }
     .stTabs [data-baseweb="tab"] { height: 50px; white-space: pre-wrap; background-color: #f0f2f6; border-radius: 5px; }
     .stTabs [aria-selected="true"] { background-color: #ff4b4b; color: white; }
+    div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -28,7 +29,7 @@ recursos = {
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
     "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
     
-    # AUDIOS (Soplos y Ruidos)
+    # AUDIOS
     "audio_s3": "https://upload.wikimedia.org/wikipedia/commons/7/76/S3_heart_sound.ogg",
     "audio_s4": "https://upload.wikimedia.org/wikipedia/commons/8/87/S4_heart_sound.ogg",
     "audio_estenosis_aortica": "https://upload.wikimedia.org/wikipedia/commons/9/99/Aortic_stenosis.ogg",
@@ -38,44 +39,62 @@ recursos = {
     "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
 }
 
-# --- FUNCIONES AUXILIARES ---
+# --- LÓGICA CLÍNICA: SOPLOS (REVISADA) ---
 def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
-    dx_sugerido = "Soplo no específico"
     if not localizacion_soplo: return "Sin soplos reportados."
-
+    
+    # Lógica Ampliada
+    dx = "Soplo no específico"
+    
     if foco == "Aórtico":
-        if ciclo == "Sistólico" and "diamante" in patron:
-            dx_sugerido = "Posible Estenosis Aórtica (Busca: Irradiación a carótidas, pulso parvus)"
+        if ciclo == "Sistólico":
+            dx = "**Posible Estenosis Aórtica:** Obstrucción al tracto de salida. \n*Busca:* Pulso parvus et tardus, desdoblamiento paradójico de R2, irradiación a carótidas."
         elif ciclo == "Diastólico":
-            dx_sugerido = "Posible Insuficiencia Aórtica (Busca: Soplo aspirativo, presión de pulso amplia)"
-    elif foco == "Mitral":
-        if ciclo == "Sistólico" and "Holosistólico" in patron:
-            dx_sugerido = "Posible Insuficiencia Mitral (Busca: Irradiación a axila)"
-        elif ciclo == "Diastólico":
-            dx_sugerido = "Posible Estenosis Mitral (Busca: Chasquido de apertura, ritmo de duroziez)"
-    return dx_sugerido
+            dx = "**Posible Insuficiencia Aórtica:** Regurgitación diastólica. \n*Busca:* Presión de pulso amplia, signo de Musset, soplo de Austin Flint."
 
-# --- DATA: FARMACOLOGÍA AGUDA ---
+    elif foco == "Mitral":
+        if ciclo == "Sistólico":
+            if "Holosistólico" in patron:
+                dx = "**Posible Insuficiencia Mitral:** Regurgitación a la aurícula. \n*Busca:* Irradiación a la axila, R3, latido apexiano desplazado."
+            elif "Click" in patron or "Diamante" in patron:
+                 dx = "**Posible Prolapso VM:** Click mesosistólico."
+        elif ciclo == "Diastólico":
+            dx = "**Posible Estenosis Mitral:** Obstrucción llenado VI. \n*Busca:* Chasquido de apertura, retumbo diastólico, refuerzo presistólico (si ritmo sinusal)."
+
+    elif foco == "Tricúspideo":
+        if ciclo == "Sistólico":
+            dx = "**Posible Insuficiencia Tricuspídea:** Muy común en HTP. \n*Busca:* Signo de Rivero-Carvallo (aumenta con inspiración), onda V gigante en yugular."
+            
+    elif foco == "Pulmonar":
+        dx = "**Posible Patología Pulmonar:** (Ej. Estenosis Pulmonar o HTP severa - Graham Steell si es diastólico)."
+            
+    return dx
+
+# --- DATA: FARMACOLOGÍA Y SEGURIDAD ---
 meds_agudos = {
     "diureticos": {
-        "dosis": "Furosemida: Bolo 20-40mg IV (o 1-2.5x dosis oral previa). Infusión si hay resistencia.",
-        "renal": "TFG < 30 ml/min: Requiere dosis más altas (curva dosis-respuesta a la derecha).",
-        "adverso": "Hipokalemia, Hipomagnesemia, Alcalosis metabólica, Falla renal prerenal."
+        "nombre": "Furosemida / Diuréticos de Asa",
+        "dosis": "Bolo inicial: 20-40 mg IV (o 2x dosis oral casa). Si no responde: Infusión 5-40 mg/h.",
+        "monitor": "• Gasto Urinario horario (Meta > 100cc/h primeras horas).\n• Potasio (K+) y Magnesio (Mg++) cada 6-12h.\n• Función Renal (BUN/Cr) diaria.",
+        "adverso": "Hipokalemia (arritmias), Ototoxicidad (bolos rápidos >20mg/min), Hipotensión, Falla renal aguda."
     },
     "vasodilatadores": {
-        "dosis": "Nitroglicerina: 10-200 mcg/min. \nNitroprusiato: 0.3-5 mcg/kg/min.",
-        "renal": "Nitroprusiato: Riesgo toxicidad tiocianato en ERC.",
-        "adverso": "Cefalea, Hipotensión, Taquicardia refleja."
+        "nombre": "Nitroglicerina / Nitroprusiato",
+        "dosis": "NTG: Iniciar 10-20 mcg/min, titular c/5min. NTP: 0.3 mcg/kg/min (Solo UCI).",
+        "monitor": "• Presión Arterial Estrecha (Línea Arterial recomendada).\n• Cefalea intensa.\n• Descenso de la saturación (shunt intrapulmonar).",
+        "adverso": "Hipotensión severa, Taquicardia refleja, Robo coronario. NTP: Intoxicación por Tiocianato/Cianuro (uso prolongado)."
     },
     "inotropicos": {
-        "dosis": "Dobutamina: 2-20 mcg/kg/min. \nMilrinone: 0.375-0.75 mcg/kg/min. \nLevosimendán: 0.1 mcg/kg/min.",
-        "renal": "Milrinone: Ajustar al 50-70% en falla renal.",
-        "adverso": "Arritmias, Isquemia, Hipotensión (Milrinone/Levo)."
+        "nombre": "Dobutamina / Milrinone / Levosimendán",
+        "dosis": "Dobu: 2-20 mcg/kg/min. Milrinone: 0.375-0.75 mcg/kg/min.",
+        "monitor": "• Telemetría continua (Arritmias ventriculares).\n• Isquemia miocárdica (Dobu aumenta MVO2).\n• Presión Arterial (Milrinone baja la PA).",
+        "adverso": "Taquicardia sinusal, Fibrilación auricular, CVP, Hipotensión (Milrinone), Hipokalemia."
     },
     "vasopresores": {
-        "dosis": "Norepinefrina: 0.05 - 0.5 mcg/kg/min. Meta PAM > 65 mmHg.",
-        "renal": "Vasoconstricción excesiva puede comprometer perfusión renal.",
-        "adverso": "Isquemia distal, Arritmias."
+        "nombre": "Norepinefrina",
+        "dosis": "0.05 - 0.5 mcg/kg/min. Meta PAM > 65 mmHg.",
+        "monitor": "• Perfusión distal (dedos, llenado).\n• Perfusión esplácnica.\n• Invasiva obligatoria.",
+        "adverso": "Necrosis distal, Arritmias, Hipertensión severa, Isquemia miocárdica."
     }
 }
 
@@ -98,7 +117,7 @@ with st.sidebar:
     ]
     ciudad = st.selectbox("Ciudad", ciudades)
     if any(x in ciudad for x in ["Santander", "Boyacá", "Casanare", "Arauca"]):
-        st.caption("⚠️ **Alerta:** Zona endémica Chagas.")
+        st.warning("⚠️ **Alerta Epidemiológica:** Zona endémica Chagas. Considere Miocardiopatía Chagásica.")
         
     col1, col2 = st.columns(2)
     edad = col1.number_input("Edad", 18, 120, 65)
@@ -108,12 +127,11 @@ with st.sidebar:
     st.subheader("2. Síntomas")
     sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina"])
 
-    # 3. Signos Vitales y Ritmo
+    # 3. Signos Vitales
     st.subheader("3. Signos Vitales")
-    # Lógica de Ritmo para S4
     ritmo = st.selectbox("Ritmo Monitor", ["Sinusal", "Fibrilación Auricular", "Aleteo", "TV", "Otro"])
     
-    with st.expander("📸 Ver Patrones de Ritmo"):
+    with st.expander("📸 Ver Ritmos"):
         st.image(recursos["ritmos"], caption="Ej: Fibrilación Auricular", use_container_width=True)
 
     col_p1, col_p2 = st.columns(2)
@@ -122,67 +140,52 @@ with st.sidebar:
     fc = col_p1.number_input("FC", value=85)
     sato2 = col_p2.number_input("SatO2", value=92)
     
-    # 4. Examen Físico (RUIDOS ACTUALIZADOS)
+    # 4. Examen Físico
     st.subheader("4. Examen Físico")
     
-    st.markdown("**Ruidos Cardíacos (Galopes)**")
-    # Filtro Dinámico: S4 no disponible si es FA/Aleteo
+    st.markdown("🔹 **Ruidos Cardíacos**")
+    # Filtro Dinámico S4
     opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
     if ritmo == "Sinusal":
-        opciones_ruidos.append("S4 (Galope Atrial)") # Solo si hay patada auricular
-        opciones_ruidos.append("S3 + S4 (Galope de Suma)")
+        opciones_ruidos.append("S4 (Galope Atrial)")
+        opciones_ruidos.append("S3 + S4 (Suma)")
     
     ruidos_agregados = st.selectbox("Ruidos Agregados:", opciones_ruidos)
     
-    # Reproductor de Audio S3/S4
     if "S3" in ruidos_agregados or "S4" in ruidos_agregados:
-        with st.expander("🎧 Escuchar Galope"):
-            if "S3" in ruidos_agregados:
-                st.audio(recursos["audio_s3"], format="audio/ogg")
-                st.caption("S3: Llenado rápido (Sobrecarga de Volumen)")
-            if "S4" in ruidos_agregados:
-                st.audio(recursos["audio_s4"], format="audio/ogg")
-                st.caption("S4: Contracción Auricular (Rigidez Ventricular)")
+        with st.expander("🎧 Escuchar"):
+            if "S3" in ruidos_agregados: st.audio(recursos["audio_s3"]); st.caption("S3: Sobrecarga Volumen")
+            if "S4" in ruidos_agregados: st.audio(recursos["audio_s4"]); st.caption("S4: Rigidez Ventricular")
 
     iy = st.selectbox("Ingurgitación Yugular", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
-    with st.expander("📸 Ver Ingurgitación"):
-        st.image(recursos["iy"], caption="Estimación PVC", use_container_width=True)
-
     rhy = st.checkbox("Reflujo Hepato-yugular")
     
     # Soplos
-    st.markdown("**Soplos**")
+    st.markdown("🔹 **Soplos**")
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
     if tiene_soplo:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
         ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
-        patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click+Chasquido"])
+        patron = st.selectbox("Patrón", ["Diamante (Crescendo-Decrescendo)", "Holosistólico", "Decrescendo", "Click+Chasquido"])
         
         with st.expander("🎧 Escuchar Ejemplo"):
-            if "Aórtico" in foco and "Sistólico" in ciclo:
-                st.audio(recursos["audio_estenosis_aortica"], format="audio/ogg")
-            elif "Mitral" in foco and "Sistólico" in ciclo:
-                st.audio(recursos["audio_insuf_mitral"], format="audio/ogg")
+            if "Aórtico" in foco and "Sistólico" in ciclo: st.audio(recursos["audio_estenosis_aortica"])
+            elif "Mitral" in foco and "Sistólico" in ciclo: st.audio(recursos["audio_insuf_mitral"])
 
     # Pulmones
-    st.markdown("**Pulmones**")
+    st.markdown("🔹 **Pulmones**")
     pulmones = st.selectbox("Auscultación", ["Limpios", "Estertores bases", "Estertores >1/2", "Sibilancias"])
-    with st.expander("🎧 Escuchar Pulmón"):
-        if "Estertores" in pulmones:
-            st.audio(recursos["audio_estertores"], format="audio/ogg")
-        elif "Sibilancias" in pulmones:
-            st.audio(recursos["audio_sibilancias"], format="audio/ogg")
-        else:
-            st.audio(recursos["audio_normal_lung"], format="audio/ogg")
+    with st.expander("🎧 Escuchar"):
+        if "Estertores" in pulmones: st.audio(recursos["audio_estertores"])
+        elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
+        else: st.audio(recursos["audio_normal_lung"])
     
     # Edema
-    st.markdown("**Extremidades**")
+    st.markdown("🔹 **Extremidades**")
     edema_ex = st.selectbox("Edema MsIs", ["Ausente", "Pies", "Rodillas", "Muslos"])
     godet = st.selectbox("Fóvea (Godet)", ["Sin fóvea", "Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
-    with st.expander("📸 Ver Grados Edema"):
-        st.image(recursos["godet"], caption="Fóvea persistente", use_container_width=True)
-
+    
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     temp = st.selectbox("Temperatura", ["Caliente", "Fría", "Muy Fría"])
     llenado = st.number_input("Llenado Capilar (seg)", 2)
@@ -196,7 +199,7 @@ pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
 
-# --- LÓGICA STEVENSON (CON S3) ---
+# --- LÓGICA STEVENSON ---
 score_congest = 0
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
@@ -204,11 +207,10 @@ if "Grado II" in iy or "Grado III" in iy: score_congest += 4
 if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
 if rhy: score_congest += 2
-# S3 suma puntos de congestión (falla aguda)
-if "S3" in ruidos_agregados: score_congest += 4 
+if "S3" in ruidos_agregados: score_congest += 4 # S3 pesa mucho para congestión
 
 pcp_sim = 12 + score_congest
-if pcp_sim > 35: pcp_sim = 35 # Eje X
+if pcp_sim > 38: pcp_sim = 38 
 
 score_perf = 2.8
 if ppp < 25: score_perf -= 0.6
@@ -217,7 +219,7 @@ if llenado > 3: score_perf -= 0.4
 if pulsos == "Filiformes": score_perf -= 0.5
 if pas < 90: score_perf -= 0.4
 
-ic_sim = max(1.0, score_perf) # Eje Y
+ic_sim = max(1.0, score_perf) 
 
 if pcp_sim > 18 and ic_sim > 2.2:
     cuadrante = "B: Húmedo y Caliente"
@@ -230,69 +232,113 @@ else:
 
 # --- INTERFAZ PRINCIPAL ---
 
+# 1. VISUALIZACIÓN DE MÉTRICAS CON EXPLICACIÓN
+st.markdown("### 📊 Hemodinamia al pie de la cama")
 col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
-col_m1.metric("PAM", f"{pam:.0f}")
-col_m2.metric("P. Pulso", f"{pp}")
-col_m3.metric("PPP", f"{ppp:.1f} %", delta="- Hipoperfusión" if ppp < 25 else "OK", delta_color="inverse")
+col_m1.metric("PAM", f"{pam:.0f} mmHg", help="Presión Arterial Media. Meta general > 65 mmHg para perfusión de órganos.")
+col_m2.metric("P. Pulso", f"{pp} mmHg", help="Presión de Pulso (PAS - PAD). Refleja rigidez arterial y volumen sistólico.")
+col_m3.metric("PPP", f"{ppp:.1f} %", delta="- Hipoperfusión" if ppp < 25 else "OK", delta_color="inverse", 
+              help="Presión de Pulso Proporcional = (PP/PAS). Si es < 25%, predice Índice Cardíaco < 2.2 L/min con 91% de sensibilidad.")
 col_m4.metric("Stevenson", cuadrante)
+
 if tiene_soplo:
-    col_m5.info(inferir_valvulopatia(foco, ciclo, patron, True))
+    st.info(f"🩺 **Análisis de Soplo:** {inferir_valvulopatia(foco, ciclo, patron, True)}")
 
-tabs = st.tabs(["📉 Hemodinamia", "💊 Simulación Aguda", "🏠 Egreso (HFrEF)", "⚖️ FEVI Preservada"])
+tabs = st.tabs(["📉 Cuadrante Stevenson", "💊 Simulación Terapéutica", "🏠 Egreso (HFrEF)", "⚖️ FEVI Preservada"])
 
-# TAB 1: STEVENSON
+# TAB 1: STEVENSON (MEJORADO VISUALMENTE)
 with tabs[0]:
-    st.warning("⚠️ **Nota Clínica:** La clasificación de Stevenson está validada para **Falla Cardíaca Aguda Descompensada** (HFrEF). En FEVI preservada, los umbrales de perfusión pueden variar.")
-    
-    col_g1, col_g2 = st.columns([2, 1])
+    with st.expander("ℹ️ ¿Cómo interpretar los Ejes?"):
+        st.markdown("""
+        * **Eje X (Congestión - PCP):** Representa el estado de volumen. Se estima por Ortopnea, IY, Edema, S3. Corte: 18 mmHg.
+        * **Eje Y (Perfusión - IC):** Representa el gasto cardíaco. Se estima por Frialdad, PPP < 25%, Sensorio. Corte: 2.2 L/min/m².
+        """)
+        
+    col_g1, col_g2 = st.columns([3, 1])
     with col_g1:
         fig = go.Figure()
-        # Cuadrantes Forrester (X=PCP, Y=IC)
-        fig.add_shape(type="rect", x0=0, y0=2.2, x1=18, y1=5, fillcolor="rgba(0, 255, 0, 0.1)", line_width=0) # A
-        fig.add_shape(type="rect", x0=18, y0=2.2, x1=40, y1=5, fillcolor="rgba(255, 165, 0, 0.1)", line_width=0) # B
-        fig.add_shape(type="rect", x0=0, y0=0, x1=18, y1=2.2, fillcolor="rgba(0, 0, 255, 0.1)", line_width=0) # L
-        fig.add_shape(type="rect", x0=18, y0=0, x1=40, y1=2.2, fillcolor="rgba(255, 0, 0, 0.1)", line_width=0) # C
         
-        fig.add_vline(x=18, line_dash="dash", line_color="gray")
-        fig.add_hline(y=2.2, line_dash="dash", line_color="gray")
+        # Colores de fondo más suaves para mejor contraste
+        fig.add_shape(type="rect", x0=0, y0=2.2, x1=18, y1=5, fillcolor="rgba(144, 238, 144, 0.2)", line_width=0) # A (Verde)
+        fig.add_shape(type="rect", x0=18, y0=2.2, x1=40, y1=5, fillcolor="rgba(255, 218, 185, 0.4)", line_width=0) # B (Naranja)
+        fig.add_shape(type="rect", x0=0, y0=0, x1=18, y1=2.2, fillcolor="rgba(173, 216, 230, 0.3)", line_width=0) # L (Azul)
+        fig.add_shape(type="rect", x0=18, y0=0, x1=40, y1=2.2, fillcolor="rgba(255, 182, 193, 0.4)", line_width=0) # C (Rojo)
         
-        fig.add_annotation(x=9, y=4, text="<b>A: Seco/Caliente</b>", showarrow=False, font=dict(color="green"))
-        fig.add_annotation(x=29, y=4, text="<b>B: Húmedo/Caliente</b>", showarrow=False, font=dict(color="orange"))
-        fig.add_annotation(x=9, y=1, text="<b>L: Seco/Frío</b>", showarrow=False, font=dict(color="blue"))
-        fig.add_annotation(x=29, y=1, text="<b>C: Húmedo/Frío</b>", showarrow=False, font=dict(color="red"))
+        # Líneas de corte
+        fig.add_vline(x=18, line_dash="solid", line_color="gray", annotation_text="PCP=18")
+        fig.add_hline(y=2.2, line_dash="solid", line_color="gray", annotation_text="IC=2.2")
+        
+        # Textos Grandes de Cuadrantes
+        fig.add_annotation(x=9, y=4.5, text="<b>A: SECO / CALIENTE</b>", showarrow=False, font=dict(size=16, color="green"))
+        fig.add_annotation(x=29, y=4.5, text="<b>B: HÚMEDO / CALIENTE</b>", showarrow=False, font=dict(size=16, color="orange"))
+        fig.add_annotation(x=9, y=0.5, text="<b>L: SECO / FRÍO</b>", showarrow=False, font=dict(size=16, color="blue"))
+        fig.add_annotation(x=29, y=0.5, text="<b>C: HÚMEDO / FRÍO</b>", showarrow=False, font=dict(size=16, color="red"))
 
-        fig.add_trace(go.Scatter(x=[pcp_sim], y=[ic_sim], mode='markers+text', marker=dict(size=25, color='black'), text=["PACIENTE"], textposition="top center"))
+        # PUNTO DEL PACIENTE (Grande y Visible)
+        fig.add_trace(go.Scatter(
+            x=[pcp_sim], y=[ic_sim], 
+            mode='markers+text', 
+            marker=dict(size=30, color='black', line=dict(width=2, color='white')), 
+            text=["<b>PACIENTE</b>"], textposition="top center",
+            textfont=dict(size=14, color="black")
+        ))
         
-        fig.update_layout(title="Cuadrante de Stevenson (X=PCP, Y=IC)", xaxis_title="PCP (Congestión)", yaxis_title="IC (Perfusión)", height=450)
+        fig.update_layout(
+            title="Cuadrante de Forrester/Stevenson",
+            xaxis_title="<b>PCP Estimada (Congestión)</b> mmHg",
+            yaxis_title="<b>Índice Cardíaco Estimado (Perfusión)</b> L/min/m²",
+            xaxis=dict(range=[0, 40], showgrid=True),
+            yaxis=dict(range=[0, 5], showgrid=True),
+            height=600, # Más alto para que se vea bien
+            autosize=True
+        )
         st.plotly_chart(fig, use_container_width=True)
 
-# TAB 2: SIMULACIÓN
+# TAB 2: SIMULACIÓN (CON ALERTAS DE SEGURIDAD)
 with tabs[1]:
-    st.markdown("### 🧪 Laboratorio de Intervención")
-    c1, c2, c3, c4 = st.columns(4)
-    dx, dy = 0, 0
+    st.markdown("### 🧪 Taller de Farmacología Aguda")
+    st.info("Seleccione la intervención para ver el cambio vectorial y las **precauciones de seguridad**.")
     
-    with c1:
-        if st.checkbox("Furosemida"): 
+    col_t1, col_t2, col_t3, col_t4 = st.columns(4)
+    dx, dy = 0, 0
+    selected_med = None
+    
+    with col_t1:
+        if st.checkbox("Furosemida IV"): 
             dx -= 8; dy += 0.1
-            st.caption(meds_agudos["diureticos"]["dosis"])
-    with c2:
+            selected_med = "diureticos"
+    with col_t2:
         if st.checkbox("Vasodilatador"): 
             dx -= 6; dy += 0.5
-            st.caption(meds_agudos["vasodilatadores"]["dosis"])
-    with c3:
+            selected_med = "vasodilatadores"
+    with col_t3:
         if st.checkbox("Inotrópico"): 
             dy += 1.2; dx -= 2
-            st.caption(meds_agudos["inotropicos"]["dosis"])
-    with c4:
+            selected_med = "inotropicos"
+    with col_t4:
         if st.checkbox("Vasopresor"): 
             dy += 0.2; dx += 4
-            st.caption(meds_agudos["vasopresores"]["dosis"])
+            selected_med = "vasopresores"
 
+    # Mostrar Info de Seguridad si hay selección
+    if selected_med:
+        info = meds_agudos[selected_med]
+        st.markdown("---")
+        c_info1, c_info2 = st.columns(2)
+        with c_info1:
+            st.markdown(f"#### 💊 {info['nombre']}")
+            st.markdown(f"**Dosis:** {info['dosis']}")
+        with c_info2:
+            st.warning(f"**⚠️ Efectos Adversos:** {info['adverso']}")
+            st.error(f"**👁️ Monitoreo Estricto:**\n{info['monitor']}")
+        st.markdown("---")
+
+    # Gráfico Pequeño de Vector
     new_pcp, new_ic = pcp_sim + dx, ic_sim + dy
     fig_sim = go.Figure(fig)
-    fig_sim.add_annotation(x=new_pcp, y=new_ic, ax=pcp_sim, ay=ic_sim, xref="x", yref="y", axref="x", ayref="y", arrowwidth=3, arrowhead=2, arrowcolor="black")
-    fig_sim.add_trace(go.Scatter(x=[new_pcp], y=[new_ic], mode='markers', marker=dict(size=15, color='purple', symbol='x')))
+    fig_sim.update_layout(height=400, title="Proyección Post-Intervención")
+    fig_sim.add_annotation(x=new_pcp, y=new_ic, ax=pcp_sim, ay=ic_sim, xref="x", yref="y", axref="x", ayref="y", arrowwidth=4, arrowhead=3, arrowcolor="purple")
+    fig_sim.add_trace(go.Scatter(x=[new_pcp], y=[new_ic], mode='markers', marker=dict(size=20, color='purple', symbol='x'), name="Post-Rx"))
     st.plotly_chart(fig_sim, use_container_width=True)
 
 # TAB 3: EGRESO (HFrEF)
