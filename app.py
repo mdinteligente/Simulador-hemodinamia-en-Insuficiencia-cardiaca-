@@ -21,12 +21,21 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- BANCO DE IMÁGENES (EDITABLE) ---
-# Docente: Puede cambiar estos links por los de su propio repositorio.
+# --- BANCO DE RECURSOS (IMÁGENES Y AUDIO) ---
 recursos = {
-    "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", # Ejemplo FA
+    # IMÁGENES
+    "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
-    "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg"
+    "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
+    
+    # AUDIOS (Soplos y Ruidos)
+    "audio_s3": "https://upload.wikimedia.org/wikipedia/commons/7/76/S3_heart_sound.ogg",
+    "audio_s4": "https://upload.wikimedia.org/wikipedia/commons/8/87/S4_heart_sound.ogg",
+    "audio_estenosis_aortica": "https://upload.wikimedia.org/wikipedia/commons/9/99/Aortic_stenosis.ogg",
+    "audio_insuf_mitral": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Mitral_regurgitation.ogg",
+    "audio_estertores": "https://upload.wikimedia.org/wikipedia/commons/3/33/Crackles_pneumonia.ogg",
+    "audio_sibilancias": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Wheezing_lung_sound.ogg",
+    "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
 }
 
 # --- FUNCIONES AUXILIARES ---
@@ -75,7 +84,7 @@ st.title("🫀 HemoSim: Docencia en Cardiología")
 st.markdown("**Simulador de Hemodinamia en Falla Cardíaca y Guía Terapéutica Interactiva**")
 st.caption("Herramienta Docente - Dr. Javier Rodríguez Prada")
 
-# --- BARRA LATERAL (INPUTS + AYUDAS VISUALES) ---
+# --- BARRA LATERAL ---
 with st.sidebar:
     st.header("📝 Historia Clínica")
     
@@ -101,12 +110,11 @@ with st.sidebar:
 
     # 3. Signos Vitales y Ritmo
     st.subheader("3. Signos Vitales")
+    # Lógica de Ritmo para S4
     ritmo = st.selectbox("Ritmo Monitor", ["Sinusal", "Fibrilación Auricular", "Aleteo", "TV", "Otro"])
     
-    # AYUDA VISUAL RITMOS
     with st.expander("📸 Ver Patrones de Ritmo"):
         st.image(recursos["ritmos"], caption="Ej: Fibrilación Auricular", use_container_width=True)
-        st.caption("Note la ausencia de onda P y RR irregular.")
 
     col_p1, col_p2 = st.columns(2)
     pas = col_p1.number_input("PAS (mmHg)", value=110)
@@ -114,31 +122,64 @@ with st.sidebar:
     fc = col_p1.number_input("FC", value=85)
     sato2 = col_p2.number_input("SatO2", value=92)
     
-    # 4. Examen Físico
+    # 4. Examen Físico (RUIDOS ACTUALIZADOS)
     st.subheader("4. Examen Físico")
-    iy = st.selectbox("Ingurgitación Yugular", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
     
-    # AYUDA VISUAL IY
+    st.markdown("**Ruidos Cardíacos (Galopes)**")
+    # Filtro Dinámico: S4 no disponible si es FA/Aleteo
+    opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
+    if ritmo == "Sinusal":
+        opciones_ruidos.append("S4 (Galope Atrial)") # Solo si hay patada auricular
+        opciones_ruidos.append("S3 + S4 (Galope de Suma)")
+    
+    ruidos_agregados = st.selectbox("Ruidos Agregados:", opciones_ruidos)
+    
+    # Reproductor de Audio S3/S4
+    if "S3" in ruidos_agregados or "S4" in ruidos_agregados:
+        with st.expander("🎧 Escuchar Galope"):
+            if "S3" in ruidos_agregados:
+                st.audio(recursos["audio_s3"], format="audio/ogg")
+                st.caption("S3: Llenado rápido (Sobrecarga de Volumen)")
+            if "S4" in ruidos_agregados:
+                st.audio(recursos["audio_s4"], format="audio/ogg")
+                st.caption("S4: Contracción Auricular (Rigidez Ventricular)")
+
+    iy = st.selectbox("Ingurgitación Yugular", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
     with st.expander("📸 Ver Ingurgitación"):
-        st.image(recursos["iy"], caption="Estimación Presión Venosa Central", use_container_width=True)
+        st.image(recursos["iy"], caption="Estimación PVC", use_container_width=True)
 
     rhy = st.checkbox("Reflujo Hepato-yugular")
     
     # Soplos
+    st.markdown("**Soplos**")
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
     if tiene_soplo:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
         ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click+Chasquido"])
+        
+        with st.expander("🎧 Escuchar Ejemplo"):
+            if "Aórtico" in foco and "Sistólico" in ciclo:
+                st.audio(recursos["audio_estenosis_aortica"], format="audio/ogg")
+            elif "Mitral" in foco and "Sistólico" in ciclo:
+                st.audio(recursos["audio_insuf_mitral"], format="audio/ogg")
 
-    pulmones = st.selectbox("Pulmones", ["Limpios", "Estertores bases", "Estertores >1/2", "Sibilancias"])
+    # Pulmones
+    st.markdown("**Pulmones**")
+    pulmones = st.selectbox("Auscultación", ["Limpios", "Estertores bases", "Estertores >1/2", "Sibilancias"])
+    with st.expander("🎧 Escuchar Pulmón"):
+        if "Estertores" in pulmones:
+            st.audio(recursos["audio_estertores"], format="audio/ogg")
+        elif "Sibilancias" in pulmones:
+            st.audio(recursos["audio_sibilancias"], format="audio/ogg")
+        else:
+            st.audio(recursos["audio_normal_lung"], format="audio/ogg")
     
     # Edema
+    st.markdown("**Extremidades**")
     edema_ex = st.selectbox("Edema MsIs", ["Ausente", "Pies", "Rodillas", "Muslos"])
     godet = st.selectbox("Fóvea (Godet)", ["Sin fóvea", "Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
-    
-    # AYUDA VISUAL GODET
     with st.expander("📸 Ver Grados Edema"):
         st.image(recursos["godet"], caption="Fóvea persistente", use_container_width=True)
 
@@ -146,7 +187,6 @@ with st.sidebar:
     temp = st.selectbox("Temperatura", ["Caliente", "Fría", "Muy Fría"])
     llenado = st.number_input("Llenado Capilar (seg)", 2)
     
-    # CRÉDITOS
     st.divider()
     st.markdown("**Javier Armando Rodriguez Prada, MD, MSc**")
     st.caption("Enero 19, 2026 | javimeduis@gmail.com")
@@ -156,7 +196,7 @@ pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
 
-# --- LÓGICA STEVENSON ---
+# --- LÓGICA STEVENSON (CON S3) ---
 score_congest = 0
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
@@ -164,6 +204,8 @@ if "Grado II" in iy or "Grado III" in iy: score_congest += 4
 if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
 if rhy: score_congest += 2
+# S3 suma puntos de congestión (falla aguda)
+if "S3" in ruidos_agregados: score_congest += 4 
 
 pcp_sim = 12 + score_congest
 if pcp_sim > 35: pcp_sim = 35 # Eje X
@@ -200,7 +242,7 @@ tabs = st.tabs(["📉 Hemodinamia", "💊 Simulación Aguda", "🏠 Egreso (HFrE
 
 # TAB 1: STEVENSON
 with tabs[0]:
-    st.warning("⚠️ **Nota Clínica:** La clasificación de Stevenson está validada para **Falla Cardíaca Aguda Descompensada** (principalmente fenotipos HFrEF). En pacientes crónicos estables o FEVI preservada, la evaluación de congestión es útil, pero los umbrales de perfusión pueden variar.")
+    st.warning("⚠️ **Nota Clínica:** La clasificación de Stevenson está validada para **Falla Cardíaca Aguda Descompensada** (HFrEF). En FEVI preservada, los umbrales de perfusión pueden variar.")
     
     col_g1, col_g2 = st.columns([2, 1])
     with col_g1:
@@ -214,7 +256,6 @@ with tabs[0]:
         fig.add_vline(x=18, line_dash="dash", line_color="gray")
         fig.add_hline(y=2.2, line_dash="dash", line_color="gray")
         
-        # Textos Cuadrantes
         fig.add_annotation(x=9, y=4, text="<b>A: Seco/Caliente</b>", showarrow=False, font=dict(color="green"))
         fig.add_annotation(x=29, y=4, text="<b>B: Húmedo/Caliente</b>", showarrow=False, font=dict(color="orange"))
         fig.add_annotation(x=9, y=1, text="<b>L: Seco/Frío</b>", showarrow=False, font=dict(color="blue"))
@@ -257,40 +298,32 @@ with tabs[1]:
 # TAB 3: EGRESO (HFrEF)
 with tabs[2]:
     st.header("🏠 Plan de Egreso: HFrEF (FEVI ≤ 40%)")
-    st.markdown("Esquema de Titulación de los 4 Pilares (GDMT). Iniciar dosis bajas y titular cada 2-4 semanas.")
+    st.markdown("Esquema de Titulación GDMT.")
     
-    # DATOS DE DOSIS Y TITULACIÓN
     gdmt_data = [
         {"Grupo": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Dosis Inicio": "12.5 - 25 mg c/24h", "Dosis Meta": "200 mg c/24h"},
-        {"Grupo": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Dosis Inicio": "3.125 mg c/12h", "Dosis Meta": "25 mg c/12h (>85kg: 50mg)"},
+        {"Grupo": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Dosis Inicio": "3.125 mg c/12h", "Dosis Meta": "25 mg c/12h"},
         {"Grupo": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Dosis Inicio": "1.25 mg c/24h", "Dosis Meta": "10 mg c/24h"},
-        {"Grupo": "ARNI (Preferido)", "Fármaco": "Sacubitrilo/Valsartán", "Dosis Inicio": "24/26 mg o 49/51 mg c/12h", "Dosis Meta": "97/103 mg c/12h"},
-        {"Grupo": "IECA (Alternativa)", "Fármaco": "Enalapril", "Dosis Inicio": "2.5 mg c/12h", "Dosis Meta": "10 - 20 mg c/12h"},
+        {"Grupo": "ARNI (Preferido)", "Fármaco": "Sacubitrilo/Valsartán", "Dosis Inicio": "24/26 mg c/12h", "Dosis Meta": "97/103 mg c/12h"},
+        {"Grupo": "IECA", "Fármaco": "Enalapril", "Dosis Inicio": "2.5 mg c/12h", "Dosis Meta": "10 - 20 mg c/12h"},
         {"Grupo": "ARM", "Fármaco": "Espironolactona", "Dosis Inicio": "12.5 - 25 mg c/24h", "Dosis Meta": "50 mg c/24h"},
-        {"Grupo": "iSGLT2", "Fármaco": "Dapagliflozina / Empagliflozina", "Dosis Inicio": "10 mg c/24h", "Dosis Meta": "10 mg c/24h (No titular)"},
+        {"Grupo": "iSGLT2", "Fármaco": "Dapagliflozina / Empagliflozina", "Dosis Inicio": "10 mg c/24h", "Dosis Meta": "10 mg c/24h"},
     ]
     df_gdmt = pd.DataFrame(gdmt_data)
     st.dataframe(df_gdmt, use_container_width=True)
-    
-    st.info("**Nota:** Suspender IECA 36 horas antes de iniciar ARNI para evitar Angioedema. Monitorizar K+ y Cr al iniciar ARM.")
+    st.info("Nota: Suspender IECA 36h antes de ARNI. Monitorizar K+.")
 
 # TAB 4: FEVI PRESERVADA
 with tabs[3]:
     st.header("⚖️ FEVI Preservada (HFpEF) y Levemente Reducida")
-    st.error("🚫 **Importante:** El modelo de Stevenson se usa para valorar congestión, pero la fisiopatología aquí difiere. Los inotrópicos NO suelen estar indicados.")
-    
-    st.subheader("1. Piedra Angular (Clase I)")
-    st.success("**iSGLT2 (Dapagliflozina / Empagliflozina):** 10 mg/día. Únicos con evidencia robusta de reducción de eventos en todo el rango de FEVI.")
-    
-    st.subheader("2. Manejo de Comorbilidades (Fenotipos)")
+    st.success("**iSGLT2 (Dapa/Empa):** Clase I, Nivel A. 10 mg/día.")
     st.markdown("""
-    * **Congestión:** Diuréticos de asa (titular a dosis mínima efectiva).
-    * **Hipertensión:** Preferir ARNI (Sacubitrilo/Valsartán) o MRA (Espironolactona) sobre otros antihipertensivos.
-    * **Fibrilación Auricular:** Anticoagulación + Control de Frecuencia/Ritmo.
-    * **Amiloidosis TTR:** Tafamidis (si hay diagnóstico confirmado).
+    * **Congestión:** Diuréticos de asa a dosis mínima.
+    * **HTA:** Preferir ARNI/MRA.
+    * **FA:** Anticoagulación + Control Ritmo/Frecuencia.
     """)
 
-# --- PIE DE PÁGINA: BIBLIOGRAFÍA VANCOUVER ---
+# --- PIE DE PÁGINA ---
 st.divider()
 st.subheader("📚 Referencias Bibliográficas")
 st.markdown("""
