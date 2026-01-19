@@ -65,7 +65,7 @@ st.markdown(f"""
 """)
 
 # Gráfico comparativo
-fig, ax = plt.subplots()
+fig1, ax1 = plt.subplots()
 etiquetas = ['IC', 'PCAP', 'RVS', 'PAM']
 iniciales = [IC, PCAP, RVS, PAM_inicial]
 post = [IC_inotropico, PCAP_diuretico, RVS_vasopresor, PAM_post]
@@ -73,17 +73,45 @@ post = [IC_inotropico, PCAP_diuretico, RVS_vasopresor, PAM_post]
 bar_width = 0.35
 index = range(len(etiquetas))
 
-ax.bar(index, iniciales, bar_width, label='Inicial')
-ax.bar([i + bar_width for i in index], post, bar_width, label='Post')
+ax1.bar(index, iniciales, bar_width, label='Inicial')
+ax1.bar([i + bar_width for i in index], post, bar_width, label='Post')
 
-ax.set_xlabel('Variables')
-ax.set_ylabel('Valores')
-ax.set_title('Comparación hemodinámica')
-ax.set_xticks([i + bar_width / 2 for i in index])
-ax.set_xticklabels(etiquetas)
-ax.legend()
+ax1.set_xlabel('Variables')
+ax1.set_ylabel('Valores')
+ax1.set_title('Comparación hemodinámica')
+ax1.set_xticks([i + bar_width / 2 for i in index])
+ax1.set_xticklabels(etiquetas)
+ax1.legend()
 
-st.pyplot(fig)
+st.pyplot(fig1)
+
+# Diagrama de perfiles de Stevenson
+fig2, ax2 = plt.subplots(figsize=(6,6))
+ax2.axvline(2.2, color='gray', linestyle='--')
+ax2.axhline(18, color='gray', linestyle='--')
+ax2.set_xlim(1, 4)
+ax2.set_ylim(5, 35)
+ax2.set_xlabel('Índice Cardíaco (L/min/m²)')
+ax2.set_ylabel('PCAP (mmHg)')
+ax2.set_title('Clasificación de perfiles de Stevenson')
+
+# Etiquetas de los cuadrantes
+ax2.text(3.2, 10, 'A
+Compensado', fontsize=10, ha='center')
+ax2.text(3.2, 28, 'B
+Congestivo', fontsize=10, ha='center')
+ax2.text(1.4, 28, 'C
+Congestivo e
+Hipoperfundido', fontsize=10, ha='center')
+ax2.text(1.4, 10, 'L
+Hipoperfundido seco', fontsize=10, ha='center')
+
+# Marcar puntos del paciente antes y después
+ax2.plot(IC, PCAP, 'o', label='Inicial', color='blue')
+ax2.plot(IC_inotropico, PCAP_diuretico, 'o', label='Post-tratamiento', color='orange')
+ax2.legend()
+
+st.pyplot(fig2)
 
 st.caption("\u24D8 Esta herramienta es solo educativa. No sustituye el juicio clínico ni la experiencia de un especialista.")
 
