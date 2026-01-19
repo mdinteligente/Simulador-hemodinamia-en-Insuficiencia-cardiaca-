@@ -15,43 +15,100 @@ st.set_page_config(
 st.markdown("""
     <style>
     .big-font { font-size:20px !important; font-weight: bold; }
-    .metric-card { background-color: #f0f2f6; padding: 10px; border-radius: 10px; border-left: 5px solid #ff4b4b; }
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] { height: 50px; white-space: pre-wrap; background-color: #f0f2f6; border-radius: 5px; }
+    .stTabs [aria-selected="true"] { background-color: #ff4b4b; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- ENCABEZADO ---
-st.title("🫀 HemoSim: Simulador Clínico de Hemodinamia")
-st.markdown("**Herramienta docente para el abordaje de la Falla Cardíaca Aguda según perfiles de Stevenson.**")
-st.caption("Basado en guías ESC 2021 y AHA/ACC/HFSA 2022.")
+# --- FUNCIONES AUXILIARES ---
+def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
+    """Infiere patología valvular basada en semiología"""
+    dx_sugerido = "Soplo no específico"
+    if not localizacion_soplo: return "Sin soplos reportados."
 
-# --- BARRA LATERAL: INGRESO DE DATOS ---
+    if foco == "Aórtico":
+        if ciclo == "Sistólico" and "diamante" in patron:
+            dx_sugerido = "Posible Estenosis Aórtica (Evaluar: Irradiación a carótidas, pulso parvus)"
+        elif ciclo == "Diastólico":
+            dx_sugerido = "Posible Insuficiencia Aórtica (Evaluar: Soplo aspirativo, presión de pulso amplia)"
+    elif foco == "Mitral":
+        if ciclo == "Sistólico" and "Holosistólico" in patron:
+            dx_sugerido = "Posible Insuficiencia Mitral (Evaluar: Irradiación a axila)"
+        elif ciclo == "Diastólico":
+            dx_sugerido = "Posible Estenosis Mitral (Evaluar: Chasquido de apertura, ritmo de duroziez)"
+    elif foco == "Tricúspideo":
+        if ciclo == "Sistólico":
+            dx_sugerido = "Posible Insuficiencia Tricuspídea (Evaluar: Signo de Rivero-Carvallo, onda V en yugular)"
+    elif foco == "Pulmonar":
+        dx_sugerido = "Posible patología pulmonar o HTP"
+            
+    return dx_sugerido
+
+# --- BASE DE DATOS DE MEDICAMENTOS ---
+meds_agudos = {
+    "diureticos": {
+        "dosis": "Furosemida: Bolo 20-40mg IV (o 1-2.5x dosis oral previa). Infusión continua si hay resistencia diurética.",
+        "renal": "En TFG < 30 ml/min: Requerimiento de dosis más altas (curva dosis-respuesta desviada).",
+        "adverso": "Hipokalemia, Hipomagnesemia, Alcalosis metabólica, Falla renal prerenal, Ototoxicidad."
+    },
+    "vasodilatadores": {
+        "dosis": "Nitroglicerina: 10-200 mcg/min. \nNitroprusiato: 0.3-5 mcg/kg/min (Solo monitorización invasiva idealmente).",
+        "renal": "Nitroprusiato: Riesgo toxicidad tiocianato en ERC.",
+        "adverso": "Cefalea, Hipotensión, Taquicardia refleja, Fenómeno de robo coronario."
+    },
+    "inotropicos": {
+        "dosis": "Dobutamina: 2-20 mcg/kg/min. \nMilrinone: 0.375-0.75 mcg/kg/min. \nLevosimendán: 0.1 mcg/kg/min (sin bolo usualmente).",
+        "renal": "Milrinone: Ajustar al 50-70% en falla renal. Levosimendán: No requiere ajuste mayor.",
+        "adverso": "Arritmias ventriculares, Aumento consumo O2 (Isquemia), Hipotensión (Milrinone/Levo)."
+    },
+    "vasopresores": {
+        "dosis": "Norepinefrina: 0.05 - 0.5 mcg/kg/min. Meta PAM > 65 mmHg.",
+        "renal": "La vasoconstricción excesiva puede comprometer la perfusión renal, pero la hipotensión es peor.",
+        "adverso": "Isquemia distal, Arritmias, Necrosis por extravasación."
+    }
+}
+
+# --- ENCABEZADO ---
+st.title("🫀 HemoSim: Docencia en Cardiología")
+st.markdown("**Simulador de Hemodinamia en Falla Cardíaca y Guía Terapéutica Interactiva**")
+st.caption("Basado en Guías ESC 2021 y AHA/ACC/HFSA 2022")
+
+# --- BARRA LATERAL (INPUTS) ---
 with st.sidebar:
     st.header("📝 Historia Clínica")
     
     # 1. Demográficos
     st.subheader("1. Filiación")
-    ciudades = ["Floridablanca", "Bucaramanga", "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Cúcuta", "Pereira", "Manizales", "Otra"]
+    ciudades = [
+        "--- Seleccione ---",
+        "Bucaramanga (Santander)", "Floridablanca (Santander)", "San Gil (Santander)", "Socorro (Santander)", "Soatá (Boyacá)", # Zonas Chagas
+        "Yopal (Casanare)", "Arauca (Arauca)", "Cúcuta (N. Santander)", # Zonas Chagas
+        "Bogotá D.C.", "Medellín", "Cali", "Barranquilla", "Cartagena", "Pereira", "Manizales", "Neiva", "Otra"
+    ]
     ciudad = st.selectbox("Ciudad / Municipio", ciudades)
+    if "Santander" in ciudad or "Boyacá" in ciudad or "Casanare" in ciudad or "Arauca" in ciudad:
+        st.caption("⚠️ **Alerta Epidemiológica:** Zona endémica para Enf. de Chagas.")
+        
     procedencia = st.radio("Procedencia", ["Urbana", "Rural"], horizontal=True)
     col1, col2 = st.columns(2)
-    edad = col1.number_input("Edad (años)", min_value=18, max_value=120, value=65)
-    sexo = col2.selectbox("Sexo", ["Masculino", "Femenino", "No binario", "Otro"])
+    edad = col1.number_input("Edad (años)", 18, 120, 65)
+    sexo = col2.selectbox("Sexo", ["Masculino", "Femenino", "Otro"])
 
     # 2. Síntomas
-    st.subheader("2. Síntomas Actuales")
-    sintomas = st.multiselect("Seleccione los presentes:", [
-        "Disnea grandes esfuerzos", "Disnea moderados esfuerzos", "Disnea pequeños esfuerzos",
-        "Disnea en reposo", "Disnea progresiva", "Ortopnea", "Bendopnea (al agacharse)",
-        "Edema de pies", "Edema hasta rodillas", "Edema hasta muslos", "Fatiga/Asténia"
+    st.subheader("2. Síntomas")
+    sintomas = st.multiselect("Seleccione:", [
+        "Disnea grandes esf.", "Disnea mod. esf.", "Disnea peq. esf.", "Disnea reposo",
+        "Ortopnea", "Bendopnea (al agacharse)", "Disnea Paroxística Nocturna",
+        "Fatiga/Asténia", "Angina"
     ])
-    dias_evol = st.number_input("Días de evolución", min_value=1, value=5)
+    dias_evol = st.number_input("Días evolución", 1, 365, 5)
 
     # 3. Antecedentes
-    st.subheader("3. Antecedentes Patológicos")
-    antecedentes = st.multiselect("Seleccione:", [
-        "Hipertensión Arterial", "Diabetes Tipo 2", "Dislipidemia", "Obesidad",
-        "Enfermedad Coronaria", "Fibrilación Auricular", "ACV Isquémico",
-        "Cardiopatía Isquémica", "Cardiopatía Hipertensiva", "Cardiopatía Chagásica", "Cardiopatía Valvular"
+    st.subheader("3. Antecedentes")
+    antecedentes = st.multiselect("Patológicos:", [
+        "HTA", "Diabetes T2", "Dislipidemia", "Obesidad", "Enf. Coronaria", 
+        "Fibrilación Auricular", "ACV", "Chagas", "EPOC"
     ])
 
     # 4. Signos Vitales
@@ -59,57 +116,47 @@ with st.sidebar:
     col_v1, col_v2 = st.columns(2)
     peso = col_v1.number_input("Peso (Kg)", value=70.0)
     talla = col_v2.number_input("Talla (cm)", value=170.0)
-    ritmo = st.selectbox("Ritmo en monitor", ["Sinusal", "Fibrilación Auricular", "Aleteo Atrial", "Otro"])
     
     col_p1, col_p2 = st.columns(2)
     pas = col_p1.number_input("PAS (mmHg)", value=110)
     pad = col_p2.number_input("PAD (mmHg)", value=70)
-    
     fc = col_v1.number_input("FC (lpm)", value=85)
     fr = col_v2.number_input("FR (rpm)", value=22)
-    sato2 = st.number_input("SatO2 aire ambiente (%)", value=92)
-
+    sato2 = st.number_input("SatO2 (%)", value=92)
+    
     # 5. Examen Físico
-    st.subheader("5. Examen Físico Detallado")
+    st.subheader("5. Examen Físico")
+    iy = st.selectbox("Ingurgitación Yugular", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
+    rhy = st.checkbox("Reflujo Hepato-yugular")
     
-    # Cuello
-    iy = st.selectbox("Ingurgitación Yugular (IY)", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
-    
-    # Tórax
-    trabajo_resp = st.selectbox("Trabajo Respiratorio", ["Sin tirajes", "Tirajes aislados", "Tirajes universales"])
+    st.markdown("**Cardiopulmonar**")
     pmi = st.radio("PMI", ["Normal", "Desplazado"], horizontal=True)
-    ruidos_card = st.radio("Ruidos", ["Rítmicos", "Arrítmicos"], horizontal=True)
+    ruidos = st.radio("Ruidos", ["Rítmicos", "Arrítmicos"], horizontal=True)
     
-    soplo = st.checkbox("¿Tiene Soplo?")
-    tipo_soplo = "No"
-    if soplo:
+    # Soplos
+    tiene_soplo = st.checkbox("¿Tiene Soplo?")
+    foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico" # Defaults
+    if tiene_soplo:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
-        ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico", "Sistodiastólico"])
+        ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
         if ciclo == "Sistólico":
             patron = st.selectbox("Patrón", ["Mesosistólico (diamante)", "Holosistólico"])
-        elif ciclo == "Diastólico":
+        else:
             patron = st.selectbox("Patrón", ["Decrescendo", "Click + Chasquido"])
-    
+
     pulmones = st.selectbox("Ruidos Respiratorios", [
-        "Murmullo vesicular normal", "No audibles", "Estertores basales", 
-        "Estertores 4 cuadrantes", "Roncus/Sibilancias"
+        "Murmullo vesicular", "Estertores basales", "Estertores hasta tercio medio", "Estertores universales", "Sibilancias/Roncus"
     ])
     
-    # Abdomen
-    abdomen_tam = st.selectbox("Abdomen Aspecto", ["Normal", "Aumentado", "Excavado"])
-    visceras = st.selectbox("Visceromegalias", ["Ausente", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
-    rhy = st.radio("Reflujo Hepato-yugular", ["Ausente", "Presente"], horizontal=True)
-    ascitis = st.radio("Onda Ascítica", ["Ausente", "Presente"], horizontal=True)
-    
-    # Extremidades / Perfusión
+    st.markdown("**Extremidades (Godet)**")
     edema_ex = st.selectbox("Edema MsIs", ["Ausente", "Pies", "Hasta Rodillas", "Hasta Muslos"])
-    fovea = st.selectbox("Fóvea", ["No", "Grado I", "Grado II", "Grado III"])
-    pulsos = st.selectbox("Pulsos Distales", ["+++ (Normal)", "++ (Disminuido)", "+ (Filiforme)", "Ausentes"])
-    llenado = st.number_input("Llenado Capilar (seg)", value=2)
-    temp_distal = st.selectbox("Temperatura Distal", ["Caliente (Normal)", "Fría", "Muy Fría/Húmeda"])
+    godet = st.selectbox("Fóvea (Godet)", [
+        "Sin fóvea", "Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"
+    ])
     
-    # Neuro
-    neuro = st.selectbox("Estado Neurológico", ["Alerta", "Somnoliento", "Estuporoso", "Coma"])
+    pulsos = st.selectbox("Pulsos Distales", ["Normales", "Disminuidos", "Filiformes/Ausentes"])
+    temp = st.selectbox("Temperatura Distal", ["Caliente", "Fría", "Muy Fría/Sudorosa"])
+    llenado = st.number_input("Llenado Capilar (seg)", 2)
 
 # --- CÁLCULOS AUTOMÁTICOS ---
 imc = peso / ((talla/100)**2)
@@ -117,194 +164,204 @@ pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
 
-# --- LÓGICA DE CLASIFICACIÓN (HEURÍSTICA CLÍNICA) ---
-# Esta sección traduce la semiología a coordenadas X (Perfusión) e Y (Congestión)
-# X: Índice Cardíaco (simulado) - Normal > 2.2
-# Y: PCP (simulada) - Normal < 18
-
-# Puntaje de Congestión (Para eje Y)
+# --- LÓGICA HEMODINÁMICA (CEREBRO) ---
+# Eje Y: Congestión (PCP estimada)
 score_congest = 0
 if "Ortopnea" in sintomas: score_congest += 3
-if "Bendopnea" in sintomas: score_congest += 1
-if "Disnea en reposo" in sintomas: score_congest += 4
-if iy == "Grado I (45°)": score_congest += 2
-if iy == "Grado II (45°)": score_congest += 4
-if iy == "Grado III (90°)": score_congest += 6
-if rhy == "Presente": score_congest += 2
-if "Estertores" in pulmones: score_congest += 4
+if "reposo" in sintomas[0] if sintomas else False: score_congest += 4
+if iy == "Grado II (45°)": score_congest += 3
+if iy == "Grado III (90°)": score_congest += 5
+if rhy: score_congest += 2
+if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
-if ascitis == "Presente": score_congest += 2
+if "Grado III" in godet or "Grado IV" in godet: score_congest += 2
 
-# Mapeo a PCP simulada (Base 12, max ~35)
 pcp_sim = 12 + score_congest
 if pcp_sim > 35: pcp_sim = 35
 
-# Puntaje de Hipoperfusión (Para eje X)
-# Signos de bajo gasto restan al IC
-score_perf = 2.8 # Empezamos en un IC "bonito"
-if ppp < 25: score_perf -= 0.6 # Presión de pulso proporcional estrecha es signo fuerte de bajo gasto
-if temp_distal != "Caliente (Normal)": score_perf -= 0.6
+# Eje X: Perfusión (IC estimado)
+score_perf = 2.8
+if ppp < 25: score_perf -= 0.6 # Signo fuerte bajo gasto
+if temp != "Caliente": score_perf -= 0.6
 if llenado > 3: score_perf -= 0.4
-if neuro != "Alerta": score_perf -= 0.5
-if pas < 90: score_perf -= 0.3
-if pulsos == "+ (Filiforme)": score_perf -= 0.4
+if pulsos == "Filiformes/Ausentes": score_perf -= 0.5
+if pas < 90: score_perf -= 0.4
 
-ic_sim = max(1.0, score_perf) # Evitar valores negativos
+ic_sim = max(1.0, score_perf)
 
-# Clasificación de Stevenson
-cuadrante = ""
+# Clasificación Stevenson
 if pcp_sim > 18 and ic_sim > 2.2:
-    cuadrante = "B: Húmedo y Caliente (Congestión)"
+    cuadrante = "B: Húmedo y Caliente"
     color_q = "orange"
 elif pcp_sim > 18 and ic_sim <= 2.2:
-    cuadrante = "C: Húmedo y Frío (Congestión + Hipoperfusión)"
+    cuadrante = "C: Húmedo y Frío"
     color_q = "red"
 elif pcp_sim <= 18 and ic_sim <= 2.2:
-    cuadrante = "L: Seco y Frío (Hipoperfusión pura)"
+    cuadrante = "L: Seco y Frío"
     color_q = "blue"
 else:
-    cuadrante = "A: Seco y Caliente (Compensado)"
+    cuadrante = "A: Seco y Caliente"
     color_q = "green"
 
+# Inferencia Valvular
+valvula_msg = inferir_valvulopatia(foco, ciclo, patron, tiene_soplo)
 
 # --- INTERFAZ PRINCIPAL ---
 
-# 1. Panel de Métricas
-st.subheader("📊 Datos Hemodinámicos Calculados")
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("IMC", f"{imc:.1f} kg/m²")
-c2.metric("PAM", f"{pam:.0f} mmHg", help="Presión Arterial Media")
-c3.metric("Presión de Pulso", f"{pp} mmHg")
-c4.metric("PPP (Proporcional)", f"{ppp:.1f} %", delta_color="inverse" if ppp < 25 else "normal", delta="- Riesgo Bajo Gasto" if ppp < 25 else "Adecuado")
+# Métricas Superiores
+col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
+col_m1.metric("IMC", f"{imc:.1f}")
+col_m2.metric("PAM", f"{pam:.0f} mmHg")
+col_m3.metric("P. Pulso", f"{pp} mmHg")
+col_m4.metric("PPP", f"{ppp:.1f} %", delta="- Hipoperfusión" if ppp < 25 else "OK", delta_color="inverse")
+col_m5.metric("Stevenson", cuadrante)
 
-st.info(f"📍 **Clasificación Actual:** {cuadrante}")
+if tiene_soplo:
+    st.info(f"🩺 **Inferencia Valvular:** {valvula_msg}")
 
-# 2. Tabs: Gráfico y Simulación
-tab1, tab2 = st.tabs(["📉 Cuadrante de Stevenson", "💊 Simulación Terapéutica"])
+# Pestañas de Contenido
+tabs = st.tabs(["📉 Hemodinamia Aguda", "💊 Simulación Terapéutica", "🏠 Plan Egreso (HFrEF)", "⚖️ FEVI Preservada/Leve"])
 
-with tab1:
-    st.markdown("### Perfil Hemodinámico Basal")
+# TAB 1: STEVENSON
+with tabs[0]:
+    col_g1, col_g2 = st.columns([2, 1])
+    with col_g1:
+        # Gráfico Stevenson
+        fig = go.Figure()
+        fig.add_shape(type="rect", x0=0, y0=18, x1=2.2, y1=40, fillcolor="rgba(255, 0, 0, 0.15)", line_width=0, layer="below") # C
+        fig.add_shape(type="rect", x0=2.2, y0=18, x1=5, y1=40, fillcolor="rgba(255, 165, 0, 0.15)", line_width=0, layer="below") # B
+        fig.add_shape(type="rect", x0=0, y0=0, x1=2.2, y1=18, fillcolor="rgba(0, 0, 255, 0.15)", line_width=0, layer="below") # L
+        fig.add_shape(type="rect", x0=2.2, y0=0, x1=5, y1=18, fillcolor="rgba(0, 255, 0, 0.15)", line_width=0, layer="below") # A
+        
+        # Etiquetas Cuadrantes
+        fig.add_annotation(x=1.1, y=29, text="<b>C: Húmedo/Frío</b>", showarrow=False, font=dict(color="red", size=14))
+        fig.add_annotation(x=3.6, y=29, text="<b>B: Húmedo/Caliente</b>", showarrow=False, font=dict(color="orange", size=14))
+        fig.add_annotation(x=1.1, y=9, text="<b>L: Seco/Frío</b>", showarrow=False, font=dict(color="blue", size=14))
+        fig.add_annotation(x=3.6, y=9, text="<b>A: Seco/Caliente</b>", showarrow=False, font=dict(color="green", size=14))
+
+        # Paciente
+        fig.add_trace(go.Scatter(x=[ic_sim], y=[pcp_sim], mode='markers+text', marker=dict(size=25, color='black'), text=["PACIENTE"], textposition="top center"))
+        
+        fig.update_layout(
+            title="Cuadrante de Stevenson (Estimación Clínica)",
+            xaxis_title="Índice Cardíaco (L/min/m²) - Perfusión",
+            yaxis_title="PCP (mmHg) - Congestión",
+            xaxis=dict(range=[0, 5], zeroline=False),
+            yaxis=dict(range=[0, 40], zeroline=False),
+            height=500
+        )
+        st.plotly_chart(fig, use_container_width=True)
     
-    # Crear Gráfico Stevenson Base
-    fig = go.Figure()
+    with col_g2:
+        st.markdown("### Interpretación")
+        st.markdown(f"""
+        * **Congestión (Eje Y):** Basado en ortopnea, IY y Godet.
+        * **Perfusión (Eje X):** Basado en PPP ({ppp:.1f}%), frialdad y sensorio.
+        
+        **Estado Actual:** {cuadrante}
+        """)
 
-    # Líneas de corte
-    fig.add_hline(y=18, line_dash="dash", line_color="gray", annotation_text="PCP 18 mmHg")
-    fig.add_vline(x=2.2, line_dash="dash", line_color="gray", annotation_text="IC 2.2 L/min")
-
-    # Puntos (Cuadrantes de fondo)
-    fig.add_shape(type="rect", x0=0, y0=18, x1=2.2, y1=40, fillcolor="rgba(255, 0, 0, 0.1)", line_width=0) # C
-    fig.add_shape(type="rect", x0=2.2, y0=18, x1=5, y1=40, fillcolor="rgba(255, 165, 0, 0.1)", line_width=0) # B
-    fig.add_shape(type="rect", x0=0, y0=0, x1=2.2, y1=18, fillcolor="rgba(0, 0, 255, 0.1)", line_width=0) # L
-    fig.add_shape(type="rect", x0=2.2, y0=0, x1=5, y1=18, fillcolor="rgba(0, 255, 0, 0.1)", line_width=0) # A
-
-    # Paciente
-    fig.add_trace(go.Scatter(
-        x=[ic_sim], y=[pcp_sim],
-        mode='markers+text',
-        marker=dict(size=20, color=color_q, line=dict(width=2, color='black')),
-        text=["PACIENTE"], textposition="top center",
-        name="Estado Actual"
-    ))
-
-    fig.update_layout(
-        title="Cuadrante de Stevenson (Estimado por Clínica)",
-        xaxis_title="Índice Cardíaco (Perfusión)",
-        yaxis_title="PCP / Congestión (Estimada)",
-        xaxis=dict(range=[0.5, 5]),
-        yaxis=dict(range=[0, 40]),
-        height=500
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    
-    st.markdown("""
-    > **Nota Docente:** La ubicación se estima mediante algoritmos basados en la PPP (<25% sugiere IC < 2.2) y signos de congestión (IY, Ortopnea). *No sustituye la medición invasiva.*
-    """)
-
-with tab2:
-    st.markdown("### 💊 Laboratorio de Intervención")
-    st.write("Seleccione intervenciones para ver el cambio vectorial estimado en la hemodinamia.")
+# TAB 2: SIMULACIÓN
+with tabs[1]:
+    st.markdown("### 🧪 Laboratorio de Intervención")
+    st.caption("Seleccione fármacos para ver el vector de efecto hemodinámico y datos farmacológicos.")
     
     col_t1, col_t2, col_t3, col_t4 = st.columns(4)
+    dx, dy = 0, 0
     
-    # Estados de los botones (Simulación simple de vectores)
-    delta_x = 0
-    delta_y = 0
-    msgs = []
-
     with col_t1:
-        st.markdown("**Diuréticos**")
         if st.checkbox("Furosemida IV"):
-            delta_y -= 8 # Baja precarga fuertemente
-            delta_x += 0.1 # Mejora leve del IC al bajar distensión
-            msgs.append("Furosemida: ↓↓ Precarga (Congestión)")
-
+            dy -= 8; dx += 0.1
+            with st.expander("ℹ️ Detalle Furosemida"):
+                st.write(meds_agudos["diureticos"]["dosis"])
+                st.error(meds_agudos["diureticos"]["adverso"])
+    
     with col_t2:
-        st.markdown("**Vasodilatadores**")
-        nitro = st.checkbox("Nitroglicerina/Nitroprusiato")
-        if nitro:
-            delta_y -= 5 # Baja precarga
-            delta_x += 0.4 # Sube IC al bajar postcarga
-            msgs.append("Vasodilatador: ↓ Precarga, ↑ IC (Baja Postcarga)")
-
+        if st.checkbox("Vasodilatador (NTG/NTP)"):
+            dy -= 5; dx += 0.4
+            with st.expander("ℹ️ Detalle Vasodilatador"):
+                st.write(meds_agudos["vasodilatadores"]["dosis"])
+                st.warning(meds_agudos["vasodilatadores"]["renal"])
+                
     with col_t3:
-        st.markdown("**Inotrópicos**")
-        inotrop = st.checkbox("Dobutamina / Milrinone")
-        levo = st.checkbox("Levosimendán")
-        if inotrop or levo:
-            delta_x += 1.2 # Sube IC fuertemente
-            delta_y -= 2 # Baja PCP levemente
-            msgs.append("Inotrópico: ↑↑ Contractilidad (IC)")
-
+        if st.checkbox("Inotrópico (Dobu/Milri)"):
+            dx += 1.2; dy -= 2
+            with st.expander("ℹ️ Detalle Inotrópico"):
+                st.write(meds_agudos["inotropicos"]["dosis"])
+                st.write(meds_agudos["inotropicos"]["renal"])
+                
     with col_t4:
-        st.markdown("**Vasopresores**")
-        vaso = st.checkbox("Norepinefrina")
-        if vaso:
-            delta_x += 0.2 # Sube PAM, permite perfusión en shock
-            delta_y += 2 # Puede aumentar precarga por venoconstricción
-            msgs.append("Vasopresor: ↑ RVS (PAM), cuidado con Postcarga")
+        if st.checkbox("Vasopresor (Norepi)"):
+            dx += 0.2; dy += 2
+            with st.expander("ℹ️ Detalle Vasopresor"):
+                st.write(meds_agudos["vasopresores"]["dosis"])
+                st.error("Usar solo en Shock Severo (PAS < 90) refractario.")
 
-    # Calcular nueva posición
-    new_ic = ic_sim + delta_x
-    new_pcp = pcp_sim + delta_y
-    
-    # Graficar cambios
-    fig_sim = go.Figure(fig) # Copiar figura base
-    
-    # Añadir flecha de vector
-    fig_sim.add_annotation(
-        x=new_ic, y=new_pcp,
-        ax=ic_sim, ay=pcp_sim,
-        xref="x", yref="y", axref="x", ayref="y",
-        showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=3, arrowcolor="black"
-    )
-    
-    # Añadir nuevo punto fantasma
-    fig_sim.add_trace(go.Scatter(
-        x=[new_ic], y=[new_pcp],
-        mode='markers',
-        marker=dict(size=15, color='purple', symbol='x'),
-        name="Post-Intervención"
-    ))
-    
+    # Gráfico Simulación
+    new_ic, new_pcp = ic_sim + dx, pcp_sim + dy
+    fig_sim = go.Figure(fig)
+    fig_sim.add_annotation(x=new_ic, y=new_pcp, ax=ic_sim, ay=pcp_sim, xref="x", yref="y", axref="x", ayref="y", arrowwidth=3, arrowhead=2)
+    fig_sim.add_trace(go.Scatter(x=[new_ic], y=[new_pcp], mode='markers', marker=dict(size=15, color='purple', symbol='x'), name="Post-Rx"))
     st.plotly_chart(fig_sim, use_container_width=True)
+
+# TAB 3: EGRESO HFrEF
+with tabs[2]:
+    st.header("🏠 Plan de Egreso: HFrEF (FEVI < 40%)")
+    st.subheader("1. Bloqueo Neurohormonal (GDMT - Los 4 Pilares)")
     
-    if msgs:
-        st.success("Efectos Hemodinámicos:")
-        for m in msgs:
-            st.write(f"- {m}")
+    gdmt_data = {
+        "Pilar": ["ARNI / IECA / ARA-II", "Beta-Bloqueador", "ARM (Antag. Mineralocorticoides)", "iSGLT2"],
+        "Fármaco": ["Sacubitrilo/Valsartan (1ra Línea)", "Metoprolol Succ, Carvedilol, Bisoprolol", "Espironolactona, Eplerenona", "Dapagliflozina, Empagliflozina"],
+        "Tip Clínico": ["Suspender IECA 36h antes de ARNI.", "Iniciar con paciente euvolémico (seco).", "Vigilar K+ > 5.0 y Cr.", "No requiere titulación. Beneficio rápido."]
+    }
+    st.table(pd.DataFrame(gdmt_data))
+    
+    st.subheader("2. Adyuvantes Clave")
+    c_a, c_b = st.columns(2)
+    with c_a:
+        st.info("**Corrección de Hierro:** Si Ferritina < 100 o 100-299 con IST < 20% → Hierro Carboximaltosa IV.")
+    with c_b:
+        st.success("**Rehabilitación Cardíaca:** Ordenar al egreso si estable. Vacunación Influenza/Neumococo.")
 
-# --- PIE DE PÁGINA DOCENTE ---
-st.divider()
-st.markdown("### 📚 Referencias y Perlas Clínicas")
-with st.expander("Ver explicaciones detalladas"):
+# TAB 4: FEVI PRESERVADA / LEVE
+with tabs[3]:
+    st.header("⚖️ FEVI Preservada (HFpEF ≥50%) y Levemente Reducida (HFmrEF 41-49%)")
+    st.markdown("El manejo ha cambiado drásticamente con la evidencia reciente (EMPEROR-Preserved, DELIVER).")
+    
+    st.subheader("1. Fármacos con Evidencia Clase I (La base del tratamiento)")
     st.markdown("""
-    1. **Presión de Pulso Proporcional (PPP):** `(PAS - PAD) / PAS`. Si es **< 25%**, predice un Índice Cardíaco < 2.2 L/min/m² con una sensibilidad del 91% (Stevenson et al). Es el mejor predictor clínico de "Frío".
-    2. **Congestión (Húmedo):** La ortopnea y la ingurgitación yugular son los signos más específicos de presiones de llenado elevadas (PCP > 18-22 mmHg).
-    3. **Cuadrante C (Húmedo y Frío):** Es el de peor pronóstico. El tratamiento suele requerir inotrópicos (si hay hipotensión severa/shock) o vasodilatadores (si la presión lo permite) + diuréticos.
-    4. **Vasopresores:** Solo indicados en shock cardiogénico con hipotensión severa (PAS < 90 mmHg) que no responde a volumen/inotrópicos iniciales, para mantener perfusión coronaria.
+    * **iSGLT2 (Dapagliflozina / Empagliflozina):** Únicos fármacos con recomendación **Clase I, Nivel A** para reducir muerte CV y hospitalización en todo el espectro de FEVI.
+    * **Diuréticos:** Recomendación Clase I solo para alivio sintomático de la congestión. No modifican mortalidad.
     """)
+    
+    st.subheader("2. Fármacos Clase IIb (Considerar)")
+    st.markdown("""
+    * **ARNI (Sacubitrilo/Valsartán):** Puede considerarse en el rango bajo de FEVI normal (HFmrEF o HFpEF con FEVI < 60%). (Estudio PARAGON-HF).
+    * **ARM (Espironolactona):** Considerar si K+ normal y TFG > 30. (Estudio TOPCAT - Americas).
+    * **Beta-Bloqueadores:** En HFmrEF se usan similar a HFrEF. En HFpEF **NO** se usan de rutina salvo indicación específica (ej. Fibrilación Auricular, Isquemia).
+    """)
+    
+    st.subheader("3. Fenotipificación (Tratar la Causa)")
+    st.warning("En HFpEF, buscar activamente la etiología específica es obligatorio.")
+    
+    fenotipos = {
+        "Hipertensión": "Control estricto de PA. Fármacos preferidos: ARNI/ARA-II, ARM.",
+        "Fibrilación Auricular": "Control de frecuencia o ritmo. Anticoagulación.",
+        "Obesidad": "Pérdida de peso, Rehabilitación, iSGLT2.",
+        "Amiloidosis Cardíaca (TTR)": "Sospechar en: Edad > 65, Túnel carpiano bilateral, HVI severa con bajo voltaje en EKG. Tto: Tafamidis.",
+        "Isquemia": "Revascularización si hay síntomas anginosos."
+    }
+    for f, t in fenotipos.items():
+        st.write(f"**{f}:** {t}")
 
-
+# --- PIE DE PÁGINA ---
+st.divider()
+st.subheader("📚 Referencias Bibliográficas")
+st.markdown("""
+1. McDonagh TA, et al. **2021 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure**. *Eur Heart J*. 2021.
+2. Heidenreich PA, et al. **2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure**. *Circulation*. 2022.
+3. Solomon SD, et al. **Dapagliflozin in Heart Failure with Mildly Reduced or Preserved Ejection Fraction (DELIVER)**. *N Engl J Med*. 2022.
+4. Anker SD, et al. **Empagliflozin in Heart Failure with a Preserved Ejection Fraction (EMPEROR-Preserved)**. *N Engl J Med*. 2021.
+""")
 
 
