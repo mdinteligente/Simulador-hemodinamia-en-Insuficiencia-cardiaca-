@@ -72,27 +72,27 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Pasto", "Manizales", "Neiva", "Villavicencio", "Armenia", "Montería", "Sincelejo", "Popayán", "Tunja", "Riohacha", "Florencia", "Quibdó"
 ])))
 
-# AUDIOS (Actualizados con AI, IP, EM)
+# Recursos Multimedia
 recursos = {
+    # Ritmos
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
+    # Signos
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
     "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
+    # Rx Tórax
+    "rx_normal": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
+    "rx_congest": "https://upload.wikimedia.org/wikipedia/commons/2/22/Pulmonary_congestion.jpg", 
+    "rx_edema": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pulmonary_edema.jpg", 
     
-    # Ruidos y Soplos
+    # Audios
     "audio_normal_heart": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Heart_normal.ogg",
     "audio_s3": "https://upload.wikimedia.org/wikipedia/commons/7/76/S3_heart_sound.ogg",
     "audio_s4": "https://upload.wikimedia.org/wikipedia/commons/8/87/S4_heart_sound.ogg",
-    
-    # Soplos Sistólicos
     "audio_estenosis_aortica": "https://upload.wikimedia.org/wikipedia/commons/9/99/Aortic_stenosis.ogg",
     "audio_insuf_mitral": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Mitral_regurgitation.ogg",
-    
-    # Soplos Diastólicos (NUEVOS)
-    "audio_insuf_aortica": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", # Diastólico Aspirativo
-    "audio_estenosis_mitral": "https://upload.wikimedia.org/wikipedia/commons/3/30/Diastolic_rumble.ogg", # Retumbo
-    "audio_insuf_pulmonar": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", # Graham Steell suena muy similar a IAo
-    
-    # Pulmones
+    "audio_insuf_aortica": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
+    "audio_estenosis_mitral": "https://upload.wikimedia.org/wikipedia/commons/3/30/Diastolic_rumble.ogg",
+    "audio_insuf_pulmonar": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
     "audio_estertores": "https://upload.wikimedia.org/wikipedia/commons/3/33/Crackles_pneumonia.ogg",
     "audio_sibilancias": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Wheezing_lung_sound.ogg",
     "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
@@ -106,22 +106,28 @@ antecedentes_lista = sorted([
 ])
 
 meds_agudos = {
+    "oxigeno": {
+        "nombre": "Oxígeno / VNI",
+        "dosis": "• O2: Meta SatO2 > 90%.\n• VNI (CPAP/BiPAP): Disminuye precarga y postcarga VI. Útil en edema pulmonar.",
+        "monitor": "• Gases arteriales.\n• Tolerancia.",
+        "adverso": "Intolerancia, Hipotensión (VNI)."
+    },
     "diureticos": {
         "nombre": "Furosemida / Diuréticos de Asa",
         "dosis": "• Naïve: 20-40 mg IV.\n• Crónico: 1-2.5x dosis oral en bolo IV.\n• Resistencia: Infusión 5-40 mg/h + Tiazida.",
-        "monitor": "• Gasto Urinario (>100ml/h).\n• K+, Mg++.\n• Cr (elevación transitoria permitida).",
+        "monitor": "• Gasto Urinario (>100ml/h).\n• K+, Mg++.\n• Cr.",
         "adverso": "Hipokalemia, Ototoxicidad, Hipotensión, Alcalosis."
     },
     "vasodilatadores": {
         "nombre": "Nitroglicerina / Nitroprusiato",
-        "dosis": "• NTG: 10-20 mcg/min, titular hasta 200.\n• NTP: 0.3 mcg/kg/min (Solo UCI).",
-        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2 (shunt).",
-        "adverso": "Hipotensión, Cefalea, Robo coronario, Toxicidad cianuro (NTP)."
+        "dosis": "• NTG: 10-20 mcg/min, titular.\n• NTP: 0.3 mcg/kg/min (Solo UCI).",
+        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2.",
+        "adverso": "Hipotensión, Cefalea, Robo coronario, Toxicidad cianuro."
     },
     "inotropicos": {
-        "nombre": "Dobutamina / Milrinone / Levosimendán",
+        "nombre": "Dobu / Milrinone / Levosimendán",
         "dosis": "• Dobu: 2-20 mcg/kg/min.\n• Milrinone: 0.375-0.75 mcg/kg/min.\n• Levo: 0.1 mcg/kg/min.",
-        "monitor": "• Arritmias ventriculares.\n• Isquemia.\n• PA (Hipotensión con Milrinone).",
+        "monitor": "• Arritmias.\n• Isquemia.\n• PA (Hipotensión con Milri).",
         "adverso": "Taquicardia, FA, Hipotensión, Hipokalemia."
     },
     "vasopresores": {
@@ -143,7 +149,7 @@ def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
         if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación axila)."
         elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido)."
     elif foco == "Pulmonar" and ciclo == "Diastólico":
-         dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell si hay HTP)."
+         dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell)."
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
         dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
     return dx
@@ -172,11 +178,9 @@ with st.sidebar:
     st.subheader("3. Síntomas")
     sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina", "Edema"])
     if "Ortopnea" in sintomas: st.caption("*Ortopnea: S 73-88% / E 20-50%*")
-    if "Bendopnea" in sintomas: st.caption("*Bendopnea: Índice de congestión elevada.*")
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
-    # LISTA DE RITMOS ACTUALIZADA
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos", "Otro"])
     with st.expander("Ver Ritmos"): st.image(recursos["ritmos"])
 
@@ -185,18 +189,15 @@ with st.sidebar:
     pad = c_v2.number_input("PAD", 70)
     fc = c_v1.number_input("FC", 85)
     fr = c_v2.number_input("FR", 22)
-    sato2 = c_v1.number_input("SatO2", 92)
+    sato2 = c_v1.number_input("SatO2 (%)", 92)
     temp_c = c_v2.number_input("T (°C)", 36.5, step=0.1)
-
+    
     # 5. Examen Físico
     st.subheader("5. Examen Físico")
     
     st.markdown("🔴 **Cabeza y Cuello**")
     iy = st.selectbox("IY", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
-    if iy != "Ausente": st.caption("*IY Elevada: Sens 48-70% | Espec 78-79% para PCP elevada.*")
-    
     rhy = st.checkbox("Reflujo Hepato-yugular")
-    if rhy: st.caption("*Reflujo HY: Sens 24% | Espec 96% (Alta especificidad)*")
 
     st.markdown("🔴 **Cardiovascular**")
     opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
@@ -204,33 +205,22 @@ with st.sidebar:
         opciones_ruidos.extend(["S4 (Galope Atrial)", "S3 + S4 (Suma)"])
     
     ruidos_agregados = st.selectbox("Ruidos:", opciones_ruidos)
-    if "S3" in ruidos_agregados: st.caption("*S3: Sens 13-52% | Espec 85-90% (Muy específico de falla aguda)*")
-    
     with st.expander("🎧 Escuchar Ruidos", expanded=True):
-        if "Normales" in ruidos_agregados:
-            st.audio(recursos["audio_normal_heart"])
-        elif "S3" in ruidos_agregados:
-            st.audio(recursos["audio_s3"])
-        elif "S4" in ruidos_agregados:
-            st.audio(recursos["audio_s4"])
+        if "Normales" in ruidos_agregados: st.audio(recursos["audio_normal_heart"])
+        elif "S3" in ruidos_agregados: st.audio(recursos["audio_s3"])
+        elif "S4" in ruidos_agregados: st.audio(recursos["audio_s4"])
 
-    # SOPLOS Y AUDIOS DIATÓLICOS
+    # Soplos
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
     if tiene_soplo:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
         ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click", "Retumbo"])
-        
         with st.expander("🎧 Escuchar Ejemplo"):
-            if "Aórtico" in foco:
-                if ciclo == "Sistólico": st.audio(recursos["audio_estenosis_aortica"])
-                else: st.audio(recursos["audio_insuf_aortica"])
-            elif "Mitral" in foco:
-                if ciclo == "Sistólico": st.audio(recursos["audio_insuf_mitral"])
-                else: st.audio(recursos["audio_estenosis_mitral"])
-            elif "Pulmonar" in foco and ciclo == "Diastólico":
-                st.audio(recursos["audio_insuf_pulmonar"])
+            if "Aórtico" in foco and ciclo == "Diastólico": st.audio(recursos["audio_insuf_aortica"])
+            elif "Mitral" in foco and ciclo == "Diastólico": st.audio(recursos["audio_estenosis_mitral"])
+            elif "Aórtico" in foco: st.audio(recursos["audio_estenosis_aortica"])
 
     st.markdown("🔴 **Pulmonar**")
     pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
@@ -242,44 +232,76 @@ with st.sidebar:
     st.markdown("🔴 **Abdomen/Extremidades**")
     ascitis = st.checkbox("Ascitis")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    if edema_ex != "Ausente": st.caption("*Edema: Sens 46-83% | Espec 40-50% (Baja especificidad)*")
-    
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
-    if frialdad != "Caliente": st.caption("*Frialdad: Espec 85% para Índice Cardíaco < 2.2*")
-    
     llenado = st.number_input("Llenado (seg)", 2)
-    
-    st.markdown("🔴 **Neuro**")
-    neuro = st.selectbox("Estado", ["Alerta", "Somnoliento", "Estuporoso"])
+    neuro = st.selectbox("Neuro", ["Alerta", "Somnoliento", "Estuporoso"])
 
-# --- 6. CÁLCULOS ---
+    # 6. AYUDAS DIAGNÓSTICAS (OPCIONALES)
+    st.markdown("---")
+    st.subheader("6. Paraclínicos (Opcional)")
+    tiene_paraclinicos = st.checkbox("¿Dispone de Ayudas Diagnósticas?", value=False)
+    
+    lactato = 1.0
+    rx_patron = "Normal"
+    tipo_peptido = "BNP"
+    valor_peptido = 0
+    
+    if tiene_paraclinicos:
+        st.caption("Ingrese los valores disponibles:")
+        lactato = st.number_input("Lactato (mmol/L)", 0.0, 20.0, 1.0, 0.1)
+        
+        st.markdown("**Radiografía de Tórax**")
+        rx_patron = st.selectbox("Patrón Rx", ["Normal", "Congestión Leve/Basal", "Edema Alveolar (4 Cuadrantes)"])
+        with st.expander("Ver Rx Referencia"):
+            if rx_patron == "Normal": st.image(recursos["rx_normal"])
+            elif rx_patron == "Congestión Leve/Basal": st.image(recursos["rx_congest"])
+            else: st.image(recursos["rx_edema"])
+        
+        st.markdown("**Péptidos Natriuréticos**")
+        c_p1, c_p2 = st.columns(2)
+        tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
+        valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 30000, 0)
+
+
+# --- 6. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
 
 # Score Congestión (Eje X)
 score_congest = 0
+# Clínica
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
 if "Grado II" in iy or "Grado III" in iy: score_congest += 4
 if rhy: score_congest += 2
 if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
-if ascitis: score_congest += 2
 if "S3" in ruidos_agregados: score_congest += 4
+# Paraclínicos (Si habilitados)
+if tiene_paraclinicos:
+    if rx_patron == "Congestión Leve/Basal": score_congest += 2
+    if rx_patron == "Edema Alveolar (4 Cuadrantes)": score_congest += 5
+    # Péptidos (Umbrales de Alta Probabilidad de Congestión)
+    if tipo_peptido == "BNP" and valor_peptido > 400: score_congest += 3
+    if tipo_peptido == "NT-proBNP" and valor_peptido > 1000: score_congest += 3
 
 pcp_sim = 12 + score_congest
 if pcp_sim > 38: pcp_sim = 38 
 
 # Score Perfusión (Eje Y)
 score_perf = 2.8
+# Clínica
 if ppp < 25: score_perf -= 0.6
 if frialdad != "Caliente": score_perf -= 0.6
 if llenado > 3: score_perf -= 0.4
 if pulsos == "Filiformes": score_perf -= 0.5
 if pas < 90: score_perf -= 0.5
 if neuro != "Alerta": score_perf -= 0.5
+# Paraclínicos
+if tiene_paraclinicos:
+    if lactato > 2.0: score_perf -= 0.8 # Hiperlactatemia
 
 ic_sim = max(1.0, score_perf) 
 
@@ -303,27 +325,25 @@ with st.expander("📋 **Resumen de Datos**", expanded=True):
     with r2:
         st.markdown(f"**SV:** PA {pas}/{pad}, FC {fc}, Sat {sato2}%")
         if sato2 < 90: st.error("🚨 Hipoxemia")
+        if tiene_paraclinicos and lactato > 2.0: st.error(f"⚠️ Lactato Elevado: {lactato}")
     with r3:
         st.markdown(f"**Examen:** {ruidos_agregados}, {pulmones}")
+        if tiene_paraclinicos: st.markdown(f"**Ayudas:** Rx {rx_patron}, {tipo_peptido}: {valor_peptido}")
         st.markdown(f"**Perfusión:** {frialdad}, Llenado {llenado}s")
 
 # ALERTAS CLÍNICAS
 if sato2 < 90:
     st.error(f"🚨 **HIPOXEMIA ({sato2}%):** Administrar O2 suplementario. Meta >90%. Considerar gases arteriales.")
 
-# TABLERO HEMODINÁMICO EXPLICADO
+# TABLERO HEMODINÁMICO
 st.markdown("### 📊 Hemodinamia Bedside (Cabecera del Paciente)")
 c_m1, c_m2, c_m3, c_m4 = st.columns(4)
-
 c_m1.metric("PAM", f"{pam:.0f} mmHg")
-c_m1.caption("Presión de perfusión tisular. Meta >65 mmHg.")
-
+c_m1.caption("Presión de perfusión.")
 c_m2.metric("P. Pulso", f"{pp} mmHg")
-c_m2.caption("PAS - PAD. <25 mmHg sugiere bajo volumen latido.")
-
+c_m2.caption("Rigidez/Volumen Latido.")
 c_m3.metric("PPP", f"{ppp:.1f}%", delta="Bajo" if ppp<25 else "OK", delta_color="inverse")
-c_m3.caption("**(PAS-PAD)/PAS**. Si es <25%, predice IC < 2.2 L/min (Sens 91%).")
-
+c_m3.caption("Predice IC < 2.2 si <25%.")
 c_m4.metric("Perfil", cuadrante)
 if tiene_soplo: st.info(f"🩺 **Soplo:** {inferir_valvulopatia(foco, ciclo, patron, True)}")
 
@@ -359,16 +379,20 @@ with tabs[0]:
 # 2. SIMULACIÓN
 with tabs[1]:
     st.markdown("### 🧪 Farmacología Aguda")
-    cx1, cx2, cx3, cx4 = st.columns(4)
+    cx1, cx2, cx3, cx4, cx5 = st.columns(5)
     dx, dy = 0, 0
     sel_med = None
+    
     with cx1:
-        if st.checkbox("Furosemida"): dx-=8; dy+=0.1; sel_med="diureticos"
+        if st.checkbox("Oxígeno / VNI"): 
+            dx+=0.1; dy-=2; sel_med="oxigeno"
     with cx2:
-        if st.checkbox("Vasodilatador"): dx-=6; dy+=0.5; sel_med="vasodilatadores"
+        if st.checkbox("Furosemida"): dx-=8; dy+=0.1; sel_med="diureticos"
     with cx3:
-        if st.checkbox("Inotrópico"): dy+=1.2; dx-=2; sel_med="inotropicos"
+        if st.checkbox("Vasodilatador"): dx-=6; dy+=0.5; sel_med="vasodilatadores"
     with cx4:
+        if st.checkbox("Inotrópico"): dy+=1.2; dx-=2; sel_med="inotropicos"
+    with cx5:
         if st.checkbox("Vasopresor"): dy+=0.2; dx+=4; sel_med="vasopresores"
 
     if sel_med:
@@ -407,64 +431,35 @@ with tabs[2]:
         st.warning("🛡️ **Vacunación:** Influenza + Neumococo.")
         st.error("📉 **Seguimiento:** Cita < 7 días.")
 
-# 4. FEVI PRESERVADA (NUEVA PESTAÑA DETALLADA)
+# 4. FEVI PRESERVADA
 with tabs[3]:
     st.header("⚖️ Insuficiencia Cardíaca con FEVI Preservada (HFpEF)")
     st.markdown("FEVI ≥ 50%. El manejo se basa en fenotipos y uso de iSGLT2.")
-    
     col_hf1, col_hf2 = st.columns(2)
-    
     with col_hf1:
         st.success("✅ **Pilar Clase I-A**")
-        st.markdown("""
-        **iSGLT2 (Dapagliflozina / Empagliflozina):**
-        * Única terapia que reduce eventos duros de forma consistente en todo el rango de FEVI.
-        * Dosis: 10 mg/día.
-        """)
-        
-        st.info("💧 **Manejo de Congestión**")
-        st.markdown("Diuréticos de asa a la dosis mínima necesaria para mantener euvolemia.")
-
+        st.markdown("**iSGLT2 (Dapagliflozina / Empagliflozina):** Única terapia que reduce eventos duros de forma consistente.")
     with col_hf2:
-        st.warning("🔎 **Manejo por Fenotipos (Comorbilidades)**")
-        st.markdown("""
-        * **Fibrilación Auricular:** Control de ritmo/frecuencia + Anticoagulación.
-        * **Hipertensión:** Preferir ARNI (Sacubitrilo/Valsartán) o Espironolactona (MRA).
-        * **Obesidad:** Pérdida de peso, rehabilitación.
-        * **Amiloidosis TTR:** Sospechar si hay HVI concéntrica + Bajo voltaje. Tto: Tafamidis.
-        """)
+        st.warning("🔎 **Manejo por Fenotipos**")
+        st.markdown("* **HTA:** ARNI/Espironolactona.\n* **FA:** Control ritmo/frecuencia.\n* **Amiloidosis TTR:** Tafamidis.")
 
-# 5. REFERENCIAS Y BIBLIOGRAFÍA
+# 5. REFERENCIAS
 with tabs[4]:
     st.header("📚 Referencias Bibliográficas")
-    
     st.subheader("📖 Texto Guía: Braunwald's Heart Disease (Edición 2026)")
     st.markdown("""
-    Los algoritmos de esta aplicación están fundamentados en los siguientes capítulos cargados a la base de conocimiento:
-    
-    1. **Januzzi JL, Mann DL.** *Clinical Assessment of Heart Failure* (Capítulo 56). En: Braunwald’s Heart Disease: A Textbook of Cardiovascular Medicine.
-    2. **Felker GM, Teerlink JR.** *Diagnosis and Management of Decompensated Heart Failure* (Capítulo 57). En: Braunwald’s Heart Disease: A Textbook of Cardiovascular Medicine.
-    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**. En: Braunwald’s Heart Disease: A Textbook of Cardiovascular Medicine.
+    1. **Januzzi JL, Mann DL.** *Clinical Assessment of Heart Failure* (Capítulo 56).
+    2. **Felker GM, Teerlink JR.** *Diagnosis and Management of Decompensated Heart Failure* (Capítulo 57).
+    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
     """)
-    
     st.divider()
-    
-    st.subheader("🌍 Guías de Práctica Clínica Internacionales")
+    st.subheader("🌍 Guías Internacionales")
     st.markdown("""
-    4. **McDonagh TA, et al.** 2021 ESC Guidelines for the diagnosis and treatment of acute and chronic heart failure. *Eur Heart J*. 2021.
-    5. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure. *Circulation*. 2022.
+    4. **McDonagh TA, et al.** 2021 ESC Guidelines.
+    5. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline.
+    6. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
     """)
 
-    st.divider()
-
-    st.subheader("🧪 Estudios Pivocales (Evidencia Farmacológica)")
-    st.markdown("""
-    6. **DAPA-HF & DELIVER (Dapagliflozina):** Solomon SD, et al. *N Engl J Med*. 2022. (Evidencia en todo el espectro de FEVI).
-    7. **EMPEROR-Reduced & Preserved (Empagliflozina):** Anker SD, et al. *N Engl J Med*. 2021.
-    8. **PARADIGM-HF (Sacubitrilo/Valsartán):** McMurray JJV, et al. *N Engl J Med*. 2014.
-    9. **AFFIRM-AHF (Hierro IV):** Ponikowski P, et al. *Lancet*. 2020. (Manejo de ferropenia al egreso).
-    """)
-    
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
 
