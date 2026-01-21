@@ -102,36 +102,37 @@ antecedentes_lista = sorted([
     "Hipertensión arterial", "Insuficiencia cardiaca previa", "Lupus eritematoso sistémico", "Obesidad", "Tabaquismo", "VIH"
 ])
 
+# --- FARMACOLOGÍA AGUDA DETALLADA ---
 meds_agudos = {
     "oxigeno": {
         "nombre": "Oxígeno / VNI",
-        "dosis": "• O2: Meta SatO2 > 90%.\n• VNI: CPAP/BiPAP si hay edema pulmonar o distress.",
-        "monitor": "• Gases arteriales.\n• SatO2.",
-        "adverso": "Intolerancia, Hipotensión (VNI)."
+        "dosis": "• **O2 Suplementario:** Iniciar si SatO2 < 90% o PaO2 < 60 mmHg. Meta > 95%.\n• **VNI (CPAP/BiPAP):** Considerar tempranamente si FR > 25 rpm, Acidosis (pH < 7.35) o Edema Pulmonar franco.",
+        "monitor": "• Gases arteriales (1h post-inicio).\n• Tolerancia a la interfaz.\n• Riesgo de hipotensión (VNI reduce precarga).",
+        "adverso": "Intolerancia, Bronoaspiración (si alteración conciencia), Resequedad de mucosas."
     },
     "diureticos": {
-        "nombre": "Furosemida / Diuréticos de Asa",
-        "dosis": "• Naïve: 20-40 mg IV.\n• Crónico: 1-2.5x dosis oral en bolo IV.\n• Resistencia: Infusión 5-40 mg/h + Tiazida.",
-        "monitor": "• GU >100ml/h.\n• K+, Mg++.\n• Cr.",
-        "adverso": "Hipokalemia, Ototoxicidad, Falla renal."
+        "nombre": "Diuréticos de Asa (Furosemida)",
+        "dosis": "• **Naïve (Vírgen de tto):** 20-40 mg IV bolo.\n• **Uso crónico:** 1 a 2.5 veces la dosis oral total diaria en bolo IV.\n• **Infusión Continua:** Si hay resistencia a bolos, iniciar 5-40 mg/h.\n• **Bloqueo Secuencial:** Adicionar Tiazida (HCTZ 25mg o Metolazona) si no hay respuesta.",
+        "monitor": "• Gasto Urinario horario (Meta > 100-150 ml/h).\n• Electrolitos (K+, Mg++) cada 6-12h.\n• Función renal (BUN/Cr) diaria.",
+        "adverso": "Hipokalemia, Hipomagnesemia, Ototoxicidad (infusiones rápidas), Alcalosis metabólica."
     },
     "vasodilatadores": {
-        "nombre": "Nitroglicerina / Nitroprusiato",
-        "dosis": "• NTG: 10-20 mcg/min, titular.\n• NTP: 0.3 mcg/kg/min.",
-        "monitor": "• PA (PAS > 90).\n• Cefalea.\n• SatO2.",
-        "adverso": "Hipotensión, Cefalea, Robo coronario."
+        "nombre": "Vasodilatadores IV",
+        "dosis": "• **Nitroglicerina:** Iniciar 10-20 mcg/min. Titular ↑ 5-10 mcg/min cada 3-5 min. Dosis máx usual 200 mcg/min.\n• **Nitroprusiato:** Iniciar 0.3 mcg/kg/min. Titular hasta 5 mcg/kg/min (Requiere línea arterial obligatoria).",
+        "monitor": "• Presión Arterial continua (Evitar PAS < 90 mmHg).\n• Cefalea intensa.\n• Saturación O2 (puede caer por alteración V/Q).",
+        "adverso": "Hipotensión severa, Taquicardia refleja, Robo coronario. Nitroprusiato: Toxicidad por cianuro/tiocianato."
     },
     "inotropicos": {
-        "nombre": "Dobu / Milrinone / Levosimendán",
-        "dosis": "• Dobu: 2-20 mcg/kg/min.\n• Milri: 0.375-0.75.\n• Levo: 0.1.",
-        "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
-        "adverso": "Taquicardia, FA, Hipotensión."
+        "nombre": "Inotrópicos",
+        "dosis": "• **Dobutamina:** 2-20 mcg/kg/min (Beta-1 agonista).\n• **Milrinone:** 0.375-0.75 mcg/kg/min (Inodilatador, ajustar en falla renal). No bolo rutinario.\n• **Levosimendán:** 0.1 mcg/kg/min (0.05-0.2) por 24h. No bolo rutinario.",
+        "monitor": "• Monitoría EKG continua (Arritmias ventriculares).\n• Isquemia miocárdica (Dobu).\n• Presión Arterial (Milrinone/Levo causan hipotensión).",
+        "adverso": "Taquicardia sinusal, Fibrilación auricular, Hipotensión sostenida (Milrinone), Hipokalemia."
     },
     "vasopresores": {
-        "nombre": "Norepinefrina",
-        "dosis": "0.05 - 0.5 mcg/kg/min. Meta PAM > 65.",
-        "monitor": "• Perfusión distal.\n• Línea arterial.",
-        "adverso": "Isquemia distal, Arritmias, HTA."
+        "nombre": "Vasopresores (Norepinefrina)",
+        "dosis": "• **Norepinefrina:** 0.05 - 0.5 mcg/kg/min. Titular para PAM > 65 mmHg.\n• **Dopamina:** Ya no es primera línea (salvo bradicardia sintomática).",
+        "monitor": "• Perfusión distal y esplácnica (Lactato).\n• Acceso venoso central preferido.\n• Línea arterial obligatoria.",
+        "adverso": "Isquemia tisular (necrosis distal), Arritmias, Aumento postcarga VI."
     }
 }
 
@@ -274,9 +275,9 @@ with st.sidebar:
         
         # Mostrar umbrales de referencia (Mueller 2019)
         if tipo_peptido == "NT-proBNP":
-            st.caption(f"**Umbral Rule-in Agudo (HFA/ESC):**\n<50a: >450 | 50-75a: >900 | >75a: >1800 pg/mL")
+            st.caption(f"**Umbral Rule-in Agudo (HFA/ESC 2019):**\n<50a: >450 | 50-75a: >900 | >75a: >1800 pg/mL")
         else:
-            st.caption("**Umbral Rule-in Agudo:** >400 pg/mL")
+            st.caption("**Umbral Rule-in Agudo (BNP):** >400 pg/mL")
 
 # --- 6. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
@@ -433,11 +434,15 @@ with tabs[1]:
 # 3. EGRESO
 with tabs[2]:
     st.header("🏠 Egreso en FEVI Reducida (HFrEF)")
+    st.markdown("Esquema de Titulación GDMT (Guías 2021/2022).")
     gdmt = [
-        {"Pilar": "BB", "Fármaco": "Metoprolol Succ.", "Dosis Inicio": "12.5-25 mg/d", "Meta": "200 mg/d"},
+        {"Pilar": "BB", "Fármaco": "Succinato de Metoprolol", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "200 mg c/24h"},
+        {"Pilar": "BB", "Fármaco": "Carvedilol", "Dosis Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h (>85kg: 50mg)"},
+        {"Pilar": "BB", "Fármaco": "Bisoprolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h"},
+        {"Pilar": "BB", "Fármaco": "Nebivolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h (Seniors/HFpEF)"},
         {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Dosis Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h"},
-        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Dosis Inicio": "12.5-25 mg/d", "Meta": "50 mg/d"},
-        {"Pilar": "iSGLT2", "Fármaco": "Dapagliflozina", "Dosis Inicio": "10 mg/d", "Meta": "10 mg/d"},
+        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "50 mg c/24h"},
+        {"Pilar": "iSGLT2", "Fármaco": "Dapagliflozina / Empa", "Dosis Inicio": "10 mg c/24h", "Meta": "10 mg c/24h"},
     ]
     st.dataframe(pd.DataFrame(gdmt), use_container_width=True)
     c_ad1, c_ad2 = st.columns(2)
@@ -476,8 +481,9 @@ with tabs[4]:
     5. **McDonagh TA, et al.** 2021 ESC Guidelines.
     6. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline.
     7. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
+    8. **Anker SD, et al.** EMPEROR-Preserved. *N Engl J Med*. 2021.
+    9. **Solomon SD, et al.** DELIVER. *N Engl J Med*. 2022.
     """)
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
-
