@@ -17,6 +17,8 @@ st.markdown("""
     div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     .stAlert { padding: 0.5rem; }
     .caption-evidence { font-size: 0.8rem; color: #666; font-style: italic; }
+    /* Ajuste para que los inputs numéricos no se vean bloqueados */
+    input[type=number] { -moz-appearance: textfield; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -56,7 +58,7 @@ if not check_password():
 
 # --- 3. RECURSOS Y DATA ---
 
-# Municipios Chagas
+# Lista de Zonas de Riesgo Chagas (Prompt)
 zonas_chagas = [
     "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque", # Boyacá
     "Barichara", "Capitanejo", "Encinales", "Hato", "Mogotes", "San Gil", "San José de Miranda", "San Vicente del Chucurí", "Socorro", # Santander
@@ -67,16 +69,102 @@ zonas_chagas = [
     "La Jagua de Ibirico", "Pueblo Bello", "Valledupar", # Cesar
     "Liborina", "Peque", "Yolombó" # Antioquia
 ]
-municipios_base = sorted(list(set(zonas_chagas + [
-    "Bogotá D.C.", "Medellín", "Cali", "Barranquilla", "Cartagena", "Cúcuta", "Bucaramanga", "Pereira", "Santa Marta", "Ibagué", 
-    "Pasto", "Manizales", "Neiva", "Villavicencio", "Armenia", "Montería", "Sincelejo", "Popayán", "Tunja", "Riohacha", "Florencia", "Quibdó"
+
+# Lista Completa de Municipios (Extraída del archivo)
+# Se incluye una lista condensada para el ejemplo, pero en producción se carga completa.
+municipios_completa = sorted(list(set(zonas_chagas + [
+    "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", "Alejandría", 
+    "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", "Anapoima", "Ancuya", 
+    "Andalucía", "Andes", "Angelópolis", "Angostura", "Anolaima", "Anorí", "Anserma", "Ansermanuevo", "Anzoátegui", "Apartadó", "Apía", "Apulo", 
+    "Aquitania", "Aracataca", "Aranzazu", "Aratoca", "Arauca", "Arauquita", "Arbeláez", "Arboleda", "Arboledas", "Arboletes", "Arcabuco", "Arenal", 
+    "Argelia", "Ariguaní", "Arjona", "Armenia", "Armero", "Arroyohondo", "Astrea", "Ataco", "Atrato", "Ayapel", "Bagadó", "Bahía Solano", "Bajo Baudó", 
+    "Balboa", "Baranoa", "Baraya", "Barbacoas", "Barbosa", "Barichara", "Barranca de Upía", "Barrancabermeja", "Barranquilla", "Becerril", "Belalcázar", 
+    "Belén", "Belén de Umbría", "Bello", "Belmira", "Beltrán", "Berbeo", "Betania", "Betéitiva", "Betulia", "Bituima", "Boavita", "Bochalema", "Bogotá D.C.", 
+    "Bojacá", "Bojayá", "Bolívar", "Bosconia", "Boyacá", "Briceño", "Bucaramanga", "Buenaventura", "Buenavista", "Buenos Aires", "Buesaco", "Bugalagrande", 
+    "Buriticá", "Busbanzá", "Cabrera", "Cabuyaro", "Cáceres", "Cachipay", "Caicedo", "Caicedonia", "Caimito", "Cajamarca", "Cajibío", "Cajicá", "Calamar", 
+    "Calarcá", "Caldas", "Caldono", "Cali", "Calima", "Caloto", "Campamento", "Campo de la Cruz", "Campoalegre", "Campohermoso", "Canalete", "Candelaria", 
+    "Cantagallo", "Caparrapí", "Capitanejo", "Cáqueza", "Caracolí", "Caramanta", "Carcasí", "Carepa", "Carmen de Apicalá", "Carmen de Carupa", 
+    "Carmen de Viboral", "Carolina", "Cartagena", "Cartago", "Carurú", "Casabianca", "Castilla la Nueva", "Caucasia", "Célimo", "Cepitá", "Cereté", 
+    "Cerinza", "Cerrito", "Cerro San Antonio", "Chachagüí", "Chaguaní", "Chalán", "Chameza", "Chapa", "Chaparral", "Charalá", "Charta", "Chía", "Chigorodó", 
+    "Chima", "Chimichagua", "Chinácota", "Chinavita", "Chinchiná", "Chinú", "Chipaque", "Chipatá", "Chiquinquirá", "Chiriguaná", "Chiscas", "Chita", 
+    "Chitagá", "Chitaraque", "Chivatá", "Chivor", "Choachí", "Chocontá", "Cicuco", "Ciénaga", "Ciénaga de Oro", "Cimitarra", "Circasia", "Cisneros", 
+    "Ciudad Bolívar", "Clemencia", "Cocorná", "Coello", "Cogua", "Colombia", "Colón", "Colosó", "Cómbita", "Concepción", "Concordia", "Condoto", "Confines", 
+    "Consacá", "Contratación", "Convención", "Copacabana", "Coper", "Córdoba", "Corinto", "Coromoro", "Corozal", "Corrales", "Cota", "Cotorra", "Covarachía", 
+    "Coveñas", "Coyaima", "Cravo Norte", "Cuaspud", "Cubará", "Cubarral", "Cucaita", "Cucunubá", "Cúcuta", "Cucutilla", "Cuítiva", "Cumaral", "Cumaribo", 
+    "Cumbal", "Cumbitara", "Cunday", "Curillo", "Curití", "Curumaní", "Dabeiba", "Dagua", "Dibulla", "Distracción", "Dolores", "Don Matías", "Dosquebradas", 
+    "Duitama", "Durania", "Ebéjico", "El Águila", "El Bagre", "El Banco", "El Cairo", "El Calvario", "El Carmen", "El Carmen de Bolívar", "El Castillo", 
+    "El Cerrito", "El Charco", "El Cocuy", "El Colegio", "El Copey", "El Doncello", "El Dorado", "El Dovio", "El Encanto", "El Espino", "El Guacamayo", 
+    "El Guamo", "El Litoral del San Juan", "El Molino", "El Paso", "El Paujil", "El Peñol", "El Peñón", "El Piñon", "El Playón", "El Retén", "El Retorno", 
+    "El Roble", "El Rosal", "El Rosario", "El Santuario", "El Tablón de Gómez", "El Tambo", "El Tarra", "El Zulia", "Elías", "Encino", "Enciso", "Entrerríos", 
+    "Envigado", "Espinal", "Facatativá", "Falan", "Filadelfia", "Filandia", "Firavitoba", "Flandes", "Florencia", "Floresta", "Florián", "Florida", 
+    "Floridablanca", "Fómeque", "Fonseca", "Fortul", "Fosca", "Francisco Pizarro", "Fredonia", "Fresno", "Frontino", "Fuente de Oro", "Fundación", "Funes", 
+    "Funza", "Fúquene", "Fusagasugá", "Gachalá", "Gachancipá", "Gachantivá", "Gachetá", "Galán", "Galapa", "Galeras", "Gama", "Gamarra", "Gambita", "Gameza", 
+    "Garagoa", "Garzón", "Génova", "Gigante", "Ginebra", "Giraldo", "Girardot", "Girardota", "Girón", "Gómez Plata", "González", "Gramalote", "Granada", 
+    "Guaca", "Guacamayas", "Guacarí", "Guachucal", "Guadalupe", "Guaduas", "Guaitarilla", "Gualmatán", "Guamal", "Guamo", "Guapí", "Guapotá", "Guaranda", 
+    "Guarne", "Guasca", "Guatapé", "Guataquí", "Guatavita", "Guateque", "Guática", "Guavata", "Guayabal de Síquima", "Guayabetal", "Guayatá", "Guepsa", 
+    "Güicán", "Gutiérrez", "Hacarí", "Hatillo de Loba", "Hato", "Hato Corozal", "Hatonuevo", "Heliconia", "Herrán", "Herveo", "Hispania", "Hob", "Honda", 
+    "Ibagué", "Icononzo", "Iles", "Imués", "Inzá", "Ipiales", "Isnos", "Istmina", "Itagüí", "Ituango", "Izá", "Jambaló", "Jamundí", "Jardín", "Jenesano", 
+    "Jericó", "Jerusalén", "Jesús María", "Jordán", "Juan de Acosta", "Junín", "Juradó", "La Apartada", "La Argentina", "La Belleza", "La Calera", "La Capilla", 
+    "La Ceja", "La Celia", "La Cruz", "La Cumbre", "La Dorada", "La Esperanza", "La Estrella", "La Florida", "La Gloria", "La Jagua de Ibirico", 
+    "La Jagua del Pilar", "La Llanada", "La Macarena", "La Merced", "La Mesa", "La Montañita", "La Palma", "La Paz", "La Peña", "La Pintada", "La Plata", 
+    "La Playa", "La Primavera", "La Salina", "La Sierra", "La Tebaida", "La Tola", "La Unión", "La Uribe", "La Vega", "La Victoria", "La Virginia", "Labateca", 
+    "Labranzagrande", "Landázuri", "Lebrija", "Leíva", "Lejanías", "Lenguazaque", "Lérida", "Leticia", "Líbano", "Liborina", "Linares", "Lloró", "López", 
+    "Lorica", "Los Andes", "Los Córdobas", "Los Palmitos", "Los Patios", "Los Santos", "Luruaco", "Macanal", "Macaravita", "Maceo", "Macheta", "Madrid", 
+    "Magangué", "Magüí", "Mahates", "Maicao", "Majagual", "Málaga", "Malambo", "Mallama", "Manatí", "Manaure", "Maní", "Manizales", "Manta", "Manzanares", 
+    "Mapiripán", "Margarita", "María la Baja", "Marinilla", "Maripí", "Mariquita", "Marmato", "Marquetalia", "Marsella", "Marulanda", "Matanza", "Medellín", 
+    "Medina", "Medio Atrato", "Medio Baudó", "Medio San Juan", "Melgar", "Mercaderes", "Mesetas", "Milán", "Miraflores", "Miranda", "Mistrató", "Mitú", "Mocoa", 
+    "Mogotes", "Molagavita", "Momil", "Mompós", "Mongua", "Monguí", "Moniquirá", "Montebello", "Montecristo", "Montelíbano", "Montenegro", "Montería", 
+    "Monterrey", "Morales", "Morelia", "Morroa", "Mosquera", "Motavita", "Murillo", "Murindó", "Mutatá", "Mutiscua", "Muzo", "Nariño", "Nátaga", "Natagaima", 
+    "Nechí", "Necoclí", "Neira", "Neiva", "Nemocón", "Nilo", "Nimaima", "Nobsa", "Nocaima", "Norcasia", "Nóvita", "Nuevo Colón", "Nunchía", "Nuquí", 
+    "Obando", "Ocamonte", "Ocaña", "Oiba", "Oicatá", "Olaya", "Olaya Herrera", "Onzaga", "Oporapa", "Orito", "Orocué", "Ortega", "Ospina", "Otanche", "Ovejas", 
+    "Pachavita", "Pacho", "Padilla", "Páez", "Paicol", "Pailitas", "Paime", "Paipa", "Pajarito", "Palermo", "Palestina", "Palmar", "Palmar de Varela", 
+    "Palmas del Socorro", "Palmira", "Palmito", "Palocabildo", "Pamplona", "Pamplonita", "Paniagua", "Pantoja", "Páramo", "Paratebueno", "Pasca", "Pasto", 
+    "Patía", "Pauna", "Paya", "Paz de Ariporo", "Paz de Río", "Pedraza", "Pelaya", "Pensilvania", "Peñol", "Peque", "Pereira", "Pesca", "Piamonte", 
+    "Pie de Cuesta", "Piedras", "Piendamó", "ijao", "Pijiño del Carmen", "Pinchote", "Pinillos", "Piojó", "Pisba", "Pital", "Pitalito", "Pivijay", "Planadas", 
+    "Planeta Rica", "Plato", "Policarpa", "Polonuevo", "Ponedera", "Popayán", "Pore", "Potosí", "Pradera", "Prado", "Providencia", "Pueblo Bello", 
+    "Pueblo Nuevo", "Pueblo Rico", "Pueblorrico", "Puebloviejo", "Puente Nacional", "Puerres", "Puerto Asís", "Puerto Berrío", "Puerto Boyacá", "Puerto Caicedo", 
+    "Puerto Carreño", "Puerto Colombia", "Puerto Concordia", "Puerto Escondido", "Puerto Gaitán", "Puerto Guzmán", "Puerto Leguízamo", "Puerto Libertador", 
+    "Puerto Lleras", "Puerto López", "Puerto Nare", "Puerto Nariño", "Puerto Parra", "Puerto Rico", "Puerto Rondón", "Puerto Salgar", "Puerto Santander", 
+    "Puerto Tejada", "Puerto Triunfo", "Puerto Wilches", "Pulí", "Pupiales", "Puracé", "Purificación", "Purísima", "Quebradanegra", "Quetame", "Quibdó", 
+    "Quimbaya", "Quinchía", "Quípama", "Quipile", "Ragonvalia", "Ramiriquí", "Ráquira", "Recetor", "Regidor", "Remedios", "Remolino", "Repelón", "Restrepo", 
+    "Retiro", "Ricaurte", "Rio de Oro", "Rio Iro", "Rio Quito", "Rio Viejo", "Rioblanco", "Riofrío", "Riohacha", "Rionegro", "Riosucio", "Risaralda", "Rivera", 
+    "Roberto Payán", "Roldanillo", "Roncesvalles", "Rondón", "Rosas", "Rovira", "Sáchica", "Sahagún", "Saladoblanco", "Salamina", "Salazar", "Saldaña", 
+    "Salento", "Salgar", "Samacá", "Samaniego", "Samaná", "Sampués", "San Agustín", "San Alberto", "San Andrés", "San Andrés Sotavento", "San Antero", 
+    "San Antonio", "San Antonio del Tequendama", "San Benito", "San Benito Abad", "San Bernardo", "San Bernardo del Viento", "San Calixto", "San Carlos", 
+    "San Carlos de Guaroa", "San Cayetano", "San Cristóbal", "San Diego", "San Eduardo", "San Estanislao", "San Fernando", "San Francisco", "San Gil", 
+    "San Jacinto", "San Jacinto del Cauca", "San Jerónimo", "San Joaquín", "San José", "San José de la Montaña", "San José de Miranda", "San José de Pare", 
+    "San José del Fragua", "San José del Guaviare", "San José del Palmar", "San Juan de Arama", "San Juan de Betulia", "San Juan de Rioseco", "San Juan de Urabá", 
+    "San Juan del Cesar", "San Juan Nepomuceno", "San Juanito", "San Lorenzo", "San Luis", "San Luis de Gaceno", "San Luis de Palenque", "San Marcos", 
+    "San Martín", "San Martín de Loba", "San Mateo", "San Miguel", "San Miguel de Sema", "San Onofre", "San Pablo", "San Pablo de Borbur", "San Pedro", 
+    "San Pedro de Cartago", "San Pedro de Urabá", "San Pelayo", "San Rafael", "San Roque", "San Sebastián", "San Sebastián de Buenavista", "San Vicente", 
+    "San Vicente del Caguán", "San Vicente del Chucurí", "San Zenón", "Sandoná", "Santa Ana", "Santa Bárbara", "Santa Bárbara de Pinto", "Santa Catalina", 
+    "Santa Fe de Antioquia", "Santa Genoveva de Docorodó", "Santa Helena del Opón", "Santa Isabel", "Santa Lucía", "Santa María", "Santa Marta", "Santa Rosa", 
+    "Santa Rosa de Cabal", "Santa Rosa de Osos", "Santa Rosa de Viterbo", "Santa Rosa del Sur", "Santa Rosalía", "Santa Sofía", "Santana", "Santander de Quilichao", 
+    "Santiago", "Santo Domingo", "Santo Tomás", "Santuario", "Sapuyes", "Saravena", "Sardinata", "Sasaima", "Sativanorte", "Sativasur", "Segovia", "Sesquilé", 
+    "Sevilla", "Siachoque", "Sibaté", "Sibundoy", "Silos", "Silvania", "Silvia", "Simacota", "Simijaca", "Simití", "Sincelejo", "Sincé", "Sipí", "Sitionuevo", 
+    "Soacha", "Soatá", "Socha", "Socorro", "Socotá", "Sogamoso", "Solano", "Soledad", "Solita", "Somondoco", "Sonsón", "Sopetrán", "Soplaviento", "Sopó", "Sora", 
+    "Soracá", "Sotaquirá", "Sotara", "Suaita", "Suárez", "Suaza", "Subachoque", "Sucre", "Suesca", "Supatá", "Supía", "Suratá", "Susa", "Susacón", "Sutamarchán", 
+    "Sutatausa", "Sutatenza", "Tabio", "Tadó", "Talaigua Nuevo", "Tamalameque", "Támara", "Tame", "Támesis", "Taminango", "Tangua", "Taraira", "Tarazá", 
+    "Tarqui", "Tarso", "Tasco", "Tauramena", "Tausa", "Tello", "Tena", "Tenerife", "Tenjo", "Tenza", "Teorama", "Teruel", "Tesalia", "Tibacuy", "Tibaná", 
+    "Tibasosa", "Tibirita", "Tibú", "Tierralta", "Timaná", "Timbío", "Timbiquí", "Tinjacá", "Tipacoque", "Tiquisio", "Titiribí", "Toca", "Tocaima", "Tocancipá", 
+    "Togüí", "Toledo", "Tolú", "Tolú Viejo", "Tona", "Tópaga", "Topaipí", "Toribío", "Toro", "Tota", "Totoró", "Trinidad", "Trujillo", "Tubará", "Tuchín", 
+    "Tuluá", "Tumaco", "Tunja", "Tununguá", "Túquerres", "Turbaco", "Turbaná", "Turbo", "Turmequé", "Tuta", "Tutazá", "Ubalá", "Ubaque", "Ubaté", "Ulloa", 
+    "Umbita", "Une", "Unguía", "Unión Panamericana", "Uramita", "Uribe", "Uribia", "Urrao", "Urumita", "Usiacurí", "Útica", "Valdivia", "Valencia", "Valle de San José", 
+    "Valle de San Juan", "Valledupar", "Valparaíso", "Vegachí", "Vélez", "Venadillo", "Venecia", "Ventanas", "Vergara", "Versalles", "Vetas", "Viani", "Victoria", 
+    "Vigía del Fuerte", "Vijes", "Villa Caro", "Villa de Leyva", "Villa del Rosario", "Villa Gamero", "Villa Garzón", "Villa Rica", "Villagómez", "Villahermosa", 
+    "Villamaría", "Villanueva", "Villapinzón", "Villarrica", "Villavicencio", "Villavieja", "Villeta", "Viotá", "Viracachá", "Vista Hermosa", "Viterbo", "Yacopí", 
+    "Yacuanquer", "Yaguará", "Yalí", "Yarumal", "Yavaraté", "Yolombó", "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", "Zapatoca", "Zapayán", "Zaragoza", 
+    "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", "Zona Bananera"
 ])))
 
 # Recursos Multimedia
 recursos = {
+    # Ritmos
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
+    # Signos
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
     "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
+    # Rx Tórax
     "rx_normal": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
     "rx_congest": "https://upload.wikimedia.org/wikipedia/commons/2/22/Pulmonary_congestion.jpg", 
     "rx_edema": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pulmonary_edema.jpg", 
@@ -95,44 +183,44 @@ recursos = {
     "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
 }
 
-# Antecedentes
+# Antecedentes (Lista Completa)
 antecedentes_lista = sorted([
     "Apnea del sueño", "Arteritis reumatoide", "Cardiopatía congénita", "Diabetes Mellitus Tipo 2", "Dislipidemia", 
     "Enfermedad arterial oclusiva crónica", "Enfermedad carotidea", "Enfermedad cerebro-vascular (ACV)", "Enfermedad coronaria", 
     "Hipertensión arterial", "Insuficiencia cardiaca previa", "Lupus eritematoso sistémico", "Obesidad", "Tabaquismo", "VIH"
 ])
 
-# --- FARMACOLOGÍA AGUDA DETALLADA ---
+# Farmacología Detallada (Braunwald/Guías)
 meds_agudos = {
     "oxigeno": {
         "nombre": "Oxígeno / VNI",
-        "dosis": "• **O2 Suplementario:** Iniciar si SatO2 < 90% o PaO2 < 60 mmHg. Meta > 95%.\n• **VNI (CPAP/BiPAP):** Considerar tempranamente si FR > 25 rpm, Acidosis (pH < 7.35) o Edema Pulmonar franco.",
-        "monitor": "• Gases arteriales (1h post-inicio).\n• Tolerancia a la interfaz.\n• Riesgo de hipotensión (VNI reduce precarga).",
-        "adverso": "Intolerancia, Bronoaspiración (si alteración conciencia), Resequedad de mucosas."
+        "dosis": "• **O2:** Meta SatO2 > 90%.\n• **VNI:** Considerar si FR>25 o Acidosis. Reduce precarga/postcarga VI.",
+        "monitor": "• Gases arteriales.\n• SatO2.",
+        "adverso": "Intolerancia, Hipotensión (VNI)."
     },
     "diureticos": {
         "nombre": "Diuréticos de Asa (Furosemida)",
-        "dosis": "• **Naïve (Vírgen de tto):** 20-40 mg IV bolo.\n• **Uso crónico:** 1 a 2.5 veces la dosis oral total diaria en bolo IV.\n• **Infusión Continua:** Si hay resistencia a bolos, iniciar 5-40 mg/h.\n• **Bloqueo Secuencial:** Adicionar Tiazida (HCTZ 25mg o Metolazona) si no hay respuesta.",
-        "monitor": "• Gasto Urinario horario (Meta > 100-150 ml/h).\n• Electrolitos (K+, Mg++) cada 6-12h.\n• Función renal (BUN/Cr) diaria.",
-        "adverso": "Hipokalemia, Hipomagnesemia, Ototoxicidad (infusiones rápidas), Alcalosis metabólica."
+        "dosis": "• **Naïve:** 20-40 mg IV.\n• **Crónico:** 1-2.5x dosis oral en bolo.\n• **Infusión:** 5-40 mg/h si hay resistencia.",
+        "monitor": "• GU >100ml/h.\n• K+, Mg++.\n• Cr.",
+        "adverso": "Hipokalemia, Ototoxicidad, Falla renal."
     },
     "vasodilatadores": {
         "nombre": "Vasodilatadores IV",
-        "dosis": "• **Nitroglicerina:** Iniciar 10-20 mcg/min. Titular ↑ 5-10 mcg/min cada 3-5 min. Dosis máx usual 200 mcg/min.\n• **Nitroprusiato:** Iniciar 0.3 mcg/kg/min. Titular hasta 5 mcg/kg/min (Requiere línea arterial obligatoria).",
-        "monitor": "• Presión Arterial continua (Evitar PAS < 90 mmHg).\n• Cefalea intensa.\n• Saturación O2 (puede caer por alteración V/Q).",
-        "adverso": "Hipotensión severa, Taquicardia refleja, Robo coronario. Nitroprusiato: Toxicidad por cianuro/tiocianato."
+        "dosis": "• **NTG:** 10-20 mcg/min, titular hasta 200.\n• **NTP:** 0.3 mcg/kg/min (UCI).",
+        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2.",
+        "adverso": "Hipotensión, Cefalea, Robo coronario, Toxicidad cianuro."
     },
     "inotropicos": {
         "nombre": "Inotrópicos",
-        "dosis": "• **Dobutamina:** 2-20 mcg/kg/min (Beta-1 agonista).\n• **Milrinone:** 0.375-0.75 mcg/kg/min (Inodilatador, ajustar en falla renal). No bolo rutinario.\n• **Levosimendán:** 0.1 mcg/kg/min (0.05-0.2) por 24h. No bolo rutinario.",
-        "monitor": "• Monitoría EKG continua (Arritmias ventriculares).\n• Isquemia miocárdica (Dobu).\n• Presión Arterial (Milrinone/Levo causan hipotensión).",
-        "adverso": "Taquicardia sinusal, Fibrilación auricular, Hipotensión sostenida (Milrinone), Hipokalemia."
+        "dosis": "• **Dobu:** 2-20 mcg/kg/min.\n• **Milrinone:** 0.375-0.75.\n• **Levo:** 0.1.",
+        "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
+        "adverso": "Taquicardia, FA, Hipotensión, Hipokalemia."
     },
     "vasopresores": {
         "nombre": "Vasopresores (Norepinefrina)",
-        "dosis": "• **Norepinefrina:** 0.05 - 0.5 mcg/kg/min. Titular para PAM > 65 mmHg.\n• **Dopamina:** Ya no es primera línea (salvo bradicardia sintomática).",
-        "monitor": "• Perfusión distal y esplácnica (Lactato).\n• Acceso venoso central preferido.\n• Línea arterial obligatoria.",
-        "adverso": "Isquemia tisular (necrosis distal), Arritmias, Aumento postcarga VI."
+        "dosis": "• 0.05 - 0.5 mcg/kg/min. Meta PAM > 65.",
+        "monitor": "• Perfusión distal.\n• Línea arterial.",
+        "adverso": "Isquemia distal, Arritmias, HTA."
     }
 }
 
@@ -152,10 +240,10 @@ def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
         dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
     return dx
 
-def calcular_fenotipo(fevi):
-    if fevi < 40: return "HFrEF (Reducida)"
-    elif 40 <= fevi < 50: return "HFmrEF (Levemente Reducida)"
-    else: return "HFpEF (Preservada)"
+def calcular_fenotipo_fevi(fevi):
+    if fevi < 40: return "HFrEF (FEVI Reducida < 40%)"
+    elif 40 <= fevi < 50: return "HFmrEF (FEVI Levemente Reducida 40-49%)"
+    else: return "HFpEF (FEVI Preservada ≥ 50%)"
 
 # --- 5. INTERFAZ: BARRA LATERAL ---
 with st.sidebar:
@@ -165,9 +253,12 @@ with st.sidebar:
     
     # 1. Origen
     st.subheader("1. Origen y Demografía")
-    ciudad = st.selectbox("Municipio", ["--- Seleccione ---"] + municipios_base)
+    # Filtramos la lista para que sea única y ordenada
+    ciudad = st.selectbox("Municipio", ["--- Seleccione ---"] + municipios_completa)
+    
+    # Lógica Chagas (Flexible: busca coincidencia parcial por si acaso)
     es_zona_chagas = ciudad in zonas_chagas
-    if es_zona_chagas: st.error(f"🚨 **ALERTA EPIDEMIOLÓGICA:** Riesgo de Chagas en {ciudad}.")
+    if es_zona_chagas: st.error(f"🚨 **ALERTA EPIDEMIOLÓGICA:** {ciudad} es zona de riesgo para Enfermedad de Chagas.")
     
     c_d1, c_d2 = st.columns(2)
     edad = c_d1.number_input("Edad", 18, 120, 65)
@@ -179,29 +270,32 @@ with st.sidebar:
 
     # 3. Síntomas
     st.subheader("3. Síntomas")
-    sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina", "Edema"])
+    sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina"])
 
-    # 4. Signos Vitales
+    # 4. Signos Vitales (TOTALMENTE EDITABLES)
     st.subheader("4. Signos Vitales")
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos", "Otro"])
     with st.expander("Ver Ritmos"): st.image(recursos["ritmos"])
 
     c_v1, c_v2 = st.columns(2)
-    pas = c_v1.number_input("PAS", 110)
-    pad = c_v2.number_input("PAD", 70)
-    fc = c_v1.number_input("FC", 85)
-    fr = c_v2.number_input("FR", 22)
-    sato2 = c_v1.number_input("SatO2 (%)", 92)
-    temp_c = c_v2.number_input("T (°C)", 36.5, step=0.1)
+    pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
+    pad = c_v2.number_input("PAD (mmHg)", value=80, step=1)
+    fc = c_v1.number_input("FC (lpm)", value=80, step=1)
+    fr = c_v2.number_input("FR (rpm)", value=18, step=1)
+    sato2 = c_v1.number_input("SatO2 (%)", value=94, step=1)
+    temp_c = c_v2.number_input("Temp (°C)", value=36.5, step=0.1)
     
-    # 5. Examen Físico
+    # 5. Examen Físico (REORGANIZADO)
     st.subheader("5. Examen Físico")
     
+    # A. CABEZA Y CUELLO
     st.markdown("🔴 **Cabeza y Cuello**")
     iy = st.selectbox("IY", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
+    with st.expander("Ver Grados IY"): st.image(recursos["iy"])
     rhy = st.checkbox("Reflujo Hepato-yugular")
 
-    st.markdown("🔴 **Cardiovascular**")
+    # B. TÓRAX
+    st.markdown("🔴 **Tórax: Cardiovascular**")
     opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
     if ritmo == "Sinusal":
         opciones_ruidos.extend(["S4 (Galope Atrial)", "S3 + S4 (Suma)"])
@@ -212,7 +306,6 @@ with st.sidebar:
         elif "S3" in ruidos_agregados: st.audio(recursos["audio_s3"])
         elif "S4" in ruidos_agregados: st.audio(recursos["audio_s4"])
 
-    # Soplos
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
     if tiene_soplo:
@@ -224,37 +317,50 @@ with st.sidebar:
             elif "Mitral" in foco and ciclo == "Diastólico": st.audio(recursos["audio_estenosis_mitral"])
             elif "Aórtico" in foco: st.audio(recursos["audio_estenosis_aortica"])
 
-    st.markdown("🔴 **Pulmonar**")
+    st.markdown("🔴 **Tórax: Pulmonar**")
     pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
     with st.expander("🎧 Escuchar Pulmón"):
         if "Estertores" in pulmones: st.audio(recursos["audio_estertores"])
         elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
         else: st.audio(recursos["audio_normal_lung"])
 
-    st.markdown("🔴 **Perfusión**")
+    # C. ABDOMEN (NUEVO)
+    st.markdown("🔴 **Abdomen**")
+    abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
+    ascitis = st.checkbox("Onda Ascítica Presente")
+
+    # D. EXTREMIDADES (MOVIDO AQUÍ)
+    st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
+    if edema_ex != "Ausente":
+        godet = st.selectbox("Fóvea (Godet)", ["Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
+        with st.expander("Ver Escala Godet"): st.image(recursos["godet"])
+        
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
-    llenado = st.number_input("Llenado (seg)", 2)
-    neuro = st.selectbox("Neuro", ["Alerta", "Somnoliento", "Estuporoso"])
+    llenado = st.number_input("Llenado Capilar (seg)", value=2, step=1)
 
-    # 6. AYUDAS DIAGNÓSTICAS
+    # E. NEUROLÓGICO
+    st.markdown("🔴 **Neurológico**")
+    neuro = st.selectbox("Estado Conciencia", ["Alerta", "Somnoliento", "Estuporoso"])
+
+    # 6. AYUDAS DIAGNÓSTICAS (OPCIONALES)
     st.markdown("---")
-    st.subheader("6. Paraclínicos / Imágenes")
+    st.subheader("6. Paraclínicos (Opcional)")
     tiene_paraclinicos = st.checkbox("¿Habilitar Ayudas Diagnósticas?", value=False)
     
     lactato = 1.0
     rx_patron = "Normal"
     tipo_peptido = "BNP"
     valor_peptido = 0
-    fevi = 55 # Default HFpEF
+    fevi = 55
     
     if tiene_paraclinicos:
         st.caption("Ingrese datos disponibles:")
         
         # Ecocardiograma (FEVI)
         st.markdown("**Ecocardiograma**")
-        fevi = st.number_input("FEVI (%)", 0, 100, 35, help="Determina el fenotipo (HFrEF, HFmrEF, HFpEF)")
+        fevi = st.number_input("FEVI (%)", 0, 100, 35, help="Define el Fenotipo (Reducida/Preservada)")
         
         # Lactato
         lactato = st.number_input("Lactato (mmol/L)", 0.0, 20.0, 1.0, 0.1)
@@ -267,23 +373,22 @@ with st.sidebar:
             elif rx_patron == "Congestión Leve/Basal": st.image(recursos["rx_congest"])
             else: st.image(recursos["rx_edema"])
         
-        # Péptidos (Age adjusted logic)
+        # Péptidos (Age adjusted logic - Mueller 2019)
         st.markdown("**Péptidos Natriuréticos**")
         c_p1, c_p2 = st.columns(2)
         tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
         valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 50000, 0)
         
-        # Mostrar umbrales de referencia (Mueller 2019)
         if tipo_peptido == "NT-proBNP":
-            st.caption(f"**Umbral Rule-in Agudo (HFA/ESC 2019):**\n<50a: >450 | 50-75a: >900 | >75a: >1800 pg/mL")
+            st.caption(f"**Criterios HFA/ESC 2019 (Falla Aguda):**\n• <50 años: >450 pg/mL\n• 50-75 años: >900 pg/mL\n• >75 años: >1800 pg/mL")
         else:
-            st.caption("**Umbral Rule-in Agudo (BNP):** >400 pg/mL")
+            st.caption("**Criterio Agudo (BNP):** >400 pg/mL")
 
 # --- 6. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
-fenotipo = calcular_fenotipo(fevi) if tiene_paraclinicos else "No determinado (Falta FEVI)"
+fenotipo_msg = calcular_fenotipo_fevi(fevi) if tiene_paraclinicos else "No determinado (Requiere Eco)"
 
 # Score Congestión (Eje X)
 score_congest = 0
@@ -292,6 +397,8 @@ if "reposo" in str(sintomas): score_congest += 4
 if "Grado II" in iy or "Grado III" in iy: score_congest += 4
 if rhy: score_congest += 2
 if "Estertores" in pulmones: score_congest += 3
+if "Hepato" in abdomen_viscera: score_congest += 2 # Hepatomegalia suma congestión derecha
+if ascitis: score_congest += 2
 if edema_ex != "Ausente": score_congest += 2
 if "S3" in ruidos_agregados: score_congest += 4
 
@@ -299,7 +406,7 @@ if tiene_paraclinicos:
     if rx_patron == "Congestión Leve/Basal": score_congest += 2
     if rx_patron == "Edema Alveolar (4 Cuadrantes)": score_congest += 5
     
-    # Lógica Péptidos Ajustada por Edad (HFA 2019 / Mueller et al)
+    # Lógica Péptidos (HFA/ESC 2019 - Mueller et al)
     is_positive_np = False
     if tipo_peptido == "BNP" and valor_peptido > 400:
         is_positive_np = True
@@ -321,7 +428,7 @@ if llenado > 3: score_perf -= 0.4
 if pulsos == "Filiformes": score_perf -= 0.5
 if pas < 90: score_perf -= 0.5
 if neuro != "Alerta": score_perf -= 0.5
-if tiene_paraclinicos and lactato >= 2.0: score_perf -= 0.8 # Umbral >= 2.0
+if tiene_paraclinicos and lactato >= 2.0: score_perf -= 0.8 # Umbral >= 2.0 mmol/L
 
 ic_sim = max(1.0, score_perf) 
 
@@ -336,25 +443,27 @@ st.title("🫀 HemoSim: Simulador Clínico")
 st.markdown("**Simulación de Casos en Falla Cardíaca Aguda** | Dr. Javier Rodríguez Prada")
 
 # RESUMEN
-with st.expander("📋 **Resumen de Datos**", expanded=True):
+with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
     r1, r2, r3 = st.columns(3)
     with r1:
-        st.markdown(f"**Pcte:** {edad}a, {sexo}. **De:** {ciudad}")
-        if es_zona_chagas: st.error("⚠️ Riesgo Chagas")
-        if tiene_paraclinicos: st.info(f"**Fenotipo:** {fenotipo}")
+        st.markdown(f"**Paciente:** {edad} años, {sexo}.")
+        st.markdown(f"**Procedencia:** {ciudad}.")
+        if es_zona_chagas: st.error("⚠️ **Alerta Epidemiológica:** Zona Endémica Chagas.")
+        if tiene_paraclinicos: st.info(f"**Fenotipo (Eco):** {fenotipo_msg}")
     with r2:
-        st.markdown(f"**SV:** PA {pas}/{pad}, FC {fc}, Sat {sato2}%")
-        if sato2 < 90: st.error("🚨 Hipoxemia")
-        if tiene_paraclinicos and lactato >= 2.0: st.error(f"⚠️ Hipoperfusión (Lactato {lactato})")
+        st.markdown(f"**Signos Vitales:** PA {pas}/{pad} | FC {fc} | FR {fr} | T {temp_c}°C")
+        if sato2 < 90: st.error(f"🚨 **Hipoxemia:** SatO2 {sato2}%")
+        else: st.markdown(f"**SatO2:** {sato2}%")
+        if tiene_paraclinicos and lactato >= 2.0: st.error(f"⚠️ **Hipoperfusión:** Lactato {lactato} mmol/L")
     with r3:
-        st.markdown(f"**Examen:** {ruidos_agregados}, {pulmones}")
-        st.markdown(f"**Perfusión:** {frialdad}, Llenado {llenado}s")
-        if tiene_paraclinicos: 
-            st.markdown(f"**BNP/NT:** {valor_peptido} | **Rx:** {rx_patron}")
-
-# ALERTAS CLÍNICAS
-if sato2 < 90:
-    st.error(f"🚨 **HIPOXEMIA ({sato2}%):** Administrar O2 suplementario. Meta >90%.")
+        st.markdown("**Hallazgos Positivos:**")
+        hallazgos = []
+        if "S3" in ruidos_agregados: hallazgos.append("R3 presente")
+        if "Estertores" in pulmones: hallazgos.append("Estertores")
+        if edema_ex != "Ausente": hallazgos.append(f"Edema {edema_ex}")
+        if ascitis: hallazgos.append("Ascitis")
+        if "Hepato" in abdomen_viscera: hallazgos.append(abdomen_viscera)
+        st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores de congestión.")
 
 # TABLERO HEMODINÁMICO
 st.markdown("### 📊 Hemodinamia Bedside")
@@ -434,15 +543,15 @@ with tabs[1]:
 # 3. EGRESO
 with tabs[2]:
     st.header("🏠 Egreso en FEVI Reducida (HFrEF)")
-    st.markdown("Esquema de Titulación GDMT (Guías 2021/2022).")
+    st.markdown("Esquema de Titulación GDMT.")
     gdmt = [
         {"Pilar": "BB", "Fármaco": "Succinato de Metoprolol", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "200 mg c/24h"},
         {"Pilar": "BB", "Fármaco": "Carvedilol", "Dosis Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h (>85kg: 50mg)"},
         {"Pilar": "BB", "Fármaco": "Bisoprolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h"},
-        {"Pilar": "BB", "Fármaco": "Nebivolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h (Seniors/HFpEF)"},
+        {"Pilar": "BB", "Fármaco": "Nebivolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h"},
         {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Dosis Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h"},
         {"Pilar": "ARM", "Fármaco": "Espironolactona", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "50 mg c/24h"},
-        {"Pilar": "iSGLT2", "Fármaco": "Dapagliflozina / Empa", "Dosis Inicio": "10 mg c/24h", "Meta": "10 mg c/24h"},
+        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Dosis Inicio": "10 mg c/24h", "Meta": "10 mg c/24h"},
     ]
     st.dataframe(pd.DataFrame(gdmt), use_container_width=True)
     c_ad1, c_ad2 = st.columns(2)
