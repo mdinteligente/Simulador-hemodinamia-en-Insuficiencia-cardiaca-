@@ -74,12 +74,9 @@ municipios_base = sorted(list(set(zonas_chagas + [
 
 # Recursos Multimedia
 recursos = {
-    # Ritmos
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
-    # Signos
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
     "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
-    # Rx Tórax
     "rx_normal": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
     "rx_congest": "https://upload.wikimedia.org/wikipedia/commons/2/22/Pulmonary_congestion.jpg", 
     "rx_edema": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pulmonary_edema.jpg", 
@@ -108,33 +105,33 @@ antecedentes_lista = sorted([
 meds_agudos = {
     "oxigeno": {
         "nombre": "Oxígeno / VNI",
-        "dosis": "• O2: Meta SatO2 > 90%.\n• VNI (CPAP/BiPAP): Disminuye precarga y postcarga VI. Útil en edema pulmonar.",
-        "monitor": "• Gases arteriales.\n• Tolerancia.",
+        "dosis": "• O2: Meta SatO2 > 90%.\n• VNI: CPAP/BiPAP si hay edema pulmonar o distress.",
+        "monitor": "• Gases arteriales.\n• SatO2.",
         "adverso": "Intolerancia, Hipotensión (VNI)."
     },
     "diureticos": {
         "nombre": "Furosemida / Diuréticos de Asa",
         "dosis": "• Naïve: 20-40 mg IV.\n• Crónico: 1-2.5x dosis oral en bolo IV.\n• Resistencia: Infusión 5-40 mg/h + Tiazida.",
-        "monitor": "• Gasto Urinario (>100ml/h).\n• K+, Mg++.\n• Cr.",
-        "adverso": "Hipokalemia, Ototoxicidad, Hipotensión, Alcalosis."
+        "monitor": "• GU >100ml/h.\n• K+, Mg++.\n• Cr.",
+        "adverso": "Hipokalemia, Ototoxicidad, Falla renal."
     },
     "vasodilatadores": {
         "nombre": "Nitroglicerina / Nitroprusiato",
-        "dosis": "• NTG: 10-20 mcg/min, titular.\n• NTP: 0.3 mcg/kg/min (Solo UCI).",
-        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2.",
-        "adverso": "Hipotensión, Cefalea, Robo coronario, Toxicidad cianuro."
+        "dosis": "• NTG: 10-20 mcg/min, titular.\n• NTP: 0.3 mcg/kg/min.",
+        "monitor": "• PA (PAS > 90).\n• Cefalea.\n• SatO2.",
+        "adverso": "Hipotensión, Cefalea, Robo coronario."
     },
     "inotropicos": {
         "nombre": "Dobu / Milrinone / Levosimendán",
-        "dosis": "• Dobu: 2-20 mcg/kg/min.\n• Milrinone: 0.375-0.75 mcg/kg/min.\n• Levo: 0.1 mcg/kg/min.",
-        "monitor": "• Arritmias.\n• Isquemia.\n• PA (Hipotensión con Milri).",
-        "adverso": "Taquicardia, FA, Hipotensión, Hipokalemia."
+        "dosis": "• Dobu: 2-20 mcg/kg/min.\n• Milri: 0.375-0.75.\n• Levo: 0.1.",
+        "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
+        "adverso": "Taquicardia, FA, Hipotensión."
     },
     "vasopresores": {
         "nombre": "Norepinefrina",
         "dosis": "0.05 - 0.5 mcg/kg/min. Meta PAM > 65.",
         "monitor": "• Perfusión distal.\n• Línea arterial.",
-        "adverso": "Isquemia distal, Arritmias, HTA severa."
+        "adverso": "Isquemia distal, Arritmias, HTA."
     }
 }
 
@@ -153,6 +150,11 @@ def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
         dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
     return dx
+
+def calcular_fenotipo(fevi):
+    if fevi < 40: return "HFrEF (Reducida)"
+    elif 40 <= fevi < 50: return "HFmrEF (Levemente Reducida)"
+    else: return "HFpEF (Preservada)"
 
 # --- 5. INTERFAZ: BARRA LATERAL ---
 with st.sidebar:
@@ -177,7 +179,6 @@ with st.sidebar:
     # 3. Síntomas
     st.subheader("3. Síntomas")
     sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina", "Edema"])
-    if "Ortopnea" in sintomas: st.caption("*Ortopnea: S 73-88% / E 20-50%*")
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
@@ -229,28 +230,35 @@ with st.sidebar:
         elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
         else: st.audio(recursos["audio_normal_lung"])
 
-    st.markdown("🔴 **Abdomen/Extremidades**")
-    ascitis = st.checkbox("Ascitis")
+    st.markdown("🔴 **Perfusión**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
     llenado = st.number_input("Llenado (seg)", 2)
     neuro = st.selectbox("Neuro", ["Alerta", "Somnoliento", "Estuporoso"])
 
-    # 6. AYUDAS DIAGNÓSTICAS (OPCIONALES)
+    # 6. AYUDAS DIAGNÓSTICAS
     st.markdown("---")
-    st.subheader("6. Paraclínicos (Opcional)")
-    tiene_paraclinicos = st.checkbox("¿Dispone de Ayudas Diagnósticas?", value=False)
+    st.subheader("6. Paraclínicos / Imágenes")
+    tiene_paraclinicos = st.checkbox("¿Habilitar Ayudas Diagnósticas?", value=False)
     
     lactato = 1.0
     rx_patron = "Normal"
     tipo_peptido = "BNP"
     valor_peptido = 0
+    fevi = 55 # Default HFpEF
     
     if tiene_paraclinicos:
-        st.caption("Ingrese los valores disponibles:")
+        st.caption("Ingrese datos disponibles:")
+        
+        # Ecocardiograma (FEVI)
+        st.markdown("**Ecocardiograma**")
+        fevi = st.number_input("FEVI (%)", 0, 100, 35, help="Determina el fenotipo (HFrEF, HFmrEF, HFpEF)")
+        
+        # Lactato
         lactato = st.number_input("Lactato (mmol/L)", 0.0, 20.0, 1.0, 0.1)
         
+        # Rx
         st.markdown("**Radiografía de Tórax**")
         rx_patron = st.selectbox("Patrón Rx", ["Normal", "Congestión Leve/Basal", "Edema Alveolar (4 Cuadrantes)"])
         with st.expander("Ver Rx Referencia"):
@@ -258,20 +266,26 @@ with st.sidebar:
             elif rx_patron == "Congestión Leve/Basal": st.image(recursos["rx_congest"])
             else: st.image(recursos["rx_edema"])
         
+        # Péptidos (Age adjusted logic)
         st.markdown("**Péptidos Natriuréticos**")
         c_p1, c_p2 = st.columns(2)
         tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
-        valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 30000, 0)
-
+        valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 50000, 0)
+        
+        # Mostrar umbrales de referencia (Mueller 2019)
+        if tipo_peptido == "NT-proBNP":
+            st.caption(f"**Umbral Rule-in Agudo (HFA/ESC):**\n<50a: >450 | 50-75a: >900 | >75a: >1800 pg/mL")
+        else:
+            st.caption("**Umbral Rule-in Agudo:** >400 pg/mL")
 
 # --- 6. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
 pp = pas - pad
 ppp = (pp / pas) * 100 if pas > 0 else 0
+fenotipo = calcular_fenotipo(fevi) if tiene_paraclinicos else "No determinado (Falta FEVI)"
 
 # Score Congestión (Eje X)
 score_congest = 0
-# Clínica
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
 if "Grado II" in iy or "Grado III" in iy: score_congest += 4
@@ -279,33 +293,38 @@ if rhy: score_congest += 2
 if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
 if "S3" in ruidos_agregados: score_congest += 4
-# Paraclínicos (Si habilitados)
+
 if tiene_paraclinicos:
     if rx_patron == "Congestión Leve/Basal": score_congest += 2
     if rx_patron == "Edema Alveolar (4 Cuadrantes)": score_congest += 5
-    # Péptidos (Umbrales de Alta Probabilidad de Congestión)
-    if tipo_peptido == "BNP" and valor_peptido > 400: score_congest += 3
-    if tipo_peptido == "NT-proBNP" and valor_peptido > 1000: score_congest += 3
+    
+    # Lógica Péptidos Ajustada por Edad (HFA 2019 / Mueller et al)
+    is_positive_np = False
+    if tipo_peptido == "BNP" and valor_peptido > 400:
+        is_positive_np = True
+    elif tipo_peptido == "NT-proBNP":
+        if edad < 50 and valor_peptido > 450: is_positive_np = True
+        elif 50 <= edad <= 75 and valor_peptido > 900: is_positive_np = True
+        elif edad > 75 and valor_peptido > 1800: is_positive_np = True
+    
+    if is_positive_np: score_congest += 3
 
 pcp_sim = 12 + score_congest
 if pcp_sim > 38: pcp_sim = 38 
 
 # Score Perfusión (Eje Y)
 score_perf = 2.8
-# Clínica
 if ppp < 25: score_perf -= 0.6
 if frialdad != "Caliente": score_perf -= 0.6
 if llenado > 3: score_perf -= 0.4
 if pulsos == "Filiformes": score_perf -= 0.5
 if pas < 90: score_perf -= 0.5
 if neuro != "Alerta": score_perf -= 0.5
-# Paraclínicos
-if tiene_paraclinicos:
-    if lactato > 2.0: score_perf -= 0.8 # Hiperlactatemia
+if tiene_paraclinicos and lactato >= 2.0: score_perf -= 0.8 # Umbral >= 2.0
 
 ic_sim = max(1.0, score_perf) 
 
-# Clasificación
+# Clasificación Stevenson
 if pcp_sim > 18 and ic_sim > 2.2: cuadrante = "B: Húmedo y Caliente"
 elif pcp_sim > 18 and ic_sim <= 2.2: cuadrante = "C: Húmedo y Frío"
 elif pcp_sim <= 18 and ic_sim <= 2.2: cuadrante = "L: Seco y Frío"
@@ -321,29 +340,27 @@ with st.expander("📋 **Resumen de Datos**", expanded=True):
     with r1:
         st.markdown(f"**Pcte:** {edad}a, {sexo}. **De:** {ciudad}")
         if es_zona_chagas: st.error("⚠️ Riesgo Chagas")
-        st.markdown(f"**Antecedentes:** {', '.join(antecedentes) if antecedentes else 'Niega'}")
+        if tiene_paraclinicos: st.info(f"**Fenotipo:** {fenotipo}")
     with r2:
         st.markdown(f"**SV:** PA {pas}/{pad}, FC {fc}, Sat {sato2}%")
         if sato2 < 90: st.error("🚨 Hipoxemia")
-        if tiene_paraclinicos and lactato > 2.0: st.error(f"⚠️ Lactato Elevado: {lactato}")
+        if tiene_paraclinicos and lactato >= 2.0: st.error(f"⚠️ Hipoperfusión (Lactato {lactato})")
     with r3:
         st.markdown(f"**Examen:** {ruidos_agregados}, {pulmones}")
-        if tiene_paraclinicos: st.markdown(f"**Ayudas:** Rx {rx_patron}, {tipo_peptido}: {valor_peptido}")
         st.markdown(f"**Perfusión:** {frialdad}, Llenado {llenado}s")
+        if tiene_paraclinicos: 
+            st.markdown(f"**BNP/NT:** {valor_peptido} | **Rx:** {rx_patron}")
 
 # ALERTAS CLÍNICAS
 if sato2 < 90:
-    st.error(f"🚨 **HIPOXEMIA ({sato2}%):** Administrar O2 suplementario. Meta >90%. Considerar gases arteriales.")
+    st.error(f"🚨 **HIPOXEMIA ({sato2}%):** Administrar O2 suplementario. Meta >90%.")
 
 # TABLERO HEMODINÁMICO
-st.markdown("### 📊 Hemodinamia Bedside (Cabecera del Paciente)")
+st.markdown("### 📊 Hemodinamia Bedside")
 c_m1, c_m2, c_m3, c_m4 = st.columns(4)
 c_m1.metric("PAM", f"{pam:.0f} mmHg")
-c_m1.caption("Presión de perfusión.")
 c_m2.metric("P. Pulso", f"{pp} mmHg")
-c_m2.caption("Rigidez/Volumen Latido.")
 c_m3.metric("PPP", f"{ppp:.1f}%", delta="Bajo" if ppp<25 else "OK", delta_color="inverse")
-c_m3.caption("Predice IC < 2.2 si <25%.")
 c_m4.metric("Perfil", cuadrante)
 if tiene_soplo: st.info(f"🩺 **Soplo:** {inferir_valvulopatia(foco, ciclo, patron, True)}")
 
@@ -453,11 +470,12 @@ with tabs[4]:
     3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
     """)
     st.divider()
-    st.subheader("🌍 Guías Internacionales")
+    st.subheader("🌍 Guías y Consensos Internacionales")
     st.markdown("""
-    4. **McDonagh TA, et al.** 2021 ESC Guidelines.
-    5. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline.
-    6. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
+    4. **Mueller C, et al.** Heart Failure Association of the European Society of Cardiology practical guidance on the use of natriuretic peptide concentrations. *Eur J Heart Fail*. 2019.
+    5. **McDonagh TA, et al.** 2021 ESC Guidelines.
+    6. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline.
+    7. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
     """)
 
 st.markdown("---")
