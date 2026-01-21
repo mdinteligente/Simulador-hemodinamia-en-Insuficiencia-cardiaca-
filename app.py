@@ -20,29 +20,36 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Función de Login
+# Función de Login Segura (Usando st.secrets)
 def check_password():
     """Retorna True si el usuario/clave son correctos."""
     def password_entered():
-        if st.session_state["username"] == "aprendefalla" and st.session_state["password"] == "javier":
+        # AQUI ES EL CAMBIO: Leemos de st.secrets en lugar de texto fijo
+        if (st.session_state["username"] == st.secrets["credentials"]["username"] and 
+            st.session_state["password"] == st.secrets["credentials"]["password"]):
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Borrar clave por seguridad
+            del st.session_state["password"]  # Borrar clave de memoria
             del st.session_state["username"]
         else:
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
         # Primera vez, mostrar inputs
-        st.header("🔒 Acceso Docente")
-        st.text_input("Usuario", key="username")
-        st.text_input("Contraseña", type="password", key="password", on_change=password_entered)
+        st.markdown("<h2 style='text-align: center;'>🔐 Acceso Docente HemoSim</h2>", unsafe_allow_html=True)
+        c1, c2, c3 = st.columns([1,2,1])
+        with c2:
+            st.text_input("Usuario", key="username")
+            st.text_input("Contraseña", type="password", key="password", on_change=password_entered)
+            st.info("Ingrese sus credenciales institucionales para acceder al simulador.")
         return False
     elif not st.session_state["password_correct"]:
         # Clave incorrecta
-        st.header("🔒 Acceso Docente")
-        st.text_input("Usuario", key="username")
-        st.text_input("Contraseña", type="password", key="password", on_change=password_entered)
-        st.error("😕 Usuario o contraseña incorrectos")
+        st.markdown("<h2 style='text-align: center;'>🔐 Acceso Docente HemoSim</h2>", unsafe_allow_html=True)
+        c1, c2, c3 = st.columns([1,2,1])
+        with c2:
+            st.text_input("Usuario", key="username")
+            st.text_input("Contraseña", type="password", key="password", on_change=password_entered)
+            st.error("😕 Usuario o contraseña incorrectos")
         return False
     else:
         # Clave correcta
@@ -429,4 +436,5 @@ with tabs[3]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
