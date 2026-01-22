@@ -468,7 +468,7 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         st.markdown(f"**Signos Vitales:** PA {pas}/{pad} | FC {fc} | FR {fr} | T {temp_c}°C")
         if sato2 < 90: st.error(f"🚨 **Hipoxemia:** SatO2 {sato2}%")
         else: st.markdown(f"**SatO2:** {sato2}%")
-        if pam < 65: st.error(f"⚠️ **HIPOTENSIÓN/SHOCK:** PAM {pam:.0f} mmHg")
+        if pam < 65: st.error(f"⚠️ **HIPOTENSIÓN/SHOCK?:** PAM {pam:.0f} mmHg")
         if tiene_paraclinicos and lactato >= 2.0: st.error(f"⚠️ **Hipoperfusión:** Lactato {lactato} mmol/L")
     with r3:
         st.markdown("**Hallazgos Positivos:**")
@@ -687,6 +687,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
