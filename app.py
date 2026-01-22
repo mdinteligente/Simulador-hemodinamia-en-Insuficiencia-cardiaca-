@@ -93,7 +93,7 @@ zonas_chagas = [
     "Liborina", "Peque", "Yolombó"
 ]
 
-# Lista Completa de Municipios (Corregido nombre de variable a municipios_base)
+# Lista Completa de Municipios
 municipios_base = sorted(list(set(zonas_chagas + [
     "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", 
     "Alejandría", "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", 
@@ -133,20 +133,20 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "La Calera", "La Capilla", "La Ceja", "La Celia", "La Cruz", "La Cumbre", "La Dorada", "La Esperanza", "La Estrella", "La Florida", 
     "La Gloria", "La Jagua de Ibirico", "La Jagua del Pilar", "La Llanada", "La Macarena", "La Merced", "La Mesa", "La Montañita", "La Palma", 
     "La Paz", "La Peña", "La Pintada", "La Plata", "La Playa", "La Primavera", "La Salina", "La Sierra", "La Tebaida", "La Tola", "La Unión", 
-    "La Uribe", "La Vega", "La Victoria", "La Virginia", "Labateca", "Labranzagrande", "Landázuri", "Lebrija", "Leíva", "Lejanías", "Lenguazaque", 
-    "Lérida", "Leticia", "Líbano", "Liborina", "Linares", "Lloró", "López", "Lorica", "Los Andes", "Los Córdobas", "Los Palmitos", "Los Patios", 
-    "Los Santos", "Luruaco", "Macanal", "Macaravita", "Maceo", "Macheta", "Madrid", "Magangué", "Magüí", "Mahates", "Maicao", "Majagual", 
-    "Málaga", "Malambo", "Mallama", "Manatí", "Manaure", "Maní", "Manizales", "Manta", "Manzanares", "Mapiripán", "Margarita", "María la Baja", 
-    "Marinilla", "Maripí", "Mariquita", "Marmato", "Marquetalia", "Marsella", "Marulanda", "Matanza", "Medellín", "Medina", "Medio Atrato", 
-    "Medio Baudó", "Medio San Juan", "Melgar", "Mercaderes", "Mesetas", "Milán", "Miraflores", "Miranda", "Mistrató", "Mitú", "Mocoa", "Mogotes", 
-    "Molagavita", "Momil", "Mompós", "Mongua", "Monguí", "Moniquirá", "Montebello", "Montecristo", "Montelíbano", "Montenegro", "Montería", 
-    "Monterrey", "Morales", "Morelia", "Morroa", "Mosquera", "Motavita", "Murillo", "Murindó", "Mutatá", "Mutiscua", "Muzo", "Nariño", "Nátaga", 
-    "Natagaima", "Nechí", "Necoclí", "Neira", "Neiva", "Nemocón", "Nilo", "Nimaima", "Nobsa", "Nocaima", "Norcasia", "Nóvita", "Nuevo Colón", 
-    "Nunchía", "Nuquí", "Obando", "Ocamonte", "Ocaña", "Oiba", "Oicatá", "Olaya", "Olaya Herrera", "Onzaga", "Oporapa", "Orito", "Orocué", 
-    "Ortega", "Ospina", "Otanche", "Ovejas", "Pachavita", "Pacho", "Padilla", "Páez", "Paicol", "Pailitas", "Paime", "Paipa", "Pajarito", 
-    "Palermo", "Palestina", "Palmar", "Palmar de Varela", "Palmas del Socorro", "Palmira", "Palmito", "Palocabildo", "Pamplona", "Pamplonita", 
-    "Paniagua", "Pantoja", "Páramo", "Paratebueno", "Pasca", "Pasto", "Patía", "Pauna", "Paya", "Paz de Ariporo", "Paz de Río", "Pedraza", 
-    "Pelaya", "Pensilvania", "Peñol", "Peque", "Pereira", "Pesca", "Piamonte", "Pie de Cuesta", "Piedras", "Piendamó", "ijao", "Pijiño del Carmen", 
+    "La Uribe", "La Vega", "La Victoria", "La Virginia", "Labateca", "Labranzagrande", "Landázuri", "Lebrija", "Leíva", "Lejanías", 
+    "Lenguazaque", "Lérida", "Leticia", "Líbano", "Liborina", "Linares", "Lloró", "López", "Lorica", "Los Andes", "Los Córdobas", "Los Palmitos", 
+    "Los Patios", "Los Santos", "Luruaco", "Macanal", "Macaravita", "Maceo", "Macheta", "Madrid", "Magangué", "Magüí", "Mahates", "Maicao", 
+    "Majagual", "Málaga", "Malambo", "Mallama", "Manatí", "Manaure", "Maní", "Manizales", "Manta", "Manzanares", "Mapiripán", "Margarita", 
+    "María la Baja", "Marinilla", "Maripí", "Mariquita", "Marmato", "Marquetalia", "Marsella", "Marulanda", "Matanza", "Medellín", "Medina", 
+    "Medio Atrato", "Medio Baudó", "Medio San Juan", "Melgar", "Mercaderes", "Mesetas", "Milán", "Miraflores", "Miranda", "Mistrató", "Mitú", 
+    "Mocoa", "Mogotes", "Molagavita", "Momil", "Mompós", "Mongua", "Monguí", "Moniquirá", "Montebello", "Montecristo", "Montelíbano", 
+    "Montenegro", "Montería", "Monterrey", "Morales", "Morelia", "Morroa", "Mosquera", "Motavita", "Murillo", "Murindó", "Mutatá", "Mutiscua", 
+    "Muzo", "Nariño", "Nátaga", "Natagaima", "Nechí", "Necoclí", "Neira", "Neiva", "Nemocón", "Nilo", "Nimaima", "Nobsa", "Nocaima", "Norcasia", 
+    "Nóvita", "Nuevo Colón", "Nunchía", "Nuquí", "Obando", "Ocamonte", "Ocaña", "Oiba", "Oicatá", "Olaya", "Olaya Herrera", "Onzaga", "Oporapa", 
+    "Orito", "Orocué", "Ortega", "Ospina", "Otanche", "Ovejas", "Pachavita", "Pacho", "Padilla", "Páez", "Paicol", "Pailitas", "Paime", "Paipa", 
+    "Pajarito", "Palermo", "Palestina", "Palmar", "Palmar de Varela", "Palmas del Socorro", "Palmira", "Palmito", "Palocabildo", "Pamplona", 
+    "Pamplonita", "Paniagua", "Pantoja", "Páramo", "Paratebueno", "Pasca", "Pasto", "Patía", "Pauna", "Paya", "Paz de Ariporo", "Paz de Río", 
+    "Pedraza", "Pelaya", "Pensilvania", "Peñol", "Peque", "Pereira", "Pesca", "Piamonte", "Pie de Cuesta", "Piedras", "Piendamó", "ijao", "Pijiño del Carmen", 
     "Pinchote", "Pinillos", "Piojó", "Pisba", "Pital", "Pitalito", "Pivijay", "Planadas", "Planeta Rica", "Plato", "Policarpa", "Polonuevo", 
     "Ponedera", "Popayán", "Pore", "Potosí", "Pradera", "Prado", "Providencia", "Pueblo Bello", "Pueblo Nuevo", "Pueblo Rico", "Pueblorrico", 
     "Puebloviejo", "Puente Nacional", "Puerres", "Puerto Asís", "Puerto Berrío", "Puerto Boyacá", "Puerto Caicedo", "Puerto Carreño", 
@@ -188,30 +188,35 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Zona Bananera"
 ])))
 
-# Recursos Multimedia
+# Recursos Multimedia (Rutas Locales: assets/)
 recursos = {
-    "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
-    "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
-    "godet": "https://upload.wikimedia.org/wikipedia/commons/0/00/Combination_of_pitting_edema_and_stasis_dermatitis.jpg",
-    "rx_normal": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
-    "rx_congest": "https://upload.wikimedia.org/wikipedia/commons/2/22/Pulmonary_congestion.jpg", 
-    "rx_edema": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pulmonary_edema.jpg", 
+    # Ritmos
+    "ritmos": "assets/ritmos_ekg.png", 
+    # Signos
+    "iy": "assets/ingurgitacion.png",
+    "godet": "assets/edema_godet.png",
+    # Rx Tórax
+    "rx_normal": "assets/rx_normal.png",
+    "rx_congest": "assets/rx_congestiva.png",
+    "rx_edema": "assets/rx_edema_agudo.png",
+    # PVC Lewis
+    "pvc_lewis": "assets/pvc_lewis.png",
     
     # Audios
-    "audio_normal_heart": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Heart_normal.ogg",
-    "audio_s3": "https://upload.wikimedia.org/wikipedia/commons/7/76/S3_heart_sound.ogg",
-    "audio_s4": "https://upload.wikimedia.org/wikipedia/commons/8/87/S4_heart_sound.ogg",
-    "audio_estenosis_aortica": "https://upload.wikimedia.org/wikipedia/commons/9/99/Aortic_stenosis.ogg",
-    "audio_insuf_mitral": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Mitral_regurgitation.ogg",
-    "audio_insuf_aortica": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
-    "audio_estenosis_mitral": "https://upload.wikimedia.org/wikipedia/commons/3/30/Diastolic_rumble.ogg",
-    "audio_insuf_pulmonar": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
-    "audio_estertores": "https://upload.wikimedia.org/wikipedia/commons/3/33/Crackles_pneumonia.ogg",
-    "audio_sibilancias": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Wheezing_lung_sound.ogg",
-    "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
+    "audio_normal_heart": "assets/ruidos_normales.mp3",
+    "audio_s3": "assets/s3_galope.mp3",
+    "audio_s4": "assets/s4_galope.mp3",
+    "audio_estenosis_aortica": "assets/soplo_ea.mp3",
+    "audio_insuf_mitral": "assets/soplo_im.mp3",
+    "audio_insuf_aortica": "assets/soplo_ia.mp3", 
+    "audio_estenosis_mitral": "assets/soplo_em.mp3",
+    "audio_insuf_pulmonar": "assets/soplo_ip.mp3", 
+    "audio_estertores": "assets/pulmon_estertores.mp3",
+    "audio_sibilancias": "assets/pulmon_sibilancias.mp3",
+    "audio_normal_lung": "assets/pulmon_normal.mp3"
 }
 
-# Antecedentes
+# Antecedentes (Lista Completa)
 antecedentes_lista = sorted([
     "Apnea del sueño", "Arteritis reumatoide", "Cardiopatía congénita", "Diabetes Mellitus Tipo 2", "Dislipidemia", 
     "Enfermedad arterial oclusiva crónica", "Enfermedad carotidea", "Enfermedad cerebro-vascular (ACV)", "Enfermedad coronaria", 
@@ -219,7 +224,7 @@ antecedentes_lista = sorted([
     "Obesidad", "Tabaquismo", "VIH"
 ])
 
-# --- FARMACOLOGÍA AGUDA DETALLADA (CORREGIDA) ---
+# Farmacología Detallada (Braunwald/Guías)
 meds_agudos = {
     "oxigeno": {
         "nombre": "Oxígeno / Ventilación No Invasiva (VNI)",
@@ -259,28 +264,28 @@ meds_agudos = {
     }
 }
 
-# --- 4. LÓGICA CLÍNICA ---
+# --- 5. LÓGICA CLÍNICA ---
 def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
     if not localizacion_soplo: return "Sin soplos reportados."
     dx = "Soplo no específico"
     if foco == "Aórtico":
-        if ciclo == "Sistólico": dx = "Posible Estenosis Aórtica (Busca pulso parvus et tardus)."
-        elif ciclo == "Diastólico": dx = "Posible Insuficiencia Aórtica (Busca presión pulso amplia)."
+        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus et tardus)."
+        elif ciclo == "Diastólico": dx = "**Posible Insuficiencia Aórtica** (Busca presión pulso amplia)."
     elif foco == "Mitral":
-        if ciclo == "Sistólico": dx = "Posible Insuficiencia Mitral (Busca irradiación axila)."
-        elif ciclo == "Diastólico": dx = "Posible Estenosis Mitral (Busca chasquido de apertura)."
+        if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación axila)."
+        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido de apertura)."
     elif foco == "Pulmonar" and ciclo == "Diastólico":
-         dx = "Posible Insuficiencia Pulmonar (Soplo de Graham Steell)."
+         dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell)."
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
-        dx = "Posible Insuficiencia Tricuspídea (Signo Rivero-Carvallo)."
+        dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
     return dx
 
 def calcular_fenotipo_fevi(fevi):
     if fevi < 40: return "HFrEF (FEVI Reducida < 40%)"
     elif 40 <= fevi < 50: return "HFmrEF (FEVI Levemente Reducida 40-49%)"
-    else: return "HFpEF (FEVI Preservada >= 50%)"
+    else: return "HFpEF (FEVI Preservada ≥ 50%)"
 
-# --- 5. INTERFAZ: BARRA LATERAL ---
+# --- 6. INTERFAZ: BARRA LATERAL ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/3063/3063823.png", width=50)
     st.title("Historia Clínica")
@@ -288,6 +293,7 @@ with st.sidebar:
     
     # 1. Origen
     st.subheader("1. Origen y Demografía")
+    # Usa municipios_base (la lista completa)
     ciudad = st.selectbox("Municipio", ["--- Seleccione ---"] + municipios_base)
     es_zona_chagas = ciudad in zonas_chagas
     if es_zona_chagas: st.error(f"🚨 **ALERTA EPIDEMIOLÓGICA:** Riesgo de Chagas en {ciudad}.")
@@ -321,11 +327,19 @@ with st.sidebar:
     st.subheader("5. Examen Físico")
     
     st.markdown("🔴 **Cabeza y Cuello**")
-    iy = st.selectbox("IY", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
-    with st.expander("Ver Grados IY"): st.image(recursos["iy"])
+    iy_presente = st.radio("Ingurgitación Yugular:", ["Ausente", "Presente"], horizontal=True)
+    iy_desc = "Ausente"
+    if iy_presente == "Presente":
+        col_venosa = st.number_input("Altura columna venosa (cm) desde ángulo Louis:", 0, 20, 5)
+        pvc_cmh2o = col_venosa + 5
+        pvc_mmhg = pvc_cmh2o * 0.735
+        iy_desc = f"Presente (PVC aprox {pvc_mmhg:.1f} mmHg)"
+        st.info(f"PVC Estimada (Lewis): {pvc_cmh2o} cmH2O ≈ {pvc_mmhg:.1f} mmHg")
+        with st.expander("Ver Método de Lewis"): st.image(recursos["pvc_lewis"]) # Necesitas cargar esta imagen
+    
     rhy = st.checkbox("Reflujo Hepato-yugular")
 
-    st.markdown("🔴 **Tórax: Cardiovascular**")
+    st.markdown("🔴 **Cardiovascular**")
     opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
     if ritmo == "Sinusal":
         opciones_ruidos.extend(["S4 (Galope Atrial)", "S3 + S4 (Suma)"])
@@ -359,10 +373,6 @@ with st.sidebar:
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    if edema_ex != "Ausente":
-        godet = st.selectbox("Fóvea (Godet)", ["Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
-        with st.expander("Ver Escala Godet"): st.image(recursos["godet"])
-        
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
     llenado = st.number_input("Llenado Capilar (seg)", value=2, step=1)
@@ -394,6 +404,25 @@ with st.sidebar:
         c_p1, c_p2 = st.columns(2)
         tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
         valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 50000, 0)
+        
+        # EXPLICACIÓN PÉPTIDOS AMPLIADA (DOCENCIA)
+        if tipo_peptido == "NT-proBNP":
+            st.info("""
+            **Interpretación NT-proBNP (HFA/ESC 2019):**
+            * **Escenario Agudo (Urgencias):**
+                * < 50 años: > 450 pg/mL
+                * 50-75 años: > 900 pg/mL
+                * > 75 años: > 1800 pg/mL
+            * **Escenario Crónico (Ambulatorio):** > 125 pg/mL
+            * **Alto Valor Predictivo Negativo** para descartar falla cardíaca.
+            """)
+        else:
+            st.info("""
+            **Interpretación BNP:**
+            * **Escenario Agudo:** > 400 pg/mL (Alta probabilidad). < 100 pg/mL (Descarta).
+            * **Escenario Crónico:** > 35 pg/mL.
+            * *Nota: El uso de Sacubitrilo/Valsartán eleva el BNP, no el NT-proBNP.*
+            """)
 
 # --- 7. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
@@ -406,7 +435,7 @@ score_congest = 0
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
 if "Disnea Paroxística Nocturna" in sintomas: score_congest += 3
-if "Grado II" in iy or "Grado III" in iy: score_congest += 4
+if iy_presente == "Presente": score_congest += 4
 if rhy: score_congest += 2
 if "Estertores" in pulmones: score_congest += 3
 if edema_ex != "Ausente": score_congest += 2
@@ -468,7 +497,7 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         st.markdown(f"**Signos Vitales:** PA {pas}/{pad} | FC {fc} | FR {fr} | T {temp_c}°C")
         if sato2 < 90: st.error(f"🚨 **Hipoxemia:** SatO2 {sato2}%")
         else: st.markdown(f"**SatO2:** {sato2}%")
-        if pam < 65: st.error(f"⚠️ **HIPOTENSIÓN/SHOCK?:** PAM {pam:.0f} mmHg")
+        if pam < 65: st.error(f"⚠️ **HIPOTENSIÓN/SHOCK:** PAM {pam:.0f} mmHg")
         if tiene_paraclinicos and lactato >= 2.0: st.error(f"⚠️ **Hipoperfusión:** Lactato {lactato} mmol/L")
     with r3:
         st.markdown("**Hallazgos Positivos:**")
@@ -482,52 +511,22 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         if "Vómito" in sintomas or "Diarrea" in sintomas: hallazgos.append("Pérdidas GI")
         st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores.")
 
-# GENERAR PDF (SECCIÓN MEJORADA)
+# GENERAR PDF
 if st.button("📥 Descargar Resumen del Caso (PDF)"):
     pdf = PDF()
     pdf.add_page()
-    
-    # 1. Datos del Paciente
-    pdf.chapter_title("1. Datos Generales y Antecedentes")
-    pdf.chapter_body(f"Paciente: {edad} años, Sexo: {sexo}")
-    pdf.chapter_body(f"Procedencia: {ciudad} (Riesgo Chagas: {'SI' if es_zona_chagas else 'NO'})")
-    if antecedentes:
-        pdf.chapter_body(f"Antecedentes: {', '.join(antecedentes)}")
-    else:
-        pdf.chapter_body("Antecedentes: Niega")
-    if sintomas:
-        pdf.chapter_body(f"Síntomas reportados: {', '.join(sintomas)}")
-
-    # 2. Signos Vitales
-    pdf.chapter_title("2. Signos Vitales y Paraclínicos")
-    pdf.chapter_body(f"Presión Arterial: {pas}/{pad} mmHg (PAM {pam:.0f})")
-    pdf.chapter_body(f"Frecuencia Cardíaca: {fc} lpm | Ritmo: {ritmo}")
-    pdf.chapter_body(f"Frecuencia Respiratoria: {fr} rpm | SatO2: {sato2}% | Temp: {temp_c}C")
+    pdf.chapter_title("1. Datos del Paciente")
+    pdf.chapter_body(f"Edad: {edad} | Sexo: {sexo} | Ciudad: {ciudad} (Riesgo Chagas: {'SI' if es_zona_chagas else 'NO'})")
+    pdf.chapter_title("2. Perfil Hemodinámico")
+    pdf.chapter_body(f"PA: {pas}/{pad} (PAM {pam:.0f}) | FC: {fc} | SatO2: {sato2}%")
+    pdf.chapter_body(f"Cuadrante Stevenson: {cuadrante}")
+    pdf.chapter_body(f"PPP: {ppp:.1f}% | Perfusión: {frialdad}")
+    pdf.chapter_title("3. Hallazgos Clínicos")
+    pdf.chapter_body(f"Ruidos: {ruidos_agregados} | Pulmón: {pulmones}")
+    if "Hepato" in abdomen_viscera or ascitis: pdf.chapter_body(f"Abdomen: {abdomen_viscera} {'Ascitis' if ascitis else ''}")
     if tiene_paraclinicos:
-        pdf.chapter_body(f"Paraclínicos: Lactato {lactato} mmol/L | FEVI {fevi}% ({fenotipo_msg})")
-        pdf.chapter_body(f"Biomarcador: {tipo_peptido} {valor_peptido} pg/mL")
-        pdf.chapter_body(f"Radiografía: {rx_patron}")
-
-    # 3. Examen Físico
-    pdf.chapter_title("3. Hallazgos al Examen Físico")
-    pdf.chapter_body(f"Cuello: Ingurgitación Yugular {iy} | Reflujo Hepato-yugular: {'Si' if rhy else 'No'}")
-    pdf.chapter_body(f"Cardiovascular: Ruidos {ruidos_agregados}")
-    if tiene_soplo:
-        pdf.chapter_body(f"Soplo: {foco} {ciclo} {patron} -> Impresión: {inferir_valvulopatia(foco, ciclo, patron, True)}")
-    pdf.chapter_body(f"Pulmonar: {pulmones}")
-    pdf.chapter_body(f"Abdomen: {abdomen_viscera} | Ascitis: {'Si' if ascitis else 'No'}")
-    pdf.chapter_body(f"Extremidades: Edema {edema_ex} | Pulsos {pulsos}")
-    pdf.chapter_body(f"Perfusión: Temperatura {frialdad} | Llenado Capilar {llenado} seg")
-    pdf.chapter_body(f"Neurológico: {neuro}")
-
-    # 4. Análisis Hemodinámico
-    pdf.chapter_title("4. Perfil Hemodinámico (Stevenson)")
-    pdf.chapter_body(f"Clasificación Final: {cuadrante}")
-    pdf.chapter_body(f"Score Congestión (PCP estimada): {pcp_sim} (Corte >18)")
-    pdf.chapter_body(f"Score Perfusión (IC estimado): {ic_sim} (Corte <2.2)")
-    pdf.chapter_body(f"Presión de Pulso Proporcional (PPP): {ppp:.1f}%")
+        pdf.chapter_body(f"Fenotipo FEVI: {fenotipo_msg} | Lactato: {lactato}")
     
-    # Generar Link
     pdf_output = pdf.output(dest='S').encode('latin-1', 'ignore') 
     st.markdown(create_download_link(pdf_output, "Reporte_HemoSim"), unsafe_allow_html=True)
 
@@ -660,10 +659,10 @@ with tabs[3]:
     col_hf1, col_hf2 = st.columns(2)
     with col_hf1:
         st.success("✅ **Pilar Clase I-A**")
-        st.markdown("**iSGLT2 (Dapagliflozina / Empagliflozina 10 mg/día):** Única terapia que reduce eventos duros de forma consistente.")
+        st.markdown("**iSGLT2 (Dapagliflozina / Empagliflozina):** Única terapia que reduce eventos duros de forma consistente.")
     with col_hf2:
         st.warning("🔎 **Manejo por Fenotipos**")
-        st.markdown("* **HTA:** ARNI/Espironolactona.\n* **FA:** Control ritmo/frecuencia/anticoagulación.\n* **Amiloidosis TTR:** Tafamidis.")
+        st.markdown("* **HTA:** ARNI/Espironolactona.\n* **FA:** Control ritmo/frecuencia.\n* **Amiloidosis TTR:** Tafamidis.")
 
 # 5. REFERENCIAS
 with tabs[4]:
