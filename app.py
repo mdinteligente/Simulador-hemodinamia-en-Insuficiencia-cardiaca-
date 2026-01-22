@@ -80,6 +80,8 @@ def create_download_link(val, filename):
     b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte Completo (PDF)</a>'
 
+# --- 4. RECURSOS Y DATA ---
+
 # Municipios de Riesgo Chagas (Lista de Control)
 zonas_chagas = [
     "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque",
@@ -185,7 +187,6 @@ municipios_completa = sorted(list(set(zonas_chagas + [
     "Viterbo", "Yacopí", "Yacuanquer", "Yaguará", "Yalí", "Yarumal", "Yavaraté", "Yolombó", "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", 
     "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", "Zona Bananera"
 ])))
-
 # Recursos Multimedia
 recursos = {
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
@@ -685,5 +686,6 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
