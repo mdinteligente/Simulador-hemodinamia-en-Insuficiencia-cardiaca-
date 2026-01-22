@@ -660,10 +660,10 @@ with tabs[3]:
     col_hf1, col_hf2 = st.columns(2)
     with col_hf1:
         st.success("✅ **Pilar Clase I-A**")
-        st.markdown("**iSGLT2 (Dapagliflozina / Empagliflozina):** Única terapia que reduce eventos duros de forma consistente.")
+        st.markdown("**iSGLT2 (Dapagliflozina / Empagliflozina 10 mg/día):** Única terapia que reduce eventos duros de forma consistente.")
     with col_hf2:
         st.warning("🔎 **Manejo por Fenotipos**")
-        st.markdown("* **HTA:** ARNI/Espironolactona.\n* **FA:** Control ritmo/frecuencia.\n* **Amiloidosis TTR:** Tafamidis.")
+        st.markdown("* **HTA:** ARNI/Espironolactona.\n* **FA:** Control ritmo/frecuencia/anticoagulación.\n* **Amiloidosis TTR:** Tafamidis.")
 
 # 5. REFERENCIAS
 with tabs[4]:
@@ -687,6 +687,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
