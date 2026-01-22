@@ -129,42 +129,43 @@ antecedentes_lista = sorted([
     "Obesidad", "Tabaquismo", "VIH"
 ])
 
+# --- FARMACOLOGÍA AGUDA DETALLADA (CORREGIDA) ---
 meds_agudos = {
     "oxigeno": {
-        "nombre": "Oxígeno / VNI",
-        "dosis": "• **O2:** Meta SatO2 > 90%.\n• **VNI:** Considerar si FR>25 o Acidosis. Reduce precarga/postcarga VI.",
-        "monitor": "• Gases arteriales.\n• SatO2.",
-        "adverso": "Intolerancia, Hipotensión (VNI)."
+        "nombre": "Oxígeno / Ventilación No Invasiva (VNI)",
+        "dosis": "• **Oxígeno Suplementario:** Titular para meta de SatO2 > 90% (>95% en embarazo).\n• **Ventilación Mecánica No Invasiva (CPAP/BiPAP):** Iniciar con PEEP 5-10 cmH2O. Indicación Clase IIa si hay FR > 25 rpm, Acidosis respiratoria (pH < 7.35) o Edema Pulmonar franco para reducir precarga y trabajo respiratorio.",
+        "monitor": "• Gases arteriales (control a la 1 hora post-inicio).\n• Estado de conciencia y tolerancia a la interfaz (máscara).\n• Riesgo de hipotensión (la presión positiva intratorácica reduce el retorno venoso).",
+        "adverso": "Intolerancia, claustrofobia, broncoaspiración (contraindicado si hay deterioro del sensorio o vómito), resequedad de mucosas."
     },
     "liquidos": {
         "nombre": "Líquidos Endovenosos (Cristaloides)",
-        "dosis": "• **Solución Salina 0.9%** o **Lactato de Ringer**.\n• **Reto:** 250-500 cc en 15-30 min si hay hipoperfusión sin congestión pulmonar (Perfil L).",
-        "monitor": "• Signos de congestión pulmonar (Estertores).\n• Respuesta hemodinámica (Mejoría PA, GU).",
-        "adverso": "Edema Pulmonar, Acidosis hiperclorémica."
+        "dosis": "• **Cristaloides Balanceados:** Lactato de Ringer o Solución Salina Normal 0.9%.\n• **Reto de Fluidos (Solo Perfil L - Seco/Frío):** Bolos de 250-500 cc en 15-30 minutos bajo vigilancia estricta.\n• **Objetivo:** Aumentar precarga para mejorar Volumen Sistólico (Mecanismo Frank-Starling).",
+        "monitor": "• Signos de congestión pulmonar (aparición de estertores).\n• Respuesta clínica (Mejoría de Presión Arterial, Gasto Urinario, aclaramiento de Lactato).",
+        "adverso": "Edema Pulmonar Agudo (iatrogénico si se administra en pacientes húmedos), Acidosis hiperclorémica (con volúmenes altos de SSN 0.9%)."
     },
     "diureticos": {
         "nombre": "Furosemida (Diurético de Asa)",
-        "dosis": "• **Naïve:** 20-40 mg IV.\n• **Crónico:** 1-2.5x dosis oral en bolo IV.\n• **Infusión:** 5-40 mg/h si hay resistencia.",
-        "monitor": "• GU >100ml/h.\n• K+, Mg++.\n• Cr.",
-        "adverso": "Hipokalemia, Ototoxicidad, Falla renal."
+        "dosis": "• **Pacientes vírgenes de tratamiento (Naïve):** Bolo IV de 20 mg a 40 mg.\n• **Pacientes con uso crónico:** Bolo IV inicial de 1 a 2.5 veces su dosis oral total diaria.\n• **Infusión Continua:** Si hay respuesta pobre a bolos, iniciar infusión a 5 - 40 mg/hora.\n• **Bloqueo Secuencial de Nefrona:** Si hay resistencia diurética, adicionar Tiazida (Hidroclorotiazida 25mg o Metolazona).",
+        "monitor": "• Gasto urinario horario (Meta > 100-150 ml/hora primeras 6 horas).\n• Electrolitos: Potasio (K+) y Magnesio (Mg++) cada 6-12 horas.\n• Función renal: Esperar elevación transitoria de Creatinina (permisiva si hay descongestión exitosa).",
+        "adverso": "Hipokalemia, Hipomagnesemia, Ototoxicidad (riesgo en bolos rápidos > 20mg/min), Hipotensión, Alcalosis metabólica por contracción."
     },
     "vasodilatadores": {
-        "nombre": "Vasodilatadores IV",
-        "dosis": "• **NTG:** 10-20 mcg/min, titular.\n• **NTP:** 0.3 mcg/kg/min (UCI).",
-        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2.",
-        "adverso": "Hipotensión, Cefalea, Robo coronario."
+        "nombre": "Vasodilatadores (Nitroglicerina / Nitroprusiato)",
+        "dosis": "• **Nitroglicerina:** Iniciar infusión a 10-20 mcg/min. Titular aumentando 5-10 mcg/min cada 3-5 minutos según respuesta. Dosis máxima usual 200 mcg/min.\n• **Nitroprusiato de Sodio:** Iniciar a 0.3 mcg/kg/min. Titular hasta 5 mcg/kg/min. (Requiere línea arterial obligatoria y protección de la luz).",
+        "monitor": "• Presión Arterial continua (Detener o reducir si Presión Sistólica < 90 mmHg).\n• Cefalea intensa (muy común con Nitroglicerina).\n• Saturación O2 (puede caer levemente por alteración ventilación/perfusión).",
+        "adverso": "Hipotensión severa, Taquicardia refleja, Cefalea, Fenómeno de robo coronario. Nitroprusiato: Riesgo de toxicidad por cianuro/tiocianato en uso prolongado (>24-48h) o falla renal."
     },
     "inotropicos": {
-        "nombre": "Inotrópicos",
-        "dosis": "• **Dobu:** 2-20 mcg/kg/min.\n• **Milrinone:** 0.375-0.75.\n• **Levo:** 0.1.",
-        "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
-        "adverso": "Taquicardia, FA, Hipotensión."
+        "nombre": "Inotrópicos (Dobutamina / Milrinone / Levosimendán)",
+        "dosis": "• **Dobutamina:** Iniciar a 2 mcg/kg/min. Titular hasta máximo 20 mcg/kg/min (Agonista Beta-1 adrenérgico).\n• **Milrinone:** Iniciar a 0.375 mcg/kg/min. Rango 0.375 - 0.75 mcg/kg/min. (Inhibidor PDE3, inodilatador). Ajustar al 50% en falla renal. No usar bolo de carga.\n• **Levosimendán:** Infusión de 0.1 mcg/kg/min (rango 0.05 - 0.2) por 24 horas. (Sensibilizador de calcio). No usar bolo de carga rutinario.",
+        "monitor": "• Monitoría electrocardiográfica continua (Riesgo de arritmias ventriculares y auriculares).\n• Signos de isquemia miocárdica (Dobutamina aumenta consumo de O2).\n• Presión Arterial (Milrinone y Levosimendán causan hipotensión por vasodilatación periférica).",
+        "adverso": "Taquicardia sinusal, Fibrilación auricular, Complejos ventriculares prematuros/Taquicardia Ventricular, Hipotensión sostenida (Milrinone/Levosimendán), Hipokalemia."
     },
     "vasopresores": {
         "nombre": "Vasopresores (Norepinefrina)",
-        "dosis": "• 0.05 - 0.5 mcg/kg/min. Meta PAM > 65.",
-        "monitor": "• Perfusión distal.\n• Línea arterial.",
-        "adverso": "Isquemia distal, Arritmias, HTA."
+        "dosis": "• **Norepinefrina:** Iniciar a 0.05 mcg/kg/min. Titular cada 3-5 minutos hasta 0.5 mcg/kg/min o más según necesidad. Meta: Presión Arterial Media (PAM) > 65 mmHg.\n• (Vasopresor de elección en Shock Cardiogénico según guías ESC/AHA).",
+        "monitor": "• Signos de perfusión distal y esplácnica (Lactato sérico, llenado capilar).\n• Acceso venoso central preferido (riesgo de necrosis por extravasación).\n• Línea arterial obligatoria para titulación precisa.",
+        "adverso": "Isquemia tisular (necrosis de dedos/extremidades), Arritmias, Hipertensión severa reactiva, Aumento excesivo de la postcarga del ventrículo izquierdo (puede empeorar el gasto cardíaco si no hay inotropía adecuada)."
     }
 }
 
@@ -596,3 +597,4 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
