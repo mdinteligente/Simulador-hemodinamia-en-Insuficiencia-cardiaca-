@@ -17,14 +17,12 @@ st.markdown("""
     div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     .stAlert { padding: 0.5rem; }
     .caption-evidence { font-size: 0.8rem; color: #666; font-style: italic; }
-    /* Ajuste para inputs numéricos */
     input[type=number] { -moz-appearance: textfield; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 2. AUTENTICACIÓN ---
 def check_password():
-    """Retorna True si el usuario/clave son correctos."""
     def password_entered():
         if (st.session_state["username"] == st.secrets["credentials"]["username"] and 
             st.session_state["password"] == st.secrets["credentials"]["password"]):
@@ -58,23 +56,22 @@ if not check_password():
 
 # --- 3. RECURSOS Y DATA ---
 
-# Municipios Chagas
+# Municipios (Resumido para el ejemplo, en prod va completo)
 zonas_chagas = [
-    "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque", # Boyacá
-    "Barichara", "Capitanejo", "Encinales", "Hato", "Mogotes", "San Gil", "San José de Miranda", "San Vicente del Chucurí", "Socorro", # Santander
-    "Aguazul", "Chámeza", "Hato Corozal", "Nunchía", "Paz de Ariporo", "Recetor", "Támara", "Tauramena", "Yopal", # Casanare
-    "Arauca", "Arauquita", "Saravena", "Tame", # Arauca
-    "Choachí", "Fómeque", "Gachalá", "Medina", "Nilo", "Paratebueno", "Ubaque", # Cundinamarca
-    "Cáchira", "Sardinata", "Toledo", # Norte Santander
-    "La Jagua de Ibirico", "Pueblo Bello", "Valledupar", # Cesar
-    "Liborina", "Peque", "Yolombó" # Antioquia
+    "Boavita", "Chiscas", "Soatá", "Tipacoque", # Boyacá
+    "San Gil", "Socorro", "Mogotes", "Barichara", # Santander
+    "Yopal", "Aguazul", "Paz de Ariporo", "Támara", # Casanare
+    "Arauca", "Tame", "Saravena", # Arauca
+    "Choachí", "Fómeque", "Medina", # Cundinamarca
+    "Cúcuta", "Sardinata", "Toledo", # Norte Santander
+    "Valledupar", "Pueblo Bello", # Cesar
+    "Liborina", "Yolombó" # Antioquia
 ]
 municipios_base = sorted(list(set(zonas_chagas + [
-    "Bogotá D.C.", "Medellín", "Cali", "Barranquilla", "Cartagena", "Cúcuta", "Bucaramanga", "Pereira", "Santa Marta", "Ibagué", 
-    "Pasto", "Manizales", "Neiva", "Villavicencio", "Armenia", "Montería", "Sincelejo", "Popayán", "Tunja", "Riohacha", "Florencia", "Quibdó"
+    "Bogotá D.C.", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Pereira", "Manizales", "Neiva", "Villavicencio", "Montería"
 ])))
 
-# Recursos Multimedia
+# Recursos
 recursos = {
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
     "iy": "https://upload.wikimedia.org/wikipedia/commons/0/05/JVP.jpg",
@@ -82,8 +79,6 @@ recursos = {
     "rx_normal": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
     "rx_congest": "https://upload.wikimedia.org/wikipedia/commons/2/22/Pulmonary_congestion.jpg", 
     "rx_edema": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pulmonary_edema.jpg", 
-    
-    # Audios
     "audio_normal_heart": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Heart_normal.ogg",
     "audio_s3": "https://upload.wikimedia.org/wikipedia/commons/7/76/S3_heart_sound.ogg",
     "audio_s4": "https://upload.wikimedia.org/wikipedia/commons/8/87/S4_heart_sound.ogg",
@@ -91,50 +86,56 @@ recursos = {
     "audio_insuf_mitral": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Mitral_regurgitation.ogg",
     "audio_insuf_aortica": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
     "audio_estenosis_mitral": "https://upload.wikimedia.org/wikipedia/commons/3/30/Diastolic_rumble.ogg",
-    "audio_insuf_pulmonar": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Aortic_regurgitation.ogg", 
     "audio_estertores": "https://upload.wikimedia.org/wikipedia/commons/3/33/Crackles_pneumonia.ogg",
     "audio_sibilancias": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Wheezing_lung_sound.ogg",
     "audio_normal_lung": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Vesicular_breath_sounds.ogg"
 }
 
-# Antecedentes
+# Antecedentes (Actualizado)
 antecedentes_lista = sorted([
     "Apnea del sueño", "Arteritis reumatoide", "Cardiopatía congénita", "Diabetes Mellitus Tipo 2", "Dislipidemia", 
     "Enfermedad arterial oclusiva crónica", "Enfermedad carotidea", "Enfermedad cerebro-vascular (ACV)", "Enfermedad coronaria", 
-    "Hipertensión arterial", "Insuficiencia cardiaca previa", "Lupus eritematoso sistémico", "Obesidad", "Tabaquismo", "VIH"
+    "ERC sin diálisis", "ERC en diálisis", "Hipertensión arterial", "Insuficiencia cardiaca previa", "Lupus eritematoso sistémico", 
+    "Obesidad", "Tabaquismo", "VIH"
 ])
 
-# Farmacología Detallada (Sin Abreviaturas)
+# Farmacología (Actualizada con Líquidos)
 meds_agudos = {
     "oxigeno": {
-        "nombre": "Oxígeno / Ventilación No Invasiva (VNI)",
-        "dosis": "**Oxígeno:** Titular para saturación > 90% (>95% en embarazo).\n**VNI (CPAP/BiPAP):** Iniciar con PEEP 5-10 cmH2O. Indicado en edema pulmonar agudo, acidosis respiratoria o distrés respiratorio.",
-        "monitor": "• Gases arteriales (control a la hora).\n• Estado de conciencia y tolerancia a la máscara.\n• Riesgo de hipotensión (la presión positiva intratorácica reduce el retorno venoso).",
-        "adverso": "Resequedad de mucosas, claustrofobia, broncoaspiración (si hay deterioro del sensorio), barotrauma (raro)."
+        "nombre": "Oxígeno / VNI",
+        "dosis": "• **O2:** Meta SatO2 > 90%.\n• **VNI:** Considerar si FR>25 o Acidosis. Reduce precarga/postcarga VI.",
+        "monitor": "• Gases arteriales.\n• SatO2.",
+        "adverso": "Intolerancia, Hipotensión (VNI)."
+    },
+    "liquidos": {
+        "nombre": "Líquidos Endovenosos (Cristaloides)",
+        "dosis": "• **Solución Salina 0.9%** o **Lactato de Ringer**.\n• **Reto de fluidos:** Bolos de 250-500 cc en 15-30 min si hay hipoperfusión sin congestión (Perfil L).",
+        "monitor": "• Signos de congestión pulmonar (¡Cuidado!).\n• Respuesta clínica (Mejoría de PA, gasto urinario, sensorio).",
+        "adverso": "Edema Pulmonar Agudo (si se administra en pacientes húmedos), Acidosis hiperclorémica (SSN abundantes)."
     },
     "diureticos": {
-        "nombre": "Furosemida (Diurético de Asa)",
-        "dosis": "**Pacientes vírgenes de tratamiento:** Bolo IV 20-40 mg.\n**Pacientes con uso crónico:** Bolo IV de 1 a 2.5 veces su dosis oral total diaria.\n**Infusión continua:** Si hay respuesta pobre a bolos, iniciar 5-40 mg/hora.\n**Combinación:** Si hay resistencia, agregar Tiazida (Hidroclorotiazida o Metolazona).",
-        "monitor": "• Gasto urinario horario (Meta > 100-150 ml/hora).\n• Electrolitos: Potasio (K+), Magnesio (Mg++) cada 6-12h.\n• Función renal: Esperar elevación transitoria de Creatinina (permisiva si hay descongestión).",
-        "adverso": "Hipokalemia, Hipomagnesemia, Ototoxicidad (infusiones rápidas), Hipotensión, Alcalosis metabólica."
+        "nombre": "Diuréticos de Asa (Furosemida)",
+        "dosis": "• **Naïve:** 20-40 mg IV.\n• **Crónico:** 1-2.5x dosis oral en bolo.\n• **Infusión:** 5-40 mg/h si hay resistencia.",
+        "monitor": "• GU >100ml/h.\n• K+, Mg++.\n• Cr.",
+        "adverso": "Hipokalemia, Ototoxicidad, Falla renal."
     },
     "vasodilatadores": {
-        "nombre": "Vasodilatadores (Nitroglicerina / Nitroprusiato)",
-        "dosis": "**Nitroglicerina:** Iniciar 10-20 mcg/min. Titular ↑ 5-10 mcg/min cada 3-5 min. Dosis máxima usual 200 mcg/min.\n**Nitroprusiato de Sodio:** Iniciar 0.3 mcg/kg/min. Titular hasta 5 mcg/kg/min (Requiere línea arterial obligatoria).",
-        "monitor": "• Presión Arterial continua (Detener si PAS < 90 mmHg).\n• Cefalea intensa (común con Nitroglicerina).\n• Saturación O2 (puede caer por alteración V/Q).",
-        "adverso": "Hipotensión severa, Taquicardia refleja, Cefalea, Fenómeno de robo coronario. Nitroprusiato: Toxicidad por cianuro/tiocianato en uso prolongado o falla renal."
+        "nombre": "Vasodilatadores IV",
+        "dosis": "• **Nitroglicerina:** 10-20 mcg/min, titular hasta 200.\n• **Nitroprusiato:** 0.3 mcg/kg/min (Solo UCI, línea arterial).",
+        "monitor": "• PA (Evitar PAS<90).\n• Cefalea.\n• SatO2.",
+        "adverso": "Hipotensión, Cefalea, Robo coronario."
     },
     "inotropicos": {
-        "nombre": "Inotrópicos (Dobutamina / Milrinone)",
-        "dosis": "**Dobutamina:** 2-20 mcg/kg/min (Agonista Beta-1).\n**Milrinone:** 0.375-0.75 mcg/kg/min (Inhibidor PDE3, inodilatador, requiere ajuste en falla renal).\n**Levosimendán:** 0.1 mcg/kg/min (Sensibilizador de calcio).",
-        "monitor": "• Monitoría electrocardiográfica continua (Arritmias ventriculares/auriculares).\n• Signos de isquemia (Dobutamina aumenta consumo O2).\n• Presión Arterial (Milrinone y Levosimendán causan hipotensión).",
-        "adverso": "Taquicardia sinusal, Fibrilación auricular, Complejos ventriculares prematuros, Hipotensión sostenida (Milrinone), Hipokalemia."
+        "nombre": "Inotrópicos",
+        "dosis": "• **Dobutamina:** 2-20 mcg/kg/min.\n• **Milrinone:** 0.375-0.75.\n• **Levo:** 0.1.",
+        "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
+        "adverso": "Taquicardia, FA, Hipotensión."
     },
     "vasopresores": {
         "nombre": "Vasopresores (Norepinefrina)",
-        "dosis": "**Norepinefrina:** 0.05 - 0.5 mcg/kg/min. Titular para PAM > 65 mmHg.\n(Vasopresor de elección en Shock Cardiogénico según guías).",
-        "monitor": "• Signos de perfusión distal y esplácnica (Lactato).\n• Acceso venoso central preferido (riesgo de extravasación).\n• Línea arterial obligatoria.",
-        "adverso": "Isquemia tisular (necrosis distal), Arritmias, Hipertensión severa, Aumento excesivo de la postcarga del ventrículo izquierdo."
+        "dosis": "• 0.05 - 0.5 mcg/kg/min. Meta PAM > 65.",
+        "monitor": "• Perfusión distal.\n• Línea arterial.",
+        "adverso": "Isquemia distal, Arritmias, HTA."
     }
 }
 
@@ -143,15 +144,15 @@ def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
     if not localizacion_soplo: return "Sin soplos reportados."
     dx = "Soplo no específico"
     if foco == "Aórtico":
-        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus et tardus)."
-        elif ciclo == "Diastólico": dx = "**Posible Insuficiencia Aórtica** (Busca presión de pulso amplia)."
+        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus)."
+        elif ciclo == "Diastólico": dx = "**Posible Insuficiencia Aórtica** (Busca presión pulso amplia)."
     elif foco == "Mitral":
-        if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación a axila)."
-        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido de apertura)."
+        if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación axila)."
+        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido)."
     elif foco == "Pulmonar" and ciclo == "Diastólico":
          dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell)."
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
-        dx = "**Posible Insuficiencia Tricuspídea** (Signo de Rivero-Carvallo)."
+        dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
     return dx
 
 def calcular_fenotipo_fevi(fevi):
@@ -169,7 +170,7 @@ with st.sidebar:
     st.subheader("1. Origen y Demografía")
     ciudad = st.selectbox("Municipio", ["--- Seleccione ---"] + municipios_base)
     es_zona_chagas = ciudad in zonas_chagas
-    if es_zona_chagas: st.error(f"🚨 **ALERTA EPIDEMIOLÓGICA:** Riesgo de Chagas en {ciudad}.")
+    if es_zona_chagas: st.error(f"🚨 **ALERTA CHAGAS:** Zona Endémica ({ciudad}).")
     
     c_d1, c_d2 = st.columns(2)
     edad = c_d1.number_input("Edad", 18, 120, 65)
@@ -179,21 +180,20 @@ with st.sidebar:
     st.subheader("2. Antecedentes")
     antecedentes = st.multiselect("Patologías:", antecedentes_lista)
 
-    # 3. Síntomas
+    # 3. Síntomas (Actualizado)
     st.subheader("3. Síntomas")
-    sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Ortopnea", "Bendopnea", "DPN", "Fatiga", "Angina", "Edema MsIs (Subjetivo)"])
+    sintomas = st.multiselect("Seleccione:", ["Disnea esfuerzo", "Disnea reposo", "Disnea Paroxística Nocturna", "Ortopnea", "Bendopnea", "Fatiga", "Angina", "Edema MsIs (Refiere)", "Vómito", "Diarrea", "Sangrado"])
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos", "Otro"])
-    with st.expander("Ver Ritmos"): st.image(recursos["ritmos"])
-
+    
     c_v1, c_v2 = st.columns(2)
-    pas = c_v1.number_input("PAS (mmHg)", value=110, step=1)
-    pad = c_v2.number_input("PAD (mmHg)", value=70, step=1)
+    pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
+    pad = c_v2.number_input("PAD (mmHg)", value=80, step=1)
     fc = c_v1.number_input("FC (lpm)", value=80, step=1)
-    fr = c_v2.number_input("FR (rpm)", value=22, step=1)
-    sato2 = c_v1.number_input("SatO2 (%)", value=92, step=1)
+    fr = c_v2.number_input("FR (rpm)", value=18, step=1)
+    sato2 = c_v1.number_input("SatO2 (%)", value=94, step=1)
     temp_c = c_v2.number_input("Temp (°C)", value=36.5, step=0.1)
     
     # 5. Examen Físico
@@ -201,16 +201,14 @@ with st.sidebar:
     
     st.markdown("🔴 **Cabeza y Cuello**")
     iy = st.selectbox("IY", ["Ausente", "Grado I (45°)", "Grado II (45°)", "Grado III (90°)"])
-    with st.expander("Ver Grados IY"): st.image(recursos["iy"])
     rhy = st.checkbox("Reflujo Hepato-yugular")
 
-    st.markdown("🔴 **Tórax: Cardiovascular**")
+    st.markdown("🔴 **Cardiovascular**")
     opciones_ruidos = ["R1-R2 Normales", "S3 (Galope Ventricular)"]
     if ritmo == "Sinusal":
         opciones_ruidos.extend(["S4 (Galope Atrial)", "S3 + S4 (Suma)"])
-    
     ruidos_agregados = st.selectbox("Ruidos:", opciones_ruidos)
-    with st.expander("🎧 Escuchar Ruidos", expanded=True):
+    with st.expander("🎧 Escuchar"):
         if "Normales" in ruidos_agregados: st.audio(recursos["audio_normal_heart"])
         elif "S3" in ruidos_agregados: st.audio(recursos["audio_s3"])
         elif "S4" in ruidos_agregados: st.audio(recursos["audio_s4"])
@@ -221,28 +219,20 @@ with st.sidebar:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
         ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click", "Retumbo"])
-        with st.expander("🎧 Escuchar Ejemplo"):
+        with st.expander("🎧 Escuchar"):
             if "Aórtico" in foco and ciclo == "Diastólico": st.audio(recursos["audio_insuf_aortica"])
             elif "Mitral" in foco and ciclo == "Diastólico": st.audio(recursos["audio_estenosis_mitral"])
             elif "Aórtico" in foco: st.audio(recursos["audio_estenosis_aortica"])
 
     st.markdown("🔴 **Tórax: Pulmonar**")
     pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
-    with st.expander("🎧 Escuchar Pulmón"):
-        if "Estertores" in pulmones: st.audio(recursos["audio_estertores"])
-        elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
-        else: st.audio(recursos["audio_normal_lung"])
-
+    
     st.markdown("🔴 **Abdomen**")
     abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
-    ascitis = st.checkbox("Onda Ascítica Presente")
+    ascitis = st.checkbox("Onda Ascítica")
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    if edema_ex != "Ausente":
-        godet = st.selectbox("Fóvea (Godet)", ["Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
-        with st.expander("Ver Escala Godet"): st.image(recursos["godet"])
-        
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
     llenado = st.number_input("Llenado Capilar (seg)", value=2, step=1)
@@ -263,32 +253,17 @@ with st.sidebar:
     
     if tiene_paraclinicos:
         st.caption("Ingrese datos disponibles:")
-        
-        # Ecocardiograma
-        st.markdown("**Ecocardiograma**")
-        fevi = st.number_input("FEVI (%)", 0, 100, 35, help="Define el Fenotipo (Reducida/Preservada)")
-        
-        # Lactato
+        fevi = st.number_input("FEVI (%)", 0, 100, 35)
         lactato = st.number_input("Lactato (mmol/L)", 0.0, 20.0, 1.0, 0.1)
-        
-        # Rx
-        st.markdown("**Radiografía de Tórax**")
         rx_patron = st.selectbox("Patrón Rx", ["Normal", "Congestión Leve/Basal", "Edema Alveolar (4 Cuadrantes)"])
         with st.expander("Ver Rx Referencia"):
             if rx_patron == "Normal": st.image(recursos["rx_normal"])
             elif rx_patron == "Congestión Leve/Basal": st.image(recursos["rx_congest"])
             else: st.image(recursos["rx_edema"])
         
-        # Péptidos
-        st.markdown("**Péptidos Natriuréticos**")
         c_p1, c_p2 = st.columns(2)
         tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
         valor_peptido = c_p2.number_input("Valor (pg/mL)", 0, 50000, 0)
-        
-        if tipo_peptido == "NT-proBNP":
-            st.caption(f"**Criterios HFA/ESC 2019:**\n• <50a: >450 | 50-75a: >900 | >75a: >1800 pg/mL")
-        else:
-            st.caption("**Criterio Agudo (BNP):** >400 pg/mL")
 
 # --- 6. CÁLCULOS Y LOGICA ---
 pam = pad + (pas - pad)/3
@@ -300,7 +275,7 @@ fenotipo_msg = calcular_fenotipo_fevi(fevi) if tiene_paraclinicos else "No deter
 score_congest = 0
 if "Ortopnea" in sintomas: score_congest += 3
 if "reposo" in str(sintomas): score_congest += 4
-if "Edema" in str(sintomas): score_congest += 1 # Edema subjetivo suma leve
+if "Disnea Paroxística Nocturna" in sintomas: score_congest += 3
 if "Grado II" in iy or "Grado III" in iy: score_congest += 4
 if rhy: score_congest += 2
 if "Estertores" in pulmones: score_congest += 3
@@ -312,7 +287,6 @@ if "S3" in ruidos_agregados: score_congest += 4
 if tiene_paraclinicos:
     if rx_patron == "Congestión Leve/Basal": score_congest += 2
     if rx_patron == "Edema Alveolar (4 Cuadrantes)": score_congest += 5
-    
     is_positive_np = False
     if tipo_peptido == "BNP" and valor_peptido > 400: is_positive_np = True
     elif tipo_peptido == "NT-proBNP":
@@ -321,8 +295,13 @@ if tiene_paraclinicos:
         elif edad > 75 and valor_peptido > 1800: is_positive_np = True
     if is_positive_np: score_congest += 3
 
+# Ajuste por síntomas hipovolémicos (vómito/diarrhea) pueden reducir congestión aparente
+if "Vómito" in sintomas or "Diarrea" in sintomas or "Sangrado" in sintomas:
+    score_congest -= 2 
+
 pcp_sim = 12 + score_congest
 if pcp_sim > 38: pcp_sim = 38 
+if pcp_sim < 5: pcp_sim = 5 # Límite inferior
 
 # Score Perfusión (Eje Y)
 score_perf = 2.8
@@ -333,10 +312,9 @@ if pulsos == "Filiformes": score_perf -= 0.5
 if neuro != "Alerta": score_perf -= 0.5
 if tiene_paraclinicos and lactato >= 2.0: score_perf -= 0.8
 
-# AJUSTE CRÍTICO: HIPOTENSIÓN (SHOCK)
-# Si PAM < 65, forzar desplazamiento hacia la izquierda (Mala perfusión)
+# AJUSTE CRÍTICO: SHOCK
 if pam < 65:
-    score_perf -= 1.0 # Penalización fuerte por hipotensión
+    score_perf -= 1.5 # Empuja fuertemente a zona de hipoperfusión
 
 ic_sim = max(1.0, score_perf) 
 
@@ -373,22 +351,18 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         if ascitis: hallazgos.append("Ascitis")
         if "Hepato" in abdomen_viscera: hallazgos.append(abdomen_viscera)
         if "Ortopnea" in sintomas: hallazgos.append("Ortopnea")
-        if "Edema" in str(sintomas): hallazgos.append("Edema (Refiere)")
-        st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores de congestión.")
+        if "Vómito" in sintomas or "Diarrea" in sintomas: hallazgos.append("Pérdidas GI")
+        st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores.")
 
-# TABLERO HEMODINÁMICO (EXPLICADO)
-st.markdown("### 📊 Hemodinamia Bedside (Cabecera del Paciente)")
+# TABLERO HEMODINÁMICO
+st.markdown("### 📊 Hemodinamia Bedside")
 c_m1, c_m2, c_m3, c_m4 = st.columns(4)
-
 c_m1.metric("PAM", f"{pam:.0f} mmHg")
-c_m1.caption("**Presión Arterial Media:** Presión promedio en un ciclo. < 65 mmHg compromete la perfusión de órganos vitales.")
-
+c_m1.caption("Presión de perfusión. < 65 mmHg define Shock si hay hipoperfusión.")
 c_m2.metric("P. Pulso", f"{pp} mmHg")
-c_m2.caption("**Presión de Pulso (PAS-PAD):** Refleja el volumen latido y la rigidez arterial. < 25% de la PAS sugiere bajo gasto.")
-
+c_m2.caption("PAS-PAD. Refleja volumen sistólico.")
 c_m3.metric("PPP", f"{ppp:.1f}%", delta="Bajo" if ppp<25 else "OK", delta_color="inverse")
-c_m3.caption("**Presión de Pulso Proporcional (PP/PAS):** Si es < 25%, predice un Índice Cardíaco < 2.2 L/min/m² (Sensibilidad 91%).")
-
+c_m3.caption("Si < 25%, alta probabilidad de IC < 2.2.")
 c_m4.metric("Perfil", cuadrante)
 if tiene_soplo: st.info(f"🩺 **Soplo:** {inferir_valvulopatia(foco, ciclo, patron, True)}")
 
@@ -417,29 +391,47 @@ with tabs[0]:
         st.plotly_chart(fig, use_container_width=True)
     with c_g2:
         st.markdown(f"**Estado: {cuadrante}**")
-        if cuadrante.startswith("B"): st.success("Manejo: Diuréticos + Vasodilatadores.")
-        if cuadrante.startswith("C"): st.error("Manejo: Inotrópicos +/- Vasopresores.")
-        if cuadrante.startswith("L"): st.info("Manejo: Carga de volumen con cautela.")
+        # MENSAJES DOCENTES DINÁMICOS
+        if cuadrante.startswith("B"): 
+            if pas >= 180 or pad >= 120:
+                st.warning("🔥 **Fenotipo Vascular (Crisis HTA):** La congestión es por redistribución. **Vasodilatador** es el pilar, más que el diurético solo.")
+            else:
+                st.success("🫀 **Fenotipo Cardíaco:** Sobrecarga de volumen real. Responden muy bien a **Diuréticos**.")
+        
+        elif cuadrante.startswith("C"):
+            if pas < 90:
+                st.error("🚨 **Shock Cardiogénico:** Hipoperfusión severa. Requiere **Vasopresor (Norepi)** inmediato. Inotrópico después.")
+            else:
+                st.warning("📉 **Bajo Gasto Normotenso:** Hipoperfusión con PA preservada. Se beneficia de **Inotrópicos** y Diuréticos.")
+        
+        elif cuadrante.startswith("L"):
+            if pas < 90:
+                st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
+            else:
+                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** si no hay congestión. Posible Inotrópico si no mejora.")
 
 # 2. SIMULACIÓN
 with tabs[1]:
     st.markdown("### 🧪 Farmacología Aguda")
-    st.caption("Seleccione la intervención para ver el cambio vectorial y la información farmacológica.")
-    cx1, cx2, cx3, cx4, cx5 = st.columns(5)
+    st.info("Seleccione intervención para ver vector y **seguridad**.")
+    
+    cx1, cx2, cx3, cx4, cx5, cx6 = st.columns(6)
     dx, dy = 0, 0
     sel_med = None
     
     with cx1:
         if st.checkbox("Oxígeno / VNI"): 
-            dx=0; dy=0; sel_med="oxigeno" # O2 no cambia el fenotipo hemodinámico primario (Stevenson), aunque mejora la oxigenación.
+            dx=0; dy=0; sel_med="oxigeno" # No mueve cuadrante
     with cx2:
         if st.checkbox("Furosemida"): dx-=8; dy+=0.1; sel_med="diureticos" # Baja PCP
     with cx3:
-        if st.checkbox("Vasodilatador"): dx-=6; dy+=0.5; sel_med="vasodilatadores" # Baja PCP, Sube IC (Baja postcarga)
+        if st.checkbox("Vasodilatador"): dx-=8; dy+=0.8; sel_med="vasodilatadores" # Baja PCP mucho, sube IC (si es vascular)
     with cx4:
-        if st.checkbox("Inotrópico"): dy+=1.2; dx-=2; sel_med="inotropicos" # Sube IC, Baja PCP leve
+        if st.checkbox("Inotrópico"): dy+=1.5; dx-=2; sel_med="inotropicos" # Sube IC
     with cx5:
-        if st.checkbox("Vasopresor"): dy+=0.3; dx+=2; sel_med="vasopresores" # Sube IC (Saca de shock), puede subir PCP leve
+        if st.checkbox("Vasopresor"): dy+=0.3; dx+=1; sel_med="vasopresores" # Sube IC (saca de shock)
+    with cx6:
+        if st.checkbox("Líquidos IV"): dx+=5; dy+=0.8; sel_med="liquidos" # Sube PCP y IC (Frank-Starling)
 
     if sel_med:
         info = meds_agudos[sel_med]
@@ -455,7 +447,7 @@ with tabs[1]:
     
     new_pcp, new_ic = pcp_sim + dx, ic_sim + dy
     fig_s = go.Figure(fig)
-    if sel_med and sel_med != "oxigeno":
+    if sel_med and sel_med != "oxigeno": # Solo graficar flecha si hay cambio vectorial
         fig_s.add_annotation(x=new_pcp, y=new_ic, ax=pcp_sim, ay=ic_sim, xref="x", yref="y", axref="x", ayref="y", arrowwidth=4, arrowhead=2, arrowcolor="purple")
         fig_s.add_trace(go.Scatter(x=[new_pcp], y=[new_ic], mode='markers', marker=dict(size=20, color='purple', symbol='x'), name="Post-Rx"))
     
@@ -464,15 +456,15 @@ with tabs[1]:
 # 3. EGRESO
 with tabs[2]:
     st.header("🏠 Egreso en FEVI Reducida (HFrEF)")
-    st.markdown("Esquema de Titulación GDMT.")
+    st.markdown("Esquema de Titulación GDMT y Monitoreo.")
     gdmt = [
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "200 mg c/24h", "Monitoreo": "FC, PA, Fatiga"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Dosis Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h (>85kg: 50mg)", "Monitoreo": "FC, PA (Hipotensión ortostática)"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Dosis Inicio": "1.25 mg c/24h", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA (Vasodilatador)"},
-        {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Dosis Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h", "Monitoreo": "PA, K+, Creatinina"},
-        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Dosis Inicio": "12.5-25 mg c/24h", "Meta": "50 mg c/24h", "Monitoreo": "K+ (>5.0 suspender), Creatinina"},
-        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Dosis Inicio": "10 mg c/24h", "Meta": "10 mg c/24h", "Monitoreo": "Higiene genital, Glucosa (bajo riesgo hipo)"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Inicio": "12.5-25 mg/d", "Meta": "200 mg/d", "Monitoreo": "FC, PA, Fatiga"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h", "Monitoreo": "PA (Ortostatismo)"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
+        {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h", "Monitoreo": "K+, Cr, PA"},
+        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Inicio": "12.5-25 mg/d", "Meta": "50 mg/d", "Monitoreo": "K+ (>5.0 suspender), Cr"},
+        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Inicio": "10 mg/d", "Meta": "10 mg/d", "Monitoreo": "Higiene genital, Glucosa"},
     ]
     st.dataframe(pd.DataFrame(gdmt), use_container_width=True)
     c_ad1, c_ad2 = st.columns(2)
