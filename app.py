@@ -57,27 +57,28 @@ def check_password():
 if not check_password():
     st.stop()
 
-# --- 3. GENERADOR PDF ---
+# --- 3. GENERADOR PDF (CLASE MEJORADA) ---
 class PDF(FPDF):
     def header(self):
         self.set_font('Arial', 'B', 14)
-        self.cell(0, 10, 'HemoSim - Reporte de Caso Clínico', 0, 1, 'C')
+        self.cell(0, 10, 'HemoSim - Reporte Clínico Hemodinámico', 0, 1, 'C')
         self.ln(5)
 
     def chapter_title(self, title):
         self.set_font('Arial', 'B', 12)
-        self.set_fill_color(200, 220, 255)
-        self.cell(0, 6, title, 0, 1, 'L', 1)
-        self.ln(4)
+        self.set_fill_color(240, 240, 240)
+        self.cell(0, 8, title, 0, 1, 'L', 1)
+        self.ln(2)
 
     def chapter_body(self, body):
         self.set_font('Arial', '', 10)
+        # Multi_cell handles text wrapping automatically
         self.multi_cell(0, 5, body)
-        self.ln()
+        self.ln(2)
 
 def create_download_link(val, filename):
-    b64 = base64.b64encode(val)  # val looks like b'...'
-    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
+    b64 = base64.b64encode(val)
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte Completo (PDF)</a>'
 
 # --- 4. RECURSOS Y DATA ---
 
@@ -157,7 +158,7 @@ meds_agudos = {
         "nombre": "Inotrópicos",
         "dosis": "• **Dobu:** 2-20 mcg/kg/min.\n• **Milrinone:** 0.375-0.75.\n• **Levo:** 0.1.",
         "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
-        "adverso": "Taquicardia, FA, Hipotensión, Hipokalemia."
+        "adverso": "Taquicardia, FA, Hipotensión."
     },
     "vasopresores": {
         "nombre": "Vasopresores (Norepinefrina)",
@@ -167,28 +168,28 @@ meds_agudos = {
     }
 }
 
-# --- 5. LÓGICA CLÍNICA ---
+# --- 4. LÓGICA CLÍNICA ---
 def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
     if not localizacion_soplo: return "Sin soplos reportados."
     dx = "Soplo no específico"
     if foco == "Aórtico":
-        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus)."
-        elif ciclo == "Diastólico": dx = "**Posible Insuficiencia Aórtica** (Busca presión pulso amplia)."
+        if ciclo == "Sistólico": dx = "Posible Estenosis Aórtica (Busca pulso parvus et tardus)."
+        elif ciclo == "Diastólico": dx = "Posible Insuficiencia Aórtica (Busca presión pulso amplia)."
     elif foco == "Mitral":
-        if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación axila)."
-        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido)."
+        if ciclo == "Sistólico": dx = "Posible Insuficiencia Mitral (Busca irradiación axila)."
+        elif ciclo == "Diastólico": dx = "Posible Estenosis Mitral (Busca chasquido de apertura)."
     elif foco == "Pulmonar" and ciclo == "Diastólico":
-         dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell)."
+         dx = "Posible Insuficiencia Pulmonar (Soplo de Graham Steell)."
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
-        dx = "**Posible Insuficiencia Tricuspídea** (Signo Rivero-Carvallo)."
+        dx = "Posible Insuficiencia Tricuspídea (Signo Rivero-Carvallo)."
     return dx
 
 def calcular_fenotipo_fevi(fevi):
     if fevi < 40: return "HFrEF (FEVI Reducida < 40%)"
     elif 40 <= fevi < 50: return "HFmrEF (FEVI Levemente Reducida 40-49%)"
-    else: return "HFpEF (FEVI Preservada ≥ 50%)"
+    else: return "HFpEF (FEVI Preservada >= 50%)"
 
-# --- 6. INTERFAZ: BARRA LATERAL ---
+# --- 5. INTERFAZ: BARRA LATERAL ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/3063/3063823.png", width=50)
     st.title("Historia Clínica")
@@ -198,7 +199,7 @@ with st.sidebar:
     st.subheader("1. Origen y Demografía")
     ciudad = st.selectbox("Municipio", ["--- Seleccione ---"] + municipios_base)
     es_zona_chagas = ciudad in zonas_chagas
-    if es_zona_chagas: st.error(f"🚨 **ALERTA CHAGAS:** Zona Endémica ({ciudad}).")
+    if es_zona_chagas: st.error(f"🚨 **ALERTA EPIDEMIOLÓGICA:** Riesgo de Chagas en {ciudad}.")
     
     c_d1, c_d2 = st.columns(2)
     edad = c_d1.number_input("Edad", 18, 120, 65)
@@ -218,8 +219,8 @@ with st.sidebar:
     with st.expander("Ver Ritmos"): st.image(recursos["ritmos"])
 
     c_v1, c_v2 = st.columns(2)
-    pas = c_v1.number_input("PAS (mmHg)", value=110, step=1)
-    pad = c_v2.number_input("PAD (mmHg)", value=70, step=1)
+    pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
+    pad = c_v2.number_input("PAD (mmHg)", value=80, step=1)
     fc = c_v1.number_input("FC (lpm)", value=80, step=1)
     fr = c_v2.number_input("FR (rpm)", value=18, step=1)
     sato2 = c_v1.number_input("SatO2 (%)", value=92, step=1)
@@ -256,10 +257,14 @@ with st.sidebar:
 
     st.markdown("🔴 **Tórax: Pulmonar**")
     pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
-    
+    with st.expander("🎧 Escuchar Pulmón"):
+        if "Estertores" in pulmones: st.audio(recursos["audio_estertores"])
+        elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
+        else: st.audio(recursos["audio_normal_lung"])
+
     st.markdown("🔴 **Abdomen**")
     abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
-    ascitis = st.checkbox("Onda Ascítica")
+    ascitis = st.checkbox("Onda Ascítica Presente")
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
@@ -386,21 +391,52 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         if "Vómito" in sintomas or "Diarrea" in sintomas: hallazgos.append("Pérdidas GI")
         st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores.")
 
-# GENERAR PDF
+# GENERAR PDF (SECCIÓN MEJORADA)
 if st.button("📥 Descargar Resumen del Caso (PDF)"):
     pdf = PDF()
     pdf.add_page()
-    pdf.chapter_title("1. Datos del Paciente")
-    pdf.chapter_body(f"Edad: {edad} | Sexo: {sexo} | Ciudad: {ciudad} (Riesgo Chagas: {'SI' if es_zona_chagas else 'NO'})")
-    pdf.chapter_title("2. Perfil Hemodinámico")
-    pdf.chapter_body(f"PA: {pas}/{pad} (PAM {pam:.0f}) | FC: {fc} | SatO2: {sato2}%")
-    pdf.chapter_body(f"Cuadrante Stevenson: {cuadrante}")
-    pdf.chapter_body(f"PPP: {ppp:.1f}% | Perfusión: {frialdad}")
-    pdf.chapter_title("3. Hallazgos Clínicos")
-    pdf.chapter_body(f"Ruidos: {ruidos_agregados} | Pulmón: {pulmones}")
-    if tiene_paraclinicos:
-        pdf.chapter_body(f"Fenotipo FEVI: {fenotipo_msg} | Lactato: {lactato}")
     
+    # 1. Datos del Paciente
+    pdf.chapter_title("1. Datos Generales y Antecedentes")
+    pdf.chapter_body(f"Paciente: {edad} años, Sexo: {sexo}")
+    pdf.chapter_body(f"Procedencia: {ciudad} (Riesgo Chagas: {'SI' if es_zona_chagas else 'NO'})")
+    if antecedentes:
+        pdf.chapter_body(f"Antecedentes: {', '.join(antecedentes)}")
+    else:
+        pdf.chapter_body("Antecedentes: Niega")
+    if sintomas:
+        pdf.chapter_body(f"Síntomas reportados: {', '.join(sintomas)}")
+
+    # 2. Signos Vitales
+    pdf.chapter_title("2. Signos Vitales y Paraclínicos")
+    pdf.chapter_body(f"Presión Arterial: {pas}/{pad} mmHg (PAM {pam:.0f})")
+    pdf.chapter_body(f"Frecuencia Cardíaca: {fc} lpm | Ritmo: {ritmo}")
+    pdf.chapter_body(f"Frecuencia Respiratoria: {fr} rpm | SatO2: {sato2}% | Temp: {temp_c}C")
+    if tiene_paraclinicos:
+        pdf.chapter_body(f"Paraclínicos: Lactato {lactato} mmol/L | FEVI {fevi}% ({fenotipo_msg})")
+        pdf.chapter_body(f"Biomarcador: {tipo_peptido} {valor_peptido} pg/mL")
+        pdf.chapter_body(f"Radiografía: {rx_patron}")
+
+    # 3. Examen Físico
+    pdf.chapter_title("3. Hallazgos al Examen Físico")
+    pdf.chapter_body(f"Cuello: Ingurgitación Yugular {iy} | Reflujo Hepato-yugular: {'Si' if rhy else 'No'}")
+    pdf.chapter_body(f"Cardiovascular: Ruidos {ruidos_agregados}")
+    if tiene_soplo:
+        pdf.chapter_body(f"Soplo: {foco} {ciclo} {patron} -> Impresión: {inferir_valvulopatia(foco, ciclo, patron, True)}")
+    pdf.chapter_body(f"Pulmonar: {pulmones}")
+    pdf.chapter_body(f"Abdomen: {abdomen_viscera} | Ascitis: {'Si' if ascitis else 'No'}")
+    pdf.chapter_body(f"Extremidades: Edema {edema_ex} | Pulsos {pulsos}")
+    pdf.chapter_body(f"Perfusión: Temperatura {frialdad} | Llenado Capilar {llenado} seg")
+    pdf.chapter_body(f"Neurológico: {neuro}")
+
+    # 4. Análisis Hemodinámico
+    pdf.chapter_title("4. Perfil Hemodinámico (Stevenson)")
+    pdf.chapter_body(f"Clasificación Final: {cuadrante}")
+    pdf.chapter_body(f"Score Congestión (PCP estimada): {pcp_sim} (Corte >18)")
+    pdf.chapter_body(f"Score Perfusión (IC estimado): {ic_sim} (Corte <2.2)")
+    pdf.chapter_body(f"Presión de Pulso Proporcional (PPP): {ppp:.1f}%")
+    
+    # Generar Link
     pdf_output = pdf.output(dest='S').encode('latin-1', 'ignore') 
     st.markdown(create_download_link(pdf_output, "Reporte_HemoSim"), unsafe_allow_html=True)
 
@@ -449,14 +485,14 @@ with tabs[0]:
                 st.success("🫀 **Fenotipo Cardíaco:** Sobrecarga volumen. **Diuréticos** son clave.")
         elif cuadrante.startswith("C"):
             if pas < 90:
-                st.error("🚨 **Shock Cardiogénico:** **Vasopresor (Norepi)** inmediato.")
+                st.error("🚨 **Shock Cardiogénico:** Hipoperfusión severa. Requiere **Vasopresor (Norepi)** inmediato. Inotrópico después.")
             else:
-                st.warning("📉 **Bajo Gasto Normotenso:** **Inotrópicos** + Diuréticos.")
+                st.warning("📉 **Bajo Gasto Normotenso:** Hipoperfusión con PA preservada. Se beneficia de **Inotrópicos** y Diuréticos.")
         elif cuadrante.startswith("L"):
             if pas < 90:
-                st.error("🩸 **Hipovolemia/Shock:** **Líquidos IV** con cautela -> Vasopresor.")
+                st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
             else:
-                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** (Reto de fluidos).")
+                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** si no hay congestión. Posible Inotrópico si no mejora.")
 
 # 2. SIMULACIÓN
 with tabs[1]:
@@ -509,13 +545,13 @@ with tabs[2]:
     st.header("🏠 Egreso en FEVI Reducida (HFrEF)")
     st.markdown("Esquema de Titulación GDMT y Monitoreo.")
     gdmt = [
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Inicio": "12.5-25 mg/d", "Meta": "200 mg/d", "Monitoreo": "FC, PA, Fatiga"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h", "Monitoreo": "PA (Ortostatismo)"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Inicio": "12.5-25 mg/d", "Meta": "200 mg c/24h", "Monitoreo": "FC, PA, Fatiga"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h (>85kg: 50mg)", "Monitoreo": "PA (Ortostatismo)"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Inicio": "1.25 mg/d", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Inicio": "1.25 mg/d", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA (Vasodilatador)"},
         {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h", "Monitoreo": "K+, Cr, PA"},
-        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Inicio": "12.5-25 mg/d", "Meta": "50 mg/d", "Monitoreo": "K+ (>5.0 suspender), Cr"},
-        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Inicio": "10 mg/d", "Meta": "10 mg/d", "Monitoreo": "Higiene genital, Glucosa"},
+        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Inicio": "12.5-25 mg/d", "Meta": "50 mg c/24h", "Monitoreo": "K+ (>5.0 suspender), Cr"},
+        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Inicio": "10 mg/d", "Meta": "10 mg c/24h", "Monitoreo": "Higiene genital, Glucosa"},
     ]
     st.dataframe(pd.DataFrame(gdmt), use_container_width=True)
     c_ad1, c_ad2 = st.columns(2)
