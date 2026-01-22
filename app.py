@@ -19,7 +19,6 @@ st.markdown("""
     div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     .stAlert { padding: 0.5rem; }
     .caption-evidence { font-size: 0.8rem; color: #666; font-style: italic; }
-    /* Desbloqueo visual de inputs numéricos */
     input[type=number] { -moz-appearance: textfield; }
     </style>
     """, unsafe_allow_html=True)
@@ -82,7 +81,7 @@ def create_download_link(val, filename):
 
 # --- 4. RECURSOS Y DATA ---
 
-# Municipios de Riesgo Chagas (Lista de Control)
+# Municipios de Riesgo Chagas
 zonas_chagas = [
     "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque",
     "Barichara", "Capitanejo", "Encinales", "Hato", "Mogotes", "San Gil", "San José de Miranda", "San Vicente del Chucurí", "Socorro",
@@ -94,8 +93,8 @@ zonas_chagas = [
     "Liborina", "Peque", "Yolombó"
 ]
 
-# Lista Completa de Municipios (Expandida para cubrir geografía nacional)
-municipios_completa = sorted(list(set(zonas_chagas + [
+# Lista Completa de Municipios (Corregido nombre de variable a municipios_base)
+municipios_base = sorted(list(set(zonas_chagas + [
     "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", 
     "Alejandría", "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", 
     "Anapoima", "Ancuya", "Andalucía", "Andes", "Angelópolis", "Angostura", "Anolaima", "Anorí", "Anserma", "Ansermanuevo", "Anzoátegui", 
@@ -134,58 +133,59 @@ municipios_completa = sorted(list(set(zonas_chagas + [
     "La Calera", "La Capilla", "La Ceja", "La Celia", "La Cruz", "La Cumbre", "La Dorada", "La Esperanza", "La Estrella", "La Florida", 
     "La Gloria", "La Jagua de Ibirico", "La Jagua del Pilar", "La Llanada", "La Macarena", "La Merced", "La Mesa", "La Montañita", "La Palma", 
     "La Paz", "La Peña", "La Pintada", "La Plata", "La Playa", "La Primavera", "La Salina", "La Sierra", "La Tebaida", "La Tola", "La Unión", 
-    "La Uribe", "La Vega", "La Victoria", "La Virginia", "Labateca", "Labranzagrande", "Landázuri", "Lebrija", "Leíva", "Lejanías", 
-    "Lenguazaque", "Lérida", "Leticia", "Líbano", "Liborina", "Linares", "Lloró", "López", "Lorica", "Los Andes", "Los Córdobas", "Los Palmitos", 
-    "Los Patios", "Los Santos", "Luruaco", "Macanal", "Macaravita", "Maceo", "Macheta", "Madrid", "Magangué", "Magüí", "Mahates", "Maicao", 
-    "Majagual", "Málaga", "Malambo", "Mallama", "Manatí", "Manaure", "Maní", "Manizales", "Manta", "Manzanares", "Mapiripán", "Margarita", 
-    "María la Baja", "Marinilla", "Maripí", "Mariquita", "Marmato", "Marquetalia", "Marsella", "Marulanda", "Matanza", "Medellín", "Medina", 
-    "Medio Atrato", "Medio Baudó", "Medio San Juan", "Melgar", "Mercaderes", "Mesetas", "Milán", "Miraflores", "Miranda", "Mistrató", "Mitú", 
-    "Mocoa", "Mogotes", "Molagavita", "Momil", "Mompós", "Mongua", "Monguí", "Moniquirá", "Montebello", "Montecristo", "Montelíbano", 
-    "Montenegro", "Montería", "Monterrey", "Morales", "Morelia", "Morroa", "Mosquera", "Motavita", "Murillo", "Murindó", "Mutatá", "Mutiscua", 
-    "Muzo", "Nariño", "Nátaga", "Natagaima", "Nechí", "Necoclí", "Neira", "Neiva", "Nemocón", "Nilo", "Nimaima", "Nobsa", "Nocaima", "Norcasia", 
-    "Nóvita", "Nuevo Colón", "Nunchía", "Nuquí", "Obando", "Ocamonte", "Ocaña", "Oiba", "Oicatá", "Olaya", "Olaya Herrera", "Onzaga", "Oporapa", 
-    "Orito", "Orocué", "Ortega", "Ospina", "Otanche", "Ovejas", "Pachavita", "Pacho", "Padilla", "Páez", "Paicol", "Pailitas", "Paime", "Paipa", 
-    "Pajarito", "Palermo", "Palestina", "Palmar", "Palmar de Varela", "Palmas del Socorro", "Palmira", "Palmito", "Palocabildo", "Pamplona", 
-    "Pamplonita", "Paniagua", "Pantoja", "Páramo", "Paratebueno", "Pasca", "Pasto", "Patía", "Pauna", "Paya", "Paz de Ariporo", "Paz de Río", 
-    "Pedraza", "Pelaya", "Pensilvania", "Peñol", "Peque", "Pereira", "Pesca", "Piamonte", "Pie de Cuesta", "Piedras", "Piendamó", "Pijao", 
-    "Pijiño del Carmen", "Pinchote", "Pinillos", "Piojó", "Pisba", "Pital", "Pitalito", "Pivijay", "Planadas", "Planeta Rica", "Plato", 
-    "Policarpa", "Polonuevo", "Ponedera", "Popayán", "Pore", "Potosí", "Pradera", "Prado", "Providencia", "Pueblo Bello", "Pueblo Nuevo", 
-    "Pueblo Rico", "Pueblorrico", "Puebloviejo", "Puente Nacional", "Puerres", "Puerto Asís", "Puerto Berrío", "Puerto Boyacá", "Puerto Caicedo", 
-    "Puerto Carreño", "Puerto Colombia", "Puerto Concordia", "Puerto Escondido", "Puerto Gaitán", "Puerto Guzmán", "Puerto Leguízamo", 
-    "Puerto Libertador", "Puerto Lleras", "Puerto López", "Puerto Nare", "Puerto Nariño", "Puerto Parra", "Puerto Rico", "Puerto Rondón", 
-    "Puerto Salgar", "Puerto Santander", "Puerto Tejada", "Puerto Triunfo", "Puerto Wilches", "Pulí", "Pupiales", "Puracé", "Purificación", 
-    "Purísima", "Quebradanegra", "Quetame", "Quibdó", "Quimbaya", "Quinchía", "Quípama", "Quipile", "Ragonvalia", "Ramiriquí", "Ráquira", 
-    "Recetor", "Regidor", "Remedios", "Remolino", "Repelón", "Restrepo", "Retiro", "Ricaurte", "Rio de Oro", "Rio Iro", "Rio Quito", "Rio Viejo", 
+    "La Uribe", "La Vega", "La Victoria", "La Virginia", "Labateca", "Labranzagrande", "Landázuri", "Lebrija", "Leíva", "Lejanías", "Lenguazaque", 
+    "Lérida", "Leticia", "Líbano", "Liborina", "Linares", "Lloró", "López", "Lorica", "Los Andes", "Los Córdobas", "Los Palmitos", "Los Patios", 
+    "Los Santos", "Luruaco", "Macanal", "Macaravita", "Maceo", "Macheta", "Madrid", "Magangué", "Magüí", "Mahates", "Maicao", "Majagual", 
+    "Málaga", "Malambo", "Mallama", "Manatí", "Manaure", "Maní", "Manizales", "Manta", "Manzanares", "Mapiripán", "Margarita", "María la Baja", 
+    "Marinilla", "Maripí", "Mariquita", "Marmato", "Marquetalia", "Marsella", "Marulanda", "Matanza", "Medellín", "Medina", "Medio Atrato", 
+    "Medio Baudó", "Medio San Juan", "Melgar", "Mercaderes", "Mesetas", "Milán", "Miraflores", "Miranda", "Mistrató", "Mitú", "Mocoa", "Mogotes", 
+    "Molagavita", "Momil", "Mompós", "Mongua", "Monguí", "Moniquirá", "Montebello", "Montecristo", "Montelíbano", "Montenegro", "Montería", 
+    "Monterrey", "Morales", "Morelia", "Morroa", "Mosquera", "Motavita", "Murillo", "Murindó", "Mutatá", "Mutiscua", "Muzo", "Nariño", "Nátaga", 
+    "Natagaima", "Nechí", "Necoclí", "Neira", "Neiva", "Nemocón", "Nilo", "Nimaima", "Nobsa", "Nocaima", "Norcasia", "Nóvita", "Nuevo Colón", 
+    "Nunchía", "Nuquí", "Obando", "Ocamonte", "Ocaña", "Oiba", "Oicatá", "Olaya", "Olaya Herrera", "Onzaga", "Oporapa", "Orito", "Orocué", 
+    "Ortega", "Ospina", "Otanche", "Ovejas", "Pachavita", "Pacho", "Padilla", "Páez", "Paicol", "Pailitas", "Paime", "Paipa", "Pajarito", 
+    "Palermo", "Palestina", "Palmar", "Palmar de Varela", "Palmas del Socorro", "Palmira", "Palmito", "Palocabildo", "Pamplona", "Pamplonita", 
+    "Paniagua", "Pantoja", "Páramo", "Paratebueno", "Pasca", "Pasto", "Patía", "Pauna", "Paya", "Paz de Ariporo", "Paz de Río", "Pedraza", 
+    "Pelaya", "Pensilvania", "Peñol", "Peque", "Pereira", "Pesca", "Piamonte", "Pie de Cuesta", "Piedras", "Piendamó", "ijao", "Pijiño del Carmen", 
+    "Pinchote", "Pinillos", "Piojó", "Pisba", "Pital", "Pitalito", "Pivijay", "Planadas", "Planeta Rica", "Plato", "Policarpa", "Polonuevo", 
+    "Ponedera", "Popayán", "Pore", "Potosí", "Pradera", "Prado", "Providencia", "Pueblo Bello", "Pueblo Nuevo", "Pueblo Rico", "Pueblorrico", 
+    "Puebloviejo", "Puente Nacional", "Puerres", "Puerto Asís", "Puerto Berrío", "Puerto Boyacá", "Puerto Caicedo", "Puerto Carreño", 
+    "Puerto Colombia", "Puerto Concordia", "Puerto Escondido", "Puerto Gaitán", "Puerto Guzmán", "Puerto Leguízamo", "Puerto Libertador", 
+    "Puerto Lleras", "Puerto López", "Puerto Nare", "Puerto Nariño", "Puerto Parra", "Puerto Rico", "Puerto Rondón", "Puerto Salgar", 
+    "Puerto Santander", "Puerto Tejada", "Puerto Triunfo", "Puerto Wilches", "Pulí", "Pupiales", "Puracé", "Purificación", "Purísima", 
+    "Quebradanegra", "Quetame", "Quibdó", "Quimbaya", "Quinchía", "Quípama", "Quipile", "Ragonvalia", "Ramiriquí", "Ráquira", "Recetor", 
+    "Regidor", "Remedios", "Remolino", "Repelón", "Restrepo", "Retiro", "Ricaurte", "Rio de Oro", "Rio Iro", "Rio Quito", "Rio Viejo", 
     "Rioblanco", "Riofrío", "Riohacha", "Rionegro", "Riosucio", "Risaralda", "Rivera", "Roberto Payán", "Roldanillo", "Roncesvalles", "Rondón", 
     "Rosas", "Rovira", "Sáchica", "Sahagún", "Saladoblanco", "Salamina", "Salazar", "Saldaña", "Salento", "Salgar", "Samacá", "Samaniego", 
-    "Samaná", "Sampués", "San Agustín", "San Alberto", "San Andrés", "San Andrés Sotavento", "San Antero", "San Antonio", 
-    "San Antonio del Tequendama", "San Benito", "San Benito Abad", "San Bernardo", "San Bernardo del Viento", "San Calixto", "San Carlos", 
-    "San Carlos de Guaroa", "San Cayetano", "San Cristóbal", "San Diego", "San Eduardo", "San Estanislao", "San Fernando", "San Francisco", 
-    "San Gil", "San Jacinto", "San Jacinto del Cauca", "San Jerónimo", "San Joaquín", "San José", "San José de la Montaña", "San José de Miranda", 
-    "San José de Pare", "San José del Fragua", "San José del Guaviare", "San José del Palmar", "San Juan de Arama", "San Juan de Betulia", 
-    "San Juan de Rioseco", "San Juan de Urabá", "San Juan del Cesar", "San Juan Nepomuceno", "San Juanito", "San Lorenzo", "San Luis", 
-    "San Luis de Gaceno", "San Luis de Palenque", "San Marcos", "San Martín", "San Martín de Loba", "San Mateo", "San Miguel", "San Miguel de Sema", 
-    "San Onofre", "San Pablo", "San Pablo de Borbur", "San Pedro", "San Pedro de Cartago", "San Pedro de Urabá", "San Pelayo", "San Rafael", 
-    "San Roque", "San Sebastián", "San Sebastián de Buenavista", "San Vicente", "San Vicente del Caguán", "San Vicente del Chucurí", "San Zenón", 
-    "Sandoná", "Santa Ana", "Santa Bárbara", "Santa Bárbara de Pinto", "Santa Catalina", "Santa Fe de Antioquia", "Santa Genoveva de Docorodó", 
-    "Santa Helena del Opón", "Santa Isabel", "Santa Lucía", "Santa María", "Santa Marta", "Santa Rosa", "Santa Rosa de Cabal", "Santa Rosa de Osos", 
-    "Santa Rosa de Viterbo", "Santa Rosa del Sur", "Santa Rosalía", "Santa Sofía", "Santana", "Santander de Quilichao", "Santiago", "Santo Domingo", 
-    "Santo Tomás", "Santuario", "Sapuyes", "Saravena", "Sardinata", "Sasaima", "Sativanorte", "Sativasur", "Segovia", "Sesquilé", "Sevilla", 
-    "Siachoque", "Sibaté", "Sibundoy", "Silos", "Silvania", "Silvia", "Simacota", "Simijaca", "Simití", "Sincelejo", "Sincé", "Sipí", "Sitionuevo", 
+    "Samaná", "Sampués", "San Agustín", "San Alberto", "San Andrés", "San Andrés Sotavento", "San Antero", "San Antonio", "San Antonio del Tequendama", 
+    "San Benito", "San Benito Abad", "San Bernardo", "San Bernardo del Viento", "San Calixto", "San Carlos", "San Carlos de Guaroa", "San Cayetano", 
+    "San Cristóbal", "San Diego", "San Eduardo", "San Estanislao", "San Fernando", "San Francisco", "San Gil", "San Jacinto", "San Jacinto del Cauca", 
+    "San Jerónimo", "San Joaquín", "San José", "San José de la Montaña", "San José de Miranda", "San José de Pare", "San José del Fragua", 
+    "San José del Guaviare", "San José del Palmar", "San Juan de Arama", "San Juan de Betulia", "San Juan de Rioseco", "San Juan de Urabá", 
+    "San Juan del Cesar", "San Juan Nepomuceno", "San Juanito", "San Lorenzo", "San Luis", "San Luis de Gaceno", "San Luis de Palenque", 
+    "San Marcos", "San Martín", "San Martín de Loba", "San Mateo", "San Miguel", "San Miguel de Sema", "San Onofre", "San Pablo", 
+    "San Pablo de Borbur", "San Pedro", "San Pedro de Cartago", "San Pedro de Urabá", "San Pelayo", "San Rafael", "San Roque", "San Sebastián", 
+    "San Sebastián de Buenavista", "San Vicente", "San Vicente del Caguán", "San Vicente del Chucurí", "San Zenón", "Sandoná", "Santa Ana", 
+    "Santa Bárbara", "Santa Bárbara de Pinto", "Santa Catalina", "Santa Fe de Antioquia", "Santa Genoveva de Docorodó", "Santa Helena del Opón", 
+    "Santa Isabel", "Santa Lucía", "Santa María", "Santa Marta", "Santa Rosa", "Santa Rosa de Cabal", "Santa Rosa de Osos", "Santa Rosa de Viterbo", 
+    "Santa Rosa del Sur", "Santa Rosalía", "Santa Sofía", "Santana", "Santander de Quilichao", "Santiago", "Santo Domingo", "Santo Tomás", 
+    "Santuario", "Sapuyes", "Saravena", "Sardinata", "Sasaima", "Sativanorte", "Sativasur", "Segovia", "Sesquilé", "Sevilla", "Siachoque", 
+    "Sibaté", "Sibundoy", "Silos", "Silvania", "Silvia", "Simacota", "Simijaca", "Simití", "Sincelejo", "Sincé", "Sipí", "Sitionuevo", 
     "Soacha", "Soatá", "Socha", "Socorro", "Socotá", "Sogamoso", "Solano", "Soledad", "Solita", "Somondoco", "Sonsón", "Sopetrán", "Soplaviento", 
     "Sopó", "Sora", "Soracá", "Sotaquirá", "Sotara", "Suaita", "Suárez", "Suaza", "Subachoque", "Sucre", "Suesca", "Supatá", "Supía", "Suratá", 
     "Susa", "Susacón", "Sutamarchán", "Sutatausa", "Sutatenza", "Tabio", "Tadó", "Talaigua Nuevo", "Tamalameque", "Támara", "Tame", "Támesis", 
     "Taminango", "Tangua", "Taraira", "Tarazá", "Tarqui", "Tarso", "Tasco", "Tauramena", "Tausa", "Tello", "Tena", "Tenerife", "Tenjo", "Tenza", 
     "Teorama", "Teruel", "Tesalia", "Tibacuy", "Tibaná", "Tibasosa", "Tibirita", "Tibú", "Tierralta", "Timaná", "Timbío", "Timbiquí", "Tinjacá", 
     "Tipacoque", "Tiquisio", "Titiribí", "Toca", "Tocaima", "Tocancipá", "Togüí", "Toledo", "Tolú", "Tolú Viejo", "Tona", "Tópaga", "Topaipí", 
-    "Toribío", "Toro", "Tota", "Totoró", "Trinidad", "Trujillo", "Tubará", "Tuchín", "Tuluá", "Tumaco", "Tunja", "Tununguá", "Túquerres", "Turbaco", 
-    "Turbaná", "Turbo", "Turmequé", "Tuta", "Tutazá", "Ubalá", "Ubaque", "Ubaté", "Ulloa", "Umbita", "Une", "Unguía", "Unión Panamericana", "Uramita", 
-    "Uribe", "Uribia", "Urrao", "Urumita", "Usiacurí", "Útica", "Valdivia", "Valencia", "Valle de San José", "Valle de San Juan", "Valledupar", 
-    "Valparaíso", "Vegachí", "Vélez", "Venadillo", "Venecia", "Ventanas", "Vergara", "Versalles", "Vetas", "Viani", "Victoria", "Vigía del Fuerte", 
-    "Vijes", "Villa Caro", "Villa de Leyva", "Villa del Rosario", "Villa Gamero", "Villa Garzón", "Villa Rica", "Villagómez", "Villahermosa", 
-    "Villamaría", "Villanueva", "Villapinzón", "Villarrica", "Villavicencio", "Villavieja", "Villeta", "Viotá", "Viracachá", "Vista Hermosa", 
-    "Viterbo", "Yacopí", "Yacuanquer", "Yaguará", "Yalí", "Yarumal", "Yavaraté", "Yolombó", "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", 
-    "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", "Zona Bananera"
+    "Toribío", "Toro", "Tota", "Totoró", "Trinidad", "Trujillo", "Tubará", "Tuchín", "Tuluá", "Tumaco", "Tunja", "Tununguá", "Túquerres", 
+    "Turbaco", "Turbaná", "Turbo", "Turmequé", "Tuta", "Tutazá", "Ubalá", "Ubaque", "Ubaté", "Ulloa", "Umbita", "Une", "Unguía", 
+    "Unión Panamericana", "Uramita", "Uribe", "Uribia", "Urrao", "Urumita", "Usiacurí", "Útica", "Valdivia", "Valencia", "Valle de San José", 
+    "Valle de San Juan", "Valledupar", "Valparaíso", "Vegachí", "Vélez", "Venadillo", "Venecia", "Ventanas", "Vergara", "Versalles", "Vetas", 
+    "Viani", "Victoria", "Vigía del Fuerte", "Vijes", "Villa Caro", "Villa de Leyva", "Villa del Rosario", "Villa Gamero", "Villa Garzón", 
+    "Villa Rica", "Villagómez", "Villahermosa", "Villamaría", "Villanueva", "Villapinzón", "Villarrica", "Villavicencio", "Villavieja", 
+    "Villeta", "Viotá", "Viracachá", "Vista Hermosa", "Viterbo", "Yacopí", "Yacuanquer", "Yaguará", "Yalí", "Yarumal", "Yavaraté", "Yolombó", 
+    "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", 
+    "Zona Bananera"
 ])))
 
 # Recursos Multimedia
@@ -687,6 +687,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
