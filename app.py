@@ -19,6 +19,7 @@ st.markdown("""
     div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     .stAlert { padding: 0.5rem; }
     .caption-evidence { font-size: 0.8rem; color: #666; font-style: italic; }
+    /* Desbloqueo visual de inputs numéricos */
     input[type=number] { -moz-appearance: textfield; }
     </style>
     """, unsafe_allow_html=True)
@@ -57,28 +58,27 @@ def check_password():
 if not check_password():
     st.stop()
 
-# --- 3. GENERADOR PDF (CLASE MEJORADA) ---
+# --- 3. GENERADOR PDF ---
 class PDF(FPDF):
     def header(self):
         self.set_font('Arial', 'B', 14)
-        self.cell(0, 10, 'HemoSim - Reporte Clínico Hemodinámico', 0, 1, 'C')
+        self.cell(0, 10, 'HemoSim - Reporte de Caso Clínico', 0, 1, 'C')
         self.ln(5)
 
     def chapter_title(self, title):
         self.set_font('Arial', 'B', 12)
-        self.set_fill_color(240, 240, 240)
-        self.cell(0, 8, title, 0, 1, 'L', 1)
-        self.ln(2)
+        self.set_fill_color(200, 220, 255)
+        self.cell(0, 6, title, 0, 1, 'L', 1)
+        self.ln(4)
 
     def chapter_body(self, body):
         self.set_font('Arial', '', 10)
-        # Multi_cell handles text wrapping automatically
         self.multi_cell(0, 5, body)
-        self.ln(2)
+        self.ln()
 
 def create_download_link(val, filename):
     b64 = base64.b64encode(val)
-    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte Completo (PDF)</a>'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
 # --- 4. RECURSOS Y DATA ---
 
@@ -187,6 +187,7 @@ municipios_completa = sorted(list(set(zonas_chagas + [
     "Viterbo", "Yacopí", "Yacuanquer", "Yaguará", "Yalí", "Yarumal", "Yavaraté", "Yolombó", "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", 
     "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", "Zona Bananera"
 ])))
+
 # Recursos Multimedia
 recursos = {
     "ritmos": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Atrial_fibrillation_ECG.png", 
@@ -686,6 +687,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
