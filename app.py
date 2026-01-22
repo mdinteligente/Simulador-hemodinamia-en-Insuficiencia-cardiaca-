@@ -76,7 +76,7 @@ class PDF(FPDF):
         self.ln()
 
 def create_download_link(val, filename):
-    b64 = base64.b64encode(val)  # val looks like b'...'
+    b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
 # --- 4. RECURSOS Y DATA ---
@@ -157,7 +157,7 @@ meds_agudos = {
         "nombre": "Inotrópicos",
         "dosis": "• **Dobu:** 2-20 mcg/kg/min.\n• **Milrinone:** 0.375-0.75.\n• **Levo:** 0.1.",
         "monitor": "• Arritmias.\n• Isquemia.\n• PA.",
-        "adverso": "Taquicardia, FA, Hipotensión, Hipokalemia."
+        "adverso": "Taquicardia, FA, Hipotensión."
     },
     "vasopresores": {
         "nombre": "Vasopresores (Norepinefrina)",
@@ -172,11 +172,11 @@ def inferir_valvulopatia(foco, ciclo, patron, localizacion_soplo):
     if not localizacion_soplo: return "Sin soplos reportados."
     dx = "Soplo no específico"
     if foco == "Aórtico":
-        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus)."
+        if ciclo == "Sistólico": dx = "**Posible Estenosis Aórtica** (Busca pulso parvus et tardus)."
         elif ciclo == "Diastólico": dx = "**Posible Insuficiencia Aórtica** (Busca presión pulso amplia)."
     elif foco == "Mitral":
         if ciclo == "Sistólico": dx = "**Posible Insuficiencia Mitral** (Busca irradiación axila)."
-        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido)."
+        elif ciclo == "Diastólico": dx = "**Posible Estenosis Mitral** (Busca chasquido de apertura)."
     elif foco == "Pulmonar" and ciclo == "Diastólico":
          dx = "**Posible Insuficiencia Pulmonar** (Soplo de Graham Steell)."
     elif foco == "Tricúspideo" and ciclo == "Sistólico":
@@ -509,13 +509,13 @@ with tabs[2]:
     st.header("🏠 Egreso en FEVI Reducida (HFrEF)")
     st.markdown("Esquema de Titulación GDMT y Monitoreo.")
     gdmt = [
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Inicio": "12.5-25 mg/d", "Meta": "200 mg/d", "Monitoreo": "FC, PA, Fatiga"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h", "Monitoreo": "PA (Ortostatismo)"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
-        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Inicio": "1.25 mg/d", "Meta": "10 mg/d", "Monitoreo": "FC, PA"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Succinato de Metoprolol", "Inicio": "12.5-25 mg/d", "Meta": "200 mg c/24h", "Monitoreo": "FC, PA, Fatiga"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Carvedilol", "Inicio": "3.125 mg c/12h", "Meta": "25 mg c/12h (>85kg: 50mg)", "Monitoreo": "PA (Ortostatismo)"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Bisoprolol", "Inicio": "1.25 mg/d", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA"},
+        {"Pilar": "Beta-Bloqueador", "Fármaco": "Nebivolol", "Inicio": "1.25 mg/d", "Meta": "10 mg c/24h", "Monitoreo": "FC, PA (Vasodilatador)"},
         {"Pilar": "ARNI", "Fármaco": "Sacubitrilo/Valsartán", "Inicio": "24/26 mg c/12h", "Meta": "97/103 mg c/12h", "Monitoreo": "K+, Cr, PA"},
-        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Inicio": "12.5-25 mg/d", "Meta": "50 mg/d", "Monitoreo": "K+ (>5.0 suspender), Cr"},
-        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Inicio": "10 mg/d", "Meta": "10 mg/d", "Monitoreo": "Higiene genital, Glucosa"},
+        {"Pilar": "ARM", "Fármaco": "Espironolactona", "Inicio": "12.5-25 mg/d", "Meta": "50 mg c/24h", "Monitoreo": "K+ (>5.0 suspender), Cr"},
+        {"Pilar": "iSGLT2", "Fármaco": "Dapa/Empagliflozina", "Inicio": "10 mg c/24h", "Meta": "10 mg c/24h", "Monitoreo": "Higiene genital, Glucosa"},
     ]
     st.dataframe(pd.DataFrame(gdmt), use_container_width=True)
     c_ad1, c_ad2 = st.columns(2)
@@ -548,15 +548,4 @@ with tabs[4]:
     3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
     """)
     st.divider()
-    st.subheader("🌍 Guías y Consensos Internacionales")
-    st.markdown("""
-    4. **Mueller C, et al.** Heart Failure Association of the European Society of Cardiology practical guidance on the use of natriuretic peptide concentrations. *Eur J Heart Fail*. 2019.
-    5. **McDonagh TA, et al.** 2021 ESC Guidelines.
-    6. **Heidenreich PA, et al.** 2022 AHA/ACC/HFSA Guideline.
-    7. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
-    8. **Anker SD, et al.** EMPEROR-Preserved. *N Engl J Med*. 2021.
-    9. **Solomon SD, et al.** DELIVER. *N Engl J Med*. 2022.
-    """)
-
-st.markdown("---")
-st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+    st.subheader("🌍 Guías y
