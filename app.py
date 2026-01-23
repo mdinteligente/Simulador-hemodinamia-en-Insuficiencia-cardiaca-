@@ -79,6 +79,20 @@ def create_download_link(val, filename):
     b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
+# --- FUNCIÓN NUEVA: SOLUCIÓN PARA VIDEOS DE RITMOS ---
+def mostrar_video_ritmo(url):
+    """Incrusta videos de ScreenPal usando un Iframe HTML."""
+    if url.startswith("http"):
+        # Código HTML para el reproductor
+        html_code = f"""
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+            <iframe src="{url}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+        </div>
+        """
+        st.markdown(html_code, unsafe_allow_html=True)
+    else:
+        st.info("⚠️ Enlace de video no configurado.")
+
 # --- 4. RECURSOS Y DATA ---
 
 def reproducir_multimedia(ruta):
@@ -103,40 +117,42 @@ def mostrar_imagen(ruta):
 
 # DICCIONARIO DE RECURSOS (Corregido según su lista de archivos)
 # --- 3. RECURSOS Y DATA (Mapeo Exacto a su Carpeta assets) ---
+# --- 4. RECURSOS Y DATA ---
+
+# DICCIONARIO DE RECURSOS (Base correcta + ScreenPal para Ritmos)
 recursos = {
-    # IMÁGENES ESTÁTICAS
-    # IMPORTANTE: Renombre su archivo de PVC a 'pvc_lewis.jpg' en la carpeta assets para asegurar que funcione.
-    "pvc_lewis": "assets/pvc_lewis.jpg", 
+    # IMÁGENES ESTÁTICAS (Locales)
+    "pvc_lewis": "assets/Medicion PVC- Sumar 5 cm.jpg", 
     
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
-    # RITMOS (Videos MP4 - Nombres exactos con Mayúsculas según su lista)
-    "ritmo_sinusal": "assets/Ritmo Sinusal.mp4",
-    "ritmo_fa": "assets/Fibrilacion auricular.mp4",
-    "ritmo_flutter": "assets/Aleteo atrial.mp4",
-    "ritmo_mcp": "assets/MCP ventricular.mp4",
+    # RITMOS (VIDEOS EXTERNOS - SCREENPAL)
+    # Reemplace estos textos con sus enlaces reales de ScreenPal
+    "ritmo_sinusal": "https://go.screenpal.com/watch/cTVFFNnf1pq",
+    "ritmo_fa": "https://go.screenpal.com/watch/cTXDFZnFWGz",
+    "ritmo_flutter": "https://go.screenpal.com/watch/cTVFFNnf1pV",
+    "ritmo_mcp": "https://go.screenpal.com/watch/cTVFFNnf1pj",
 
-    # RUIDOS CARDIACOS (MP3)
+    # RUIDOS CARDIACOS (Locales .mp3)
     "r_normales": "assets/Ruidos cardiacos normales.mp3",
     "r_s3": "assets/Tercer ruido cardiaco.mp3",
     "r_s4": "assets/Cuarto ruido cardiaco.mp3",
     "r_suma": "assets/Galope de suma.mp3",
 
-    # SOPLOS (MP3)
+    # SOPLOS (Locales .mp3)
     "soplo_ea": "assets/Estenosis aórtica.mp3",
     "soplo_em": "assets/Estenosis mitral.mp3",
     "soplo_im": "assets/Regurgitación mitral.mp3",   
     "soplo_ia": "assets/Regurgitación aórtica.mp3",  
     
-    # PULMONAR (MP4)
+    # PULMONAR (Locales .mp4 - Se ven con st.video)
     "pulm_normal": "assets/Murmullo vesicular normal.mp4",
     "pulm_estertores": "assets/Estertores.mp4",
     "pulm_sibilancias": "assets/Sibilancias.mp4",
     "pulm_roncus": "assets/Roncus.mp4"
 }
-
 municipios_base = sorted(list(set([
     "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", 
     "Alejandría", "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", 
@@ -744,6 +760,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
