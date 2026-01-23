@@ -770,7 +770,7 @@ with tabs[4]:
     st.markdown("""
     1. **Januzzi JL, Mann DL.** *Clinical Assessment of Heart Failure* (Capítulo 56).
     2. **Felker GM, Teerlink JR.** *Diagnosis and Management of Decompensated Heart Failure* (Capítulo 57).
-    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
+    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction** (Capítulo 58).
     """)
     
     st.divider()
@@ -801,6 +801,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
