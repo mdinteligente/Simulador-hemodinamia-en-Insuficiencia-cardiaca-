@@ -122,7 +122,7 @@ def mostrar_imagen(ruta):
 # DICCIONARIO DE RECURSOS (Base correcta + ScreenPal para Ritmos)
 recursos = {
     # IMÁGENES ESTÁTICAS (Locales)
-    "pvc_lewis": "assets/Medicion PVC- Sumar 5 cm.jpg", 
+    "pvc_lewis": "pvc_lewis", 
     
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
@@ -760,6 +760,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
