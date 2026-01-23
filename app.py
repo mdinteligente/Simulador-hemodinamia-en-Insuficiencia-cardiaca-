@@ -79,15 +79,13 @@ def create_download_link(val, filename):
     b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
-# --- FUNCIÓN NUEVA: SOLUCIÓN PARA VIDEOS DE RITMOS (SCREENPAL) ---
+# --- FUNCIÓN CORREGIDA: VIDEOS GRANDES (ALTURA FIJA) ---
 def mostrar_video_ritmo(url):
-    """Incrusta videos de ScreenPal usando un Iframe HTML."""
+    """Incrusta videos de ScreenPal con altura forzada de 300px."""
     if url.startswith("http"):
-        # Código HTML para el reproductor responsive
+        # Usamos height="300" directamente para obligar a que sea alto
         html_code = f"""
-        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-            <iframe src="{url}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
-        </div>
+        <iframe src="{url}" width="100%" height="300" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
         """
         st.markdown(html_code, unsafe_allow_html=True)
     else:
@@ -100,7 +98,6 @@ def reproducir_multimedia(ruta):
     if os.path.exists(ruta):
         try:
             if ruta.endswith(".mp4"):
-                # start_time=0 fuerza al video a estar listo desde el inicio
                 st.video(ruta, format="video/mp4", start_time=0) 
             else:
                 st.audio(ruta)
@@ -117,7 +114,7 @@ def mostrar_imagen(ruta):
 
 # DICCIONARIO DE RECURSOS 
 recursos = {
-    # IMÁGENES ESTÁTICAS (Locales - Nombre Corregido)
+    # IMÁGENES ESTÁTICAS (Locales)
     "pvc_lewis": "assets/pvc_lewis.jpg", 
     
     "rx_normal": "assets/Rx de tórax normal.jpg",
@@ -354,7 +351,7 @@ with st.sidebar:
     # Selector de Ritmo
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos"])
     
-    # VISUALIZADOR DE VIDEO (Usando la nueva función ScreenPal)
+    # VISUALIZADOR DE VIDEO (Usando la nueva función ScreenPal con altura fija)
     with st.expander("📺 Ver Monitor de Ritmo", expanded=True):
         if ritmo == "Sinusal":
             mostrar_video_ritmo(recursos["ritmo_sinusal"])
@@ -637,14 +634,14 @@ with tabs[0]:
                 st.success("🫀 **Fenotipo Cardíaco:** Sobrecarga volumen. **Diuréticos** son clave.")
         elif cuadrante.startswith("C"):
             if pas < 90:
-                st.error("🚨 **Shock Cardiogénico:** Hipoperfusión severa. Requiere **Vasopresor (Norepi)** inmediato. Inotrópico después.")
+                st.error("🚨 **Shock Cardiogénico:** **Vasopresor (Norepi)** inmediato.")
             else:
-                st.warning("📉 **Bajo Gasto Normotenso:** Hipoperfusión con PA preservada. Se beneficia de **Inotrópicos** y Diuréticos.")
+                st.warning("📉 **Bajo Gasto Normotenso:** **Inotrópicos** + Diuréticos.")
         elif cuadrante.startswith("L"):
             if pas < 90:
-                st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
+                st.error("🩸 **Hipovolemia/Shock:** **Líquidos IV** con cautela -> Vasopresor.")
             else:
-                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** si no hay congestión. Posible Inotrópico si no mejora.")
+                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** (Reto de fluidos).")
 
 # 2. SIMULACIÓN
 with tabs[1]:
