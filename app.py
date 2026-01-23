@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 from fpdf import FPDF
 import base64
+import os
 
 # --- 1. CONFIGURACIÓN Y ESTILOS ---
 st.set_page_config(
@@ -25,7 +26,6 @@ st.markdown("""
 
 # --- 2. AUTENTICACIÓN ---
 def check_password():
-    """Retorna True si el usuario/clave son correctos."""
     def password_entered():
         if (st.session_state["username"] == st.secrets["credentials"]["username"] and 
             st.session_state["password"] == st.secrets["credentials"]["password"]):
@@ -81,61 +81,59 @@ def create_download_link(val, filename):
 
 # --- 4. RECURSOS Y DATA ---
 
-# Función Auxiliar Multimedia (MP3/MP4)
 def reproducir_multimedia(ruta):
-    """Detecta la extensión y usa el reproductor adecuado."""
-    try:
-        if ruta.endswith(".mp4"):
-            st.video(ruta) 
-        else:
-            st.audio(ruta)
-    except Exception as e:
-        st.error(f"Error al cargar archivo: {ruta}")
+    """Reproduce audio o video verificando existencia."""
+    if os.path.exists(ruta):
+        try:
+            if ruta.endswith(".mp4"):
+                st.video(ruta) 
+            else:
+                st.audio(ruta)
+        except Exception:
+            st.error(f"Error formato: {ruta}")
+    else:
+        st.caption(f"⚠️ Archivo no encontrado: {ruta}")
 
-# Recursos Multimedia (Nombres en Español)
+def mostrar_imagen(ruta):
+    if os.path.exists(ruta):
+        st.image(ruta)
+    else:
+        st.warning(f"⚠️ Imagen no encontrada: {ruta}")
+
+# DICCIONARIO DE RECURSOS (Mapeado exacto a su estructura de carpetas)
 recursos = {
-    # IMÁGENES
-    "ritmos": "assets/ritmos_ekg.png", 
-    "iy": "assets/ingurgitacion_yugular.png",
-    "godet": "assets/signo_fovea.png",
-    "pvc_lewis": "assets/metodo_lewis.png",
+    # IMÁGENES ESTÁTICAS
+    "pvc_lewis": "assets/Medicion PVC- Sumar 5 cm.jpg",
+    "rx_normal": "assets/Rx de tórax normal.jpg",
+    "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
+    "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
-    # RX TÓRAX
-    "rx_normal": "assets/rx_torax_normal.png",
-    "rx_congest": "assets/rx_torax_congestion.png",
-    "rx_edema": "assets/rx_torax_edema.png",
+    # RITMOS (Videos MP4)
+    "ritmo_sinusal": "assets/Ritmo Sinusal.mp4",
+    "ritmo_fa": "assets/Fibrilacion auricular.mp4",
+    "ritmo_flutter": "assets/Aleteo atrial.mp4",
+    "ritmo_mcp": "assets/MCP ventricular.mp4",
+
+    # RUIDOS CARDIACOS (MP3)
+    "r_normales": "assets/Ruidos cardiacos normales.mp3",
+    "r_s3": "assets/Tercer ruido cardiaco.mp3",
+    "r_s4": "assets/Cuarto ruido cardiaco.mp3",
+    "r_suma": "assets/Galope de suma.mp3",
+
+    # SOPLOS (MP3)
+    "soplo_ea": "assets/Estenosis aórtica.mp3",
+    "soplo_em": "assets/Estenosis mitral.mp3",
+    "soplo_im": "assets/Regurgitación mitral.mp3",   # Regurgitación = Insuficiencia
+    "soplo_ia": "assets/Regurgitación aórtica.mp3",  # Regurgitación = Insuficiencia
     
-    # AUDIOS / VIDEOS (El sistema leerá automáticamente si es .mp3 o .mp4)
-    # Ajuste la extensión aquí según lo que tenga en su carpeta assets
-    "audio_normal_heart": "assets/ruidos_cardiacos_normales.mp3",
-    "audio_s3": "assets/galope_s3.mp4",  # Ejemplo: Si este es video/mp4
-    "audio_s4": "assets/galope_s4.mp3",
-    
-    "audio_estenosis_aortica": "assets/soplo_estenosis_aortica.mp3",
-    "audio_insuf_mitral": "assets/soplo_insuficiencia_mitral.mp3",
-    "audio_insuf_aortica": "assets/soplo_insuficiencia_aortica.mp3", 
-    "audio_estenosis_mitral": "assets/soplo_estenosis_mitral.mp3",
-    "audio_insuf_pulmonar": "assets/soplo_insuficiencia_pulmonar.mp3", 
-    
-    "audio_estertores": "assets/pulmon_estertores.mp3",
-    "audio_sibilancias": "assets/pulmon_sibilancias.mp3",
-    "audio_normal_lung": "assets/pulmon_normal.mp3"
+    # PULMONAR (MP4)
+    "pulm_normal": "assets/Murmullo vesicular normal.mp4",
+    "pulm_estertores": "assets/Estertores.mp4",
+    "pulm_sibilancias": "assets/Sibilancias.mp4",
+    "pulm_roncus": "assets/Roncus.mp4"
 }
 
-# Municipios de Riesgo Chagas
-zonas_chagas = [
-    "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque",
-    "Barichara", "Capitanejo", "Encinales", "Hato", "Mogotes", "San Gil", "San José de Miranda", "San Vicente del Chucurí", "Socorro",
-    "Aguazul", "Chámeza", "Hato Corozal", "Nunchía", "Paz de Ariporo", "Recetor", "Támara", "Tauramena", "Yopal",
-    "Arauca", "Arauquita", "Saravena", "Tame",
-    "Choachí", "Fómeque", "Gachalá", "Medina", "Nilo", "Paratebueno", "Ubaque",
-    "Cáchira", "Sardinata", "Toledo",
-    "La Jagua de Ibirico", "Pueblo Bello", "Valledupar",
-    "Liborina", "Peque", "Yolombó"
-]
-
-# Lista Completa de Municipios
-municipios_base = sorted(list(set(zonas_chagas + [
+municipios_base = sorted(list(set([
     "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", 
     "Alejandría", "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", 
     "Anapoima", "Ancuya", "Andalucía", "Andes", "Angelópolis", "Angostura", "Anolaima", "Anorí", "Anserma", "Ansermanuevo", "Anzoátegui", 
@@ -155,7 +153,7 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Cimitarra", "Circasia", "Cisneros", "Ciudad Bolívar", "Clemencia", "Cocorná", "Coello", "Cogua", "Colombia", "Colón", "Colosó", "Cómbita", 
     "Concepción", "Concordia", "Condoto", "Confines", "Consacá", "Contratación", "Convención", "Copacabana", "Coper", "Córdoba", "Corinto", 
     "Coromoro", "Corozal", "Corrales", "Cota", "Cotorra", "Covarachía", "Coveñas", "Coyaima", "Cravo Norte", "Cuaspud", "Cubará", "Cubarral", 
-    "Cucaita", "Cucunubá", "Cúcuta", "Cucutilla", "Cuítiva", "Cumaral", "Cumaribo", "Cumbal", "Cumbitara", "Cunday", "Curillo", "Curití", 
+    "Cucaita", "Cucunubá", "Cucutilla", "Cucutilla", "Cuítiva", "Cumaral", "Cumaribo", "Cumbal", "Cumbitara", "Cunday", "Curillo", "Curití", 
     "Curumaní", "Dabeiba", "Dagua", "Dibulla", "Distracción", "Dolores", "Don Matías", "Dosquebradas", "Duitama", "Durania", "Ebéjico", 
     "El Águila", "El Bagre", "El Banco", "El Cairo", "El Calvario", "El Carmen", "El Carmen de Bolívar", "El Castillo", "El Cerrito", 
     "El Charco", "El Cocuy", "El Colegio", "El Copey", "El Doncello", "El Dorado", "El Dovio", "El Encanto", "El Espino", "El Guacamayo", 
@@ -164,7 +162,7 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Encino", "Enciso", "Entrerríos", "Envigado", "Espinal", "Facatativá", "Falan", "Filadelfia", "Filandia", "Firavitoba", "Flandes", 
     "Florencia", "Floresta", "Florián", "Florida", "Floridablanca", "Fómeque", "Fonseca", "Fortul", "Fosca", "Francisco Pizarro", "Fredonia", 
     "Fresno", "Frontino", "Fuente de Oro", "Fundación", "Funes", "Funza", "Fúquene", "Fusagasugá", "Gachalá", "Gachancipá", "Gachantivá", 
-    "Gachetá", "Galán", "Galapa", "Galeras", "Gama", "Gamarra", "Gambita", "Gameza", "Garagoa", "Garzón", "Génova", "Gigante", "Ginebra", 
+    "Gachetá", "Galán", "Galapa", "Galeras", "Gama", "Gamarra", "Garagoa", "Garzón", "Génova", "Gigante", "Ginebra", 
     "Giraldo", "Girardot", "Girardota", "Girón", "Gómez Plata", "González", "Gramalote", "Granada", "Guaca", "Guacamayas", "Guacarí", 
     "Guachucal", "Guadalupe", "Guaduas", "Guaitarilla", "Gualmatán", "Guamal", "Guamo", "Guapí", "Guapotá", "Guaranda", "Guarne", "Guasca", 
     "Guatapé", "Guataquí", "Guatavita", "Guateque", "Guática", "Guavata", "Guayabal de Síquima", "Guayabetal", "Guayatá", "Guepsa", "Güicán", 
@@ -228,6 +226,18 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", 
     "Zona Bananera"
 ])))
+
+# Zonas de Riesgo Chagas (Solo para validación epidemiológica)
+zonas_chagas = [
+    "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque",
+    "Barichara", "Capitanejo", "Encinales", "Hato", "Mogotes", "San Gil", "San José de Miranda", "San Vicente del Chucurí", "Socorro",
+    "Aguazul", "Chámeza", "Hato Corozal", "Nunchía", "Paz de Ariporo", "Recetor", "Támara", "Tauramena", "Yopal",
+    "Arauca", "Arauquita", "Saravena", "Tame",
+    "Choachí", "Fómeque", "Gachalá", "Medina", "Nilo", "Paratebueno", "Ubaque",
+    "Cáchira", "Sardinata", "Toledo",
+    "La Jagua de Ibirico", "Pueblo Bello", "Valledupar",
+    "Liborina", "Peque", "Yolombó"
+]
 
 # Antecedentes (Lista Completa)
 antecedentes_lista = sorted([
@@ -326,7 +336,16 @@ with st.sidebar:
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos", "Otro"])
-    with st.expander("Ver Ritmos"): st.image(recursos["ritmos"])
+    
+    # LÓGICA DE VIDEOS RITMOS
+    if ritmo == "Sinusal":
+        reproducir_multimedia(recursos["ritmo_sinusal"])
+    elif ritmo == "Fibrilación Auricular":
+        reproducir_multimedia(recursos["ritmo_fa"])
+    elif ritmo == "Flutter Atrial":
+        reproducir_multimedia(recursos["ritmo_flutter"])
+    elif ritmo == "Marcapasos":
+        reproducir_multimedia(recursos["ritmo_mcp"])
 
     c_v1, c_v2 = st.columns(2)
     pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
@@ -348,7 +367,7 @@ with st.sidebar:
         pvc_mmhg = pvc_cmh2o * 0.735
         iy_desc = f"Presente (PVC aprox {pvc_mmhg:.1f} mmHg)"
         st.info(f"PVC Estimada (Lewis): {pvc_cmh2o} cmH2O ≈ {pvc_mmhg:.1f} mmHg")
-        with st.expander("Ver Método de Lewis"): st.image(recursos["pvc_lewis"])
+        with st.expander("Ver Método de Lewis"): mostrar_imagen(recursos["pvc_lewis"])
     
     rhy = st.checkbox("Reflujo Hepato-yugular")
 
@@ -360,9 +379,10 @@ with st.sidebar:
     
     # REPRODUCTOR INTELIGENTE (Usa la función creada arriba)
     with st.expander("🎧 Escuchar Ruidos", expanded=True):
-        if "Normales" in ruidos_agregados: reproducir_multimedia(recursos["audio_normal_heart"])
-        elif "S3" in ruidos_agregados: reproducir_multimedia(recursos["audio_s3"])
-        elif "S4" in ruidos_agregados: reproducir_multimedia(recursos["audio_s4"])
+        if "Normales" in ruidos_agregados: reproducir_multimedia(recursos["r_normales"])
+        elif "S3" in ruidos_agregados: reproducir_multimedia(recursos["r_s3"])
+        elif "S4" in ruidos_agregados: reproducir_multimedia(recursos["r_s4"])
+        elif "Suma" in ruidos_agregados: reproducir_multimedia(recursos["r_suma"])
 
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
@@ -372,18 +392,20 @@ with st.sidebar:
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click", "Retumbo"])
         
         with st.expander("🎧 Escuchar Soplo"):
-            if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_insuf_aortica"])
-            elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_estenosis_mitral"])
-            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_insuf_pulmonar"])
-            elif "Aórtico" in foco: reproducir_multimedia(recursos["audio_estenosis_aortica"])
-            elif "Mitral" in foco: reproducir_multimedia(recursos["audio_insuf_mitral"])
+            if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ia"])
+            elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_em"])
+            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ip"]) # Necesita tener archivo
+            elif "Aórtico" in foco: reproducir_multimedia(recursos["soplo_ea"])
+            elif "Mitral" in foco: reproducir_multimedia(recursos["soplo_im"])
 
     st.markdown("🔴 **Tórax: Pulmonar**")
-    pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
+    pulmones_opciones = ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias", "Roncus"]
+    pulmones = st.selectbox("Auscultación", pulmones_opciones)
     with st.expander("🎧 Escuchar Pulmón"):
-        if "Estertores" in pulmones: reproducir_multimedia(recursos["audio_estertores"])
-        elif "Sibilancias" in pulmones: reproducir_multimedia(recursos["audio_sibilancias"])
-        else: reproducir_multimedia(recursos["audio_normal_lung"])
+        if "Estertores" in pulmones: reproducir_multimedia(recursos["pulm_estertores"])
+        elif "Sibilancias" in pulmones: reproducir_multimedia(recursos["pulm_sibilancias"])
+        elif "Roncus" in pulmones: reproducir_multimedia(recursos["pulm_roncus"])
+        else: reproducir_multimedia(recursos["pulm_normal"])
 
     st.markdown("🔴 **Abdomen**")
     abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
@@ -391,9 +413,7 @@ with st.sidebar:
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    if edema_ex != "Ausente":
-        godet = st.selectbox("Fóvea (Godet)", ["Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
-        with st.expander("Ver Escala Godet"): st.image(recursos["godet"])
+    # Nota: Se eliminó la imagen de Godet para evitar errores si no existe
         
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
@@ -419,9 +439,9 @@ with st.sidebar:
         lactato = st.number_input("Lactato (mmol/L)", 0.0, 20.0, 1.0, 0.1)
         rx_patron = st.selectbox("Patrón Rx", ["Normal", "Congestión Leve/Basal", "Edema Alveolar (4 Cuadrantes)"])
         with st.expander("Ver Rx Referencia"):
-            if rx_patron == "Normal": st.image(recursos["rx_normal"])
-            elif rx_patron == "Congestión Leve/Basal": st.image(recursos["rx_congest"])
-            else: st.image(recursos["rx_edema"])
+            if rx_patron == "Normal": mostrar_imagen(recursos["rx_normal"])
+            elif rx_patron == "Congestión Leve/Basal": mostrar_imagen(recursos["rx_congest"])
+            else: mostrar_imagen(recursos["rx_edema"])
         
         c_p1, c_p2 = st.columns(2)
         tipo_peptido = c_p1.selectbox("Tipo", ["BNP", "NT-proBNP"])
@@ -606,7 +626,7 @@ with tabs[0]:
             if pas < 90:
                 st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
             else:
-                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** si no hay congestión. Posible Inotrópico si no mejora.")
+                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** (Reto de fluidos).")
 
 # 2. SIMULACIÓN
 with tabs[1]:
