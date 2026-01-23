@@ -167,7 +167,8 @@ recursos = {
     "soplo_ea": "assets/Estenosis aortica.mp3",
     "soplo_em": "assets/Estenosis mitral.mp3",
     "soplo_im": "assets/Regurgitación mitral.mp3",   
-    "soplo_ia": "assets/Regurgitación aórtica.mp3",  
+    "soplo_ia": "assets/Regurgitación aórtica.mp3", 
+    "soplo_it": "assets/Regurgitacion tricuspidea.mp4"
     
     # PULMONAR (Locales .mp4)
     "pulm_normal": "assets/Murmullo vesicular normal.mp4",
@@ -776,6 +777,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
