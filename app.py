@@ -427,12 +427,19 @@ with st.sidebar:
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click", "Retumbo"])
         
         with st.expander("🎧 Escuchar Soplo"):
-            if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ia"])
-            elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_em"])
-            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ip"])
-            elif "Aórtico" in foco: reproducir_multimedia(recursos["soplo_ea"])
-            elif "Mitral" in foco: reproducir_multimedia(recursos["soplo_im"])
-
+            if "Aórtico" in foco and ciclo == "Diastólico": 
+                reproducir_multimedia(recursos["soplo_ia"])
+            elif "Mitral" in foco and ciclo == "Diastólico": 
+                reproducir_multimedia(recursos["soplo_em"])
+            elif "Pulmonar" in foco and ciclo == "Diastólico": 
+                reproducir_multimedia(recursos["soplo_ip"])
+            elif "Aórtico" in foco: 
+                reproducir_multimedia(recursos["soplo_ea"])
+            elif "Mitral" in foco: 
+                reproducir_multimedia(recursos["soplo_im"])
+            elif "Tricúspideo" in foco: # <--- NUEVA LÓGICA
+                reproducir_multimedia(recursos["soplo_it"])
+             
     st.markdown("🔴 **Tórax: Pulmonar**")
     pulmones_opciones = ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias", "Roncus"]
     pulmones = st.selectbox("Auscultación", pulmones_opciones)
@@ -777,6 +784,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
