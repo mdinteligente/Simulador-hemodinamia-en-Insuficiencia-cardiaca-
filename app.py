@@ -82,35 +82,37 @@ def create_download_link(val, filename):
 # --- 4. RECURSOS Y DATA ---
 
 def reproducir_multimedia(ruta):
-    """Reproduce audio o video verificando existencia."""
+    """Reproduce audio o video verificando existencia con manejo de errores."""
     if os.path.exists(ruta):
         try:
             if ruta.endswith(".mp4"):
-                st.video(ruta) 
+                # start_time=0 fuerza al video a estar listo desde el inicio
+                st.video(ruta, format="video/mp4", start_time=0) 
             else:
                 st.audio(ruta)
-        except Exception:
-            st.error(f"Error formato: {ruta}")
+        except Exception as e:
+            st.error(f"Error formato: {ruta} | {str(e)}")
     else:
-        st.caption(f"⚠️ Archivo no encontrado: {ruta}")
+        st.error(f"⚠️ Archivo no encontrado: {ruta}")
 
 def mostrar_imagen(ruta):
     if os.path.exists(ruta):
         st.image(ruta)
     else:
-        st.warning(f"⚠️ Imagen no encontrada: {ruta}")
+        st.error(f"⚠️ Imagen no encontrada: {ruta}")
 
-# DICCIONARIO DE RECURSOS (Mapeado exacto a su estructura de carpetas)
+# DICCIONARIO DE RECURSOS (Corregido según su lista de archivos)
 recursos = {
-    # IMÁGENES ESTÁTICAS
-    "pvc_lewis": "assets/Medicion PVC- Sumar 5 cm.jpg",
+    # IMÁGENES ESTÁTICAS (Nombres exactos de la lista enviada)
+    # IMPORTANTE: Si sigue fallando la PVC, renonmbre el archivo a 'pvc.jpg'
+    "pvc_lewis": "assets/Medicion PVC- Sumar 5 cm.jpg", 
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
-    # RITMOS (Videos MP4)
+    # RITMOS (Videos MP4 - Nombres exactos mayúsculas/minúsculas)
     "ritmo_sinusal": "assets/Ritmo Sinusal.mp4",
-    "ritmo_fa": "assets/Fibrilacion auricular.mp4",
+    "ritmo_fa": "assets/Fibrilacion auricular.mp4", # Sin tilde en Fibrilacion según su lista
     "ritmo_flutter": "assets/Aleteo atrial.mp4",
     "ritmo_mcp": "assets/MCP ventricular.mp4",
 
@@ -123,8 +125,8 @@ recursos = {
     # SOPLOS (MP3)
     "soplo_ea": "assets/Estenosis aórtica.mp3",
     "soplo_em": "assets/Estenosis mitral.mp3",
-    "soplo_im": "assets/Regurgitación mitral.mp3",   # Regurgitación = Insuficiencia
-    "soplo_ia": "assets/Regurgitación aórtica.mp3",  # Regurgitación = Insuficiencia
+    "soplo_im": "assets/Regurgitación mitral.mp3",   
+    "soplo_ia": "assets/Regurgitación aórtica.mp3",  
     
     # PULMONAR (MP4)
     "pulm_normal": "assets/Murmullo vesicular normal.mp4",
@@ -335,7 +337,8 @@ with st.sidebar:
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
-    ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos", "Otro"])
+    # LISTA DE RITMOS (Sin "Otro")
+    ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos"])
     
     # LÓGICA DE VIDEOS RITMOS
     if ritmo == "Sinusal":
@@ -394,7 +397,7 @@ with st.sidebar:
         with st.expander("🎧 Escuchar Soplo"):
             if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ia"])
             elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_em"])
-            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ip"]) # Necesita tener archivo
+            elif "Pulmonar" in foco and ciclo == "Diastólico": st.info("Soplo pulmonar diastólico (Graham-Steell) no disponible en audio.") # No hay archivo en lista
             elif "Aórtico" in foco: reproducir_multimedia(recursos["soplo_ea"])
             elif "Mitral" in foco: reproducir_multimedia(recursos["soplo_im"])
 
@@ -413,7 +416,6 @@ with st.sidebar:
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    # Nota: Se eliminó la imagen de Godet para evitar errores si no existe
         
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
@@ -619,12 +621,12 @@ with tabs[0]:
                 st.success("🫀 **Fenotipo Cardíaco:** Sobrecarga volumen. **Diuréticos** son clave.")
         elif cuadrante.startswith("C"):
             if pas < 90:
-                st.error("🚨 **Shock Cardiogénico:** Hipoperfusión severa. Requiere **Vasopresor (Norepi)** inmediato. Inotrópico después.")
+                st.error("🚨 **Shock Cardiogénico:** **Vasopresor (Norepi)** inmediato.")
             else:
-                st.warning("📉 **Bajo Gasto Normotenso:** Hipoperfusión con PA preservada. Se beneficia de **Inotrópicos** y Diuréticos.")
+                st.warning("📉 **Bajo Gasto Normotenso:** **Inotrópicos** + Diuréticos.")
         elif cuadrante.startswith("L"):
             if pas < 90:
-                st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
+                st.error("🩸 **Hipovolemia/Shock:** **Líquidos IV** con cautela -> Vasopresor.")
             else:
                 st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** (Reto de fluidos).")
 
@@ -730,3 +732,4 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
