@@ -81,6 +81,47 @@ def create_download_link(val, filename):
 
 # --- 4. RECURSOS Y DATA ---
 
+# Función Auxiliar Multimedia (MP3/MP4)
+def reproducir_multimedia(ruta):
+    """Detecta la extensión y usa el reproductor adecuado."""
+    try:
+        if ruta.endswith(".mp4"):
+            st.video(ruta) 
+        else:
+            st.audio(ruta)
+    except Exception as e:
+        st.error(f"Error al cargar archivo: {ruta}")
+
+# Recursos Multimedia (Nombres en Español)
+recursos = {
+    # IMÁGENES
+    "ritmos": "assets/ritmos_ekg.png", 
+    "iy": "assets/ingurgitacion_yugular.png",
+    "godet": "assets/signo_fovea.png",
+    "pvc_lewis": "assets/metodo_lewis.png",
+    
+    # RX TÓRAX
+    "rx_normal": "assets/rx_torax_normal.png",
+    "rx_congest": "assets/rx_torax_congestion.png",
+    "rx_edema": "assets/rx_torax_edema.png",
+    
+    # AUDIOS / VIDEOS (El sistema leerá automáticamente si es .mp3 o .mp4)
+    # Ajuste la extensión aquí según lo que tenga en su carpeta assets
+    "audio_normal_heart": "assets/ruidos_cardiacos_normales.mp3",
+    "audio_s3": "assets/galope_s3.mp4",  # Ejemplo: Si este es video/mp4
+    "audio_s4": "assets/galope_s4.mp3",
+    
+    "audio_estenosis_aortica": "assets/soplo_estenosis_aortica.mp3",
+    "audio_insuf_mitral": "assets/soplo_insuficiencia_mitral.mp3",
+    "audio_insuf_aortica": "assets/soplo_insuficiencia_aortica.mp3", 
+    "audio_estenosis_mitral": "assets/soplo_estenosis_mitral.mp3",
+    "audio_insuf_pulmonar": "assets/soplo_insuficiencia_pulmonar.mp3", 
+    
+    "audio_estertores": "assets/pulmon_estertores.mp3",
+    "audio_sibilancias": "assets/pulmon_sibilancias.mp3",
+    "audio_normal_lung": "assets/pulmon_normal.mp3"
+}
+
 # Municipios de Riesgo Chagas
 zonas_chagas = [
     "Boavita", "Chiscas", "Cubará", "Güicán de la Sierra", "Labranzagrande", "Paya", "Pisba", "San Mateo", "Soatá", "Socotá", "Tipacoque",
@@ -155,8 +196,8 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Puerto Santander", "Puerto Tejada", "Puerto Triunfo", "Puerto Wilches", "Pulí", "Pupiales", "Puracé", "Purificación", "Purísima", 
     "Quebradanegra", "Quetame", "Quibdó", "Quimbaya", "Quinchía", "Quípama", "Quipile", "Ragonvalia", "Ramiriquí", "Ráquira", "Recetor", 
     "Regidor", "Remedios", "Remolino", "Repelón", "Restrepo", "Retiro", "Ricaurte", "Rio de Oro", "Rio Iro", "Rio Quito", "Rio Viejo", 
-    "Rioblanco", "Riofrío", "Riohacha", "Rionegro", "Riosucio", "Risaralda", "Rivera", "Roberto Payán", "Roldanillo", "Roncesvalles", "Rondón", 
-    "Rosas", "Rovira", "Sáchica", "Sahagún", "Saladoblanco", "Salamina", "Salazar", "Saldaña", "Salento", "Salgar", "Samacá", "Samaniego", 
+    "Rioblanco", "Riofrío", "Riohacha", "Rionegro", "Riosucio", "Risaralda", "Rivera", "Roberto Payán", "Roldanillo", "Roncesvalles", 
+    "Rondón", "Rosas", "Rovira", "Sáchica", "Sahagún", "Saladoblanco", "Salamina", "Salazar", "Saldaña", "Salento", "Salgar", "Samacá", "Samaniego", 
     "Samaná", "Sampués", "San Agustín", "San Alberto", "San Andrés", "San Andrés Sotavento", "San Antero", "San Antonio", "San Antonio del Tequendama", 
     "San Benito", "San Benito Abad", "San Bernardo", "San Bernardo del Viento", "San Calixto", "San Carlos", "San Carlos de Guaroa", "San Cayetano", 
     "San Cristóbal", "San Diego", "San Eduardo", "San Estanislao", "San Fernando", "San Francisco", "San Gil", "San Jacinto", "San Jacinto del Cauca", 
@@ -187,51 +228,6 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Yondó", "Yopal", "Yotoco", "Yumbo", "Zambrano", "Zapatoca", "Zapayán", "Zaragoza", "Zarzal", "Zetaquira", "Zipacón", "Zipaquirá", 
     "Zona Bananera"
 ])))
-
-# --- FUNCIÓN AUXILIAR PARA REPRODUCCIÓN (MP3/MP4) ---
-def reproducir_multimedia(ruta):
-    """Detecta la extensión y usa el reproductor adecuado."""
-    try:
-        if ruta.endswith(".mp4"):
-            # st.video maneja mejor los contenedores MP4, incluso si solo es audio
-            st.video(ruta) 
-        else:
-            # Por defecto asume audio (mp3, wav, ogg)
-            st.audio(ruta)
-    except Exception as e:
-        st.error(f"Error al cargar archivo: {ruta}")
-
-# --- 3. RECURSOS Y DATA (NOMBRES EN ESPAÑOL) ---
-
-# Recursos Multimedia (Rutas Locales: assets/)
-recursos = {
-    # IMÁGENES
-    "ritmos": "assets/ritmos_ekg.png", 
-    "iy": "assets/ingurgitacion_yugular.png",
-    "godet": "assets/signo_fovea.png",
-    "pvc_lewis": "assets/metodo_lewis.png",
-    
-    # RX TÓRAX
-    "rx_normal": "assets/rx_torax_normal.png",
-    "rx_congest": "assets/rx_torax_congestion.png",
-    "rx_edema": "assets/rx_torax_edema.png",
-    
-    # AUDIOS / VIDEOS (El sistema leerá automáticamente si es .mp3 o .mp4)
-    # Ajuste la extensión aquí según lo que tenga en su carpeta assets
-    "audio_normal_heart": "assets/ruidos_cardiacos_normales.mp3",
-    "audio_s3": "assets/galope_s3.mp4",  # Ejemplo: Si este es video/mp4
-    "audio_s4": "assets/galope_s4.mp3",
-    
-    "audio_estenosis_aortica": "assets/soplo_estenosis_aortica.mp3",
-    "audio_insuf_mitral": "assets/soplo_insuficiencia_mitral.mp3",
-    "audio_insuf_aortica": "assets/soplo_insuficiencia_aortica.mp3", 
-    "audio_estenosis_mitral": "assets/soplo_estenosis_mitral.mp3",
-    "audio_insuf_pulmonar": "assets/soplo_insuficiencia_pulmonar.mp3", 
-    
-    "audio_estertores": "assets/pulmon_estertores.mp3",
-    "audio_sibilancias": "assets/pulmon_sibilancias.mp3",
-    "audio_normal_lung": "assets/pulmon_normal.mp3"
-}
 
 # Antecedentes (Lista Completa)
 antecedentes_lista = sorted([
@@ -389,6 +385,23 @@ with st.sidebar:
         elif "Sibilancias" in pulmones: reproducir_multimedia(recursos["audio_sibilancias"])
         else: reproducir_multimedia(recursos["audio_normal_lung"])
 
+    st.markdown("🔴 **Abdomen**")
+    abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
+    ascitis = st.checkbox("Onda Ascítica Presente")
+
+    st.markdown("🔴 **Extremidades**")
+    edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
+    if edema_ex != "Ausente":
+        godet = st.selectbox("Fóvea (Godet)", ["Grado I (+)", "Grado II (++)", "Grado III (+++)", "Grado IV (++++)"])
+        with st.expander("Ver Escala Godet"): st.image(recursos["godet"])
+        
+    pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
+    frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
+    llenado = st.number_input("Llenado Capilar (seg)", value=2, step=1)
+
+    st.markdown("🔴 **Neurológico**")
+    neuro = st.selectbox("Estado Conciencia", ["Alerta", "Somnoliento", "Estuporoso"])
+
     # 6. AYUDAS DIAGNÓSTICAS
     st.markdown("---")
     st.subheader("6. Paraclínicos (Opcional)")
@@ -518,6 +531,7 @@ with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
         if "Hepato" in abdomen_viscera: hallazgos.append(abdomen_viscera)
         if "Ortopnea" in sintomas: hallazgos.append("Ortopnea")
         if "Vómito" in sintomas or "Diarrea" in sintomas: hallazgos.append("Pérdidas GI")
+        if iy_presente == "Presente": hallazgos.append(f"IY ({iy_desc})")
         st.markdown(", ".join(hallazgos) if hallazgos else "Sin hallazgos mayores.")
 
 # GENERAR PDF
@@ -533,6 +547,7 @@ if st.button("📥 Descargar Resumen del Caso (PDF)"):
     pdf.chapter_title("3. Hallazgos Clínicos")
     pdf.chapter_body(f"Ruidos: {ruidos_agregados} | Pulmón: {pulmones}")
     if "Hepato" in abdomen_viscera or ascitis: pdf.chapter_body(f"Abdomen: {abdomen_viscera} {'Ascitis' if ascitis else ''}")
+    if iy_presente == "Presente": pdf.chapter_body(f"Cuello: {iy_desc}")
     if tiene_paraclinicos:
         pdf.chapter_body(f"Fenotipo FEVI: {fenotipo_msg} | Lactato: {lactato}")
     
@@ -695,11 +710,3 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
-
-
-
-
-
-
-
-
