@@ -102,17 +102,19 @@ def mostrar_imagen(ruta):
         st.error(f"⚠️ Imagen no encontrada: {ruta}")
 
 # DICCIONARIO DE RECURSOS (Corregido según su lista de archivos)
+# --- 3. RECURSOS Y DATA (Mapeo Exacto a su Carpeta assets) ---
 recursos = {
-    # IMÁGENES ESTÁTICAS (Nombres exactos de la lista enviada)
-    # IMPORTANTE: Si sigue fallando la PVC, renonmbre el archivo a 'pvc.jpg'
-    "pvc": "assets/pvc", 
+    # IMÁGENES ESTÁTICAS
+    # IMPORTANTE: Renombre su archivo de PVC a 'pvc_lewis.jpg' en la carpeta assets para asegurar que funcione.
+    "pvc_lewis": "assets/pvc_lewis.jpg", 
+    
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
-    # RITMOS (Videos MP4 - Nombres exactos mayúsculas/minúsculas)
+    # RITMOS (Videos MP4 - Nombres exactos con Mayúsculas según su lista)
     "ritmo_sinusal": "assets/Ritmo Sinusal.mp4",
-    "ritmo_fa": "assets/Fibrilacion auricular.mp4", # Sin tilde en Fibrilacion según su lista
+    "ritmo_fa": "assets/Fibrilacion auricular.mp4",
     "ritmo_flutter": "assets/Aleteo atrial.mp4",
     "ritmo_mcp": "assets/MCP ventricular.mp4",
 
@@ -337,9 +339,19 @@ with st.sidebar:
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
-    # LISTA DE RITMOS (Sin "Otro")
+    # Se eliminó la opción "Otro"
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos"])
     
+    # LÓGICA DE VIDEOS RITMOS (Mapeo corregido)
+    with st.expander("Ver Monitor de Ritmo", expanded=True):
+        if ritmo == "Sinusal":
+            reproducir_multimedia(recursos["ritmo_sinusal"])
+        elif ritmo == "Fibrilación Auricular":
+            reproducir_multimedia(recursos["ritmo_fa"])
+        elif ritmo == "Flutter Atrial":
+            reproducir_multimedia(recursos["ritmo_flutter"])
+        elif ritmo == "Marcapasos":
+            reproducir_multimedia(recursos["ritmo_mcp"])
     # LÓGICA DE VIDEOS RITMOS
     if ritmo == "Sinusal":
         reproducir_multimedia(recursos["ritmo_sinusal"])
@@ -732,6 +744,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
