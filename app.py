@@ -188,29 +188,46 @@ municipios_base = sorted(list(set(zonas_chagas + [
     "Zona Bananera"
 ])))
 
+# --- FUNCIÓN AUXILIAR PARA REPRODUCCIÓN (MP3/MP4) ---
+def reproducir_multimedia(ruta):
+    """Detecta la extensión y usa el reproductor adecuado."""
+    try:
+        if ruta.endswith(".mp4"):
+            # st.video maneja mejor los contenedores MP4, incluso si solo es audio
+            st.video(ruta) 
+        else:
+            # Por defecto asume audio (mp3, wav, ogg)
+            st.audio(ruta)
+    except Exception as e:
+        st.error(f"Error al cargar archivo: {ruta}")
+
+# --- 3. RECURSOS Y DATA (NOMBRES EN ESPAÑOL) ---
+
 # Recursos Multimedia (Rutas Locales: assets/)
 recursos = {
-    # Ritmos
+    # IMÁGENES
     "ritmos": "assets/ritmos_ekg.png", 
-    # Signos
-    "iy": "assets/ingurgitacion.png",
-    "godet": "assets/edema_godet.png",
-    # Rx Tórax
-    "rx_normal": "assets/rx_normal.png",
-    "rx_congest": "assets/rx_congestiva.png",
-    "rx_edema": "assets/rx_edema_agudo.png",
-    # PVC Lewis
-    "pvc_lewis": "assets/pvc_lewis.png",
+    "iy": "assets/ingurgitacion_yugular.png",
+    "godet": "assets/signo_fovea.png",
+    "pvc_lewis": "assets/metodo_lewis.png",
     
-    # Audios
-    "audio_normal_heart": "assets/ruidos_normales.mp3",
-    "audio_s3": "assets/s3_galope.mp3",
-    "audio_s4": "assets/s4_galope.mp3",
-    "audio_estenosis_aortica": "assets/soplo_ea.mp3",
-    "audio_insuf_mitral": "assets/soplo_im.mp3",
-    "audio_insuf_aortica": "assets/soplo_ia.mp3", 
-    "audio_estenosis_mitral": "assets/soplo_em.mp3",
-    "audio_insuf_pulmonar": "assets/soplo_ip.mp3", 
+    # RX TÓRAX
+    "rx_normal": "assets/rx_torax_normal.png",
+    "rx_congest": "assets/rx_torax_congestion.png",
+    "rx_edema": "assets/rx_torax_edema.png",
+    
+    # AUDIOS / VIDEOS (El sistema leerá automáticamente si es .mp3 o .mp4)
+    # Ajuste la extensión aquí según lo que tenga en su carpeta assets
+    "audio_normal_heart": "assets/ruidos_cardiacos_normales.mp3",
+    "audio_s3": "assets/galope_s3.mp4",  # Ejemplo: Si este es video/mp4
+    "audio_s4": "assets/galope_s4.mp3",
+    
+    "audio_estenosis_aortica": "assets/soplo_estenosis_aortica.mp3",
+    "audio_insuf_mitral": "assets/soplo_insuficiencia_mitral.mp3",
+    "audio_insuf_aortica": "assets/soplo_insuficiencia_aortica.mp3", 
+    "audio_estenosis_mitral": "assets/soplo_estenosis_mitral.mp3",
+    "audio_insuf_pulmonar": "assets/soplo_insuficiencia_pulmonar.mp3", 
+    
     "audio_estertores": "assets/pulmon_estertores.mp3",
     "audio_sibilancias": "assets/pulmon_sibilancias.mp3",
     "audio_normal_lung": "assets/pulmon_normal.mp3"
@@ -335,7 +352,7 @@ with st.sidebar:
         pvc_mmhg = pvc_cmh2o * 0.735
         iy_desc = f"Presente (PVC aprox {pvc_mmhg:.1f} mmHg)"
         st.info(f"PVC Estimada (Lewis): {pvc_cmh2o} cmH2O ≈ {pvc_mmhg:.1f} mmHg")
-        with st.expander("Ver Método de Lewis"): st.image(recursos["pvc_lewis"]) # Necesitas cargar esta imagen
+        with st.expander("Ver Método de Lewis"): st.image(recursos["pvc_lewis"])
     
     rhy = st.checkbox("Reflujo Hepato-yugular")
 
@@ -344,10 +361,12 @@ with st.sidebar:
     if ritmo == "Sinusal":
         opciones_ruidos.extend(["S4 (Galope Atrial)", "S3 + S4 (Suma)"])
     ruidos_agregados = st.selectbox("Ruidos:", opciones_ruidos)
-    with st.expander("🎧 Escuchar"):
-        if "Normales" in ruidos_agregados: st.audio(recursos["audio_normal_heart"])
-        elif "S3" in ruidos_agregados: st.audio(recursos["audio_s3"])
-        elif "S4" in ruidos_agregados: st.audio(recursos["audio_s4"])
+    
+    # REPRODUCTOR INTELIGENTE (Usa la función creada arriba)
+    with st.expander("🎧 Escuchar Ruidos", expanded=True):
+        if "Normales" in ruidos_agregados: reproducir_multimedia(recursos["audio_normal_heart"])
+        elif "S3" in ruidos_agregados: reproducir_multimedia(recursos["audio_s3"])
+        elif "S4" in ruidos_agregados: reproducir_multimedia(recursos["audio_s4"])
 
     tiene_soplo = st.checkbox("¿Tiene Soplo?")
     foco, ciclo, patron = "Aórtico", "Sistólico", "Holosistólico"
@@ -355,30 +374,20 @@ with st.sidebar:
         foco = st.selectbox("Foco", ["Aórtico", "Mitral", "Tricúspideo", "Pulmonar"])
         ciclo = st.selectbox("Ciclo", ["Sistólico", "Diastólico"])
         patron = st.selectbox("Patrón", ["Diamante", "Holosistólico", "Decrescendo", "Click", "Retumbo"])
-        with st.expander("🎧 Escuchar"):
-            if "Aórtico" in foco and ciclo == "Diastólico": st.audio(recursos["audio_insuf_aortica"])
-            elif "Mitral" in foco and ciclo == "Diastólico": st.audio(recursos["audio_estenosis_mitral"])
-            elif "Aórtico" in foco: st.audio(recursos["audio_estenosis_aortica"])
+        
+        with st.expander("🎧 Escuchar Soplo"):
+            if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_insuf_aortica"])
+            elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_estenosis_mitral"])
+            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["audio_insuf_pulmonar"])
+            elif "Aórtico" in foco: reproducir_multimedia(recursos["audio_estenosis_aortica"])
+            elif "Mitral" in foco: reproducir_multimedia(recursos["audio_insuf_mitral"])
 
     st.markdown("🔴 **Tórax: Pulmonar**")
     pulmones = st.selectbox("Auscultación", ["Murmullo Vesicular", "Estertores basales", "Estertores >1/2", "Sibilancias"])
     with st.expander("🎧 Escuchar Pulmón"):
-        if "Estertores" in pulmones: st.audio(recursos["audio_estertores"])
-        elif "Sibilancias" in pulmones: st.audio(recursos["audio_sibilancias"])
-        else: st.audio(recursos["audio_normal_lung"])
-
-    st.markdown("🔴 **Abdomen**")
-    abdomen_viscera = st.selectbox("Visceromegalias", ["Sin visceromegalias", "Hepatomegalia", "Esplenomegalia", "Hepatoesplenomegalia"])
-    ascitis = st.checkbox("Onda Ascítica Presente")
-
-    st.markdown("🔴 **Extremidades**")
-    edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
-    pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
-    frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
-    llenado = st.number_input("Llenado Capilar (seg)", value=2, step=1)
-
-    st.markdown("🔴 **Neurológico**")
-    neuro = st.selectbox("Estado Conciencia", ["Alerta", "Somnoliento", "Estuporoso"])
+        if "Estertores" in pulmones: reproducir_multimedia(recursos["audio_estertores"])
+        elif "Sibilancias" in pulmones: reproducir_multimedia(recursos["audio_sibilancias"])
+        else: reproducir_multimedia(recursos["audio_normal_lung"])
 
     # 6. AYUDAS DIAGNÓSTICAS
     st.markdown("---")
@@ -686,6 +695,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
