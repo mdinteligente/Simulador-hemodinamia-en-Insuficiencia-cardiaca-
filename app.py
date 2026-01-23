@@ -765,13 +765,16 @@ with tabs[3]:
 # 5. REFERENCIAS
 with tabs[4]:
     st.header("📚 Referencias Bibliográficas")
+    
     st.subheader("📖 Texto Guía: Braunwald's Heart Disease (Edición 2026)")
     st.markdown("""
     1. **Januzzi JL, Mann DL.** *Clinical Assessment of Heart Failure* (Capítulo 56).
     2. **Felker GM, Teerlink JR.** *Diagnosis and Management of Decompensated Heart Failure* (Capítulo 57).
-    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
+    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction** (Capítulo 58).
     """)
+    
     st.divider()
+    
     st.subheader("🌍 Guías y Consensos Internacionales")
     st.markdown("""
     4. **Mueller C, et al.** Heart Failure Association of the European Society of Cardiology practical guidance on the use of natriuretic peptide concentrations. *Eur J Heart Fail*. 2019.
@@ -780,6 +783,15 @@ with tabs[4]:
     7. **Ponikowski P, et al.** AFFIRM-AHF (Hierro IV). *Lancet*. 2020.
     8. **Anker SD, et al.** EMPEROR-Preserved. *N Engl J Med*. 2021.
     9. **Solomon SD, et al.** DELIVER. *N Engl J Med*. 2022.
+    """)
+
+    st.divider()
+
+    st.subheader("💻 Recursos Digitales y Simuladores")
+    st.markdown("""
+    * **[Practical Clinical Skills](https://www.practicalclinicalskills.com/):** Entrenamiento auditivo de ruidos cardíacos y lectura de EKG.
+    * **[Manual MSD - Trastornos Cardiovasculares](https://www.msdmanuals.com/es/professional/trastornos-cardiovasculares):** Referencia médica profesional actualizada y detallada.
+    * **[Univ. Washington - Physical Diagnosis](https://depts.washington.edu/physdx/heart/demo.html):** Galería académica de ruidos cardíacos y soplos.
     """)
 
 st.markdown("---")
