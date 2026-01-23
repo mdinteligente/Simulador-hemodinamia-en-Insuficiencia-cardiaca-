@@ -106,19 +106,35 @@ def mostrar_video_ritmo(url, titulo_ritmo):
         st.info("⚠️ Enlace de video no configurado.")
 
 # --- 4. RECURSOS Y DATA ---
-
+# --- FUNCIÓN ROBUSTA (Maneja Tildes y Errores) ---
 def reproducir_multimedia(ruta):
-    """Reproduce audio o video LOCAL verificando existencia."""
+    """
+    Intenta reproducir el archivo. Si falla por tildes, busca alternativas.
+    """
+    # 1. Si es URL web
+    if ruta.startswith("http"):
+        st.audio(ruta)
+        return
+
+    # 2. Si el archivo existe tal cual
     if os.path.exists(ruta):
         try:
             if ruta.endswith(".mp4"):
                 st.video(ruta, format="video/mp4", start_time=0) 
             else:
                 st.audio(ruta)
-        except Exception as e:
-            st.error(f"Error formato: {ruta} | {str(e)}")
-    else:
-        st.caption(f"⚠️ Archivo no encontrado: {ruta}")
+            return
+        except:
+            pass
+
+    # 3. INTENTO DE RECUPERACIÓN (Problema de Tildes)
+    # Si dice "Estenosis aórtica.mp3" pero no lo halla, intenta "Estenosis aortica.mp3"
+    ruta_sin_tildes = ruta.replace("ó", "o").replace("á", "a").replace("é", "e").replace("í", "i").replace("ú", "u")
+    if os.path.exists(ruta_sin_tildes):
+        st.audio(ruta_sin_tildes)
+        return
+        
+    st.error(f"⚠️ Archivo no encontrado: {ruta} (Revise tildes en el nombre)")
 
 def mostrar_imagen(ruta):
     if os.path.exists(ruta):
@@ -148,7 +164,7 @@ recursos = {
     "r_suma": "assets/Galope de suma.mp3",
 
     # SOPLOS (Locales .mp3)
-    "soplo_ea": "assets/Estenosis aórtica.mp3",
+    "soplo_ea": "assets/Estenosis aortica.mp3",
     "soplo_em": "assets/Estenosis mitral.mp3",
     "soplo_im": "assets/Regurgitación mitral.mp3",   
     "soplo_ia": "assets/Regurgitación aórtica.mp3",  
@@ -760,6 +776,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
