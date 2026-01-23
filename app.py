@@ -770,7 +770,7 @@ with tabs[4]:
     st.markdown("""
     1. **Januzzi JL, Mann DL.** *Clinical Assessment of Heart Failure* (Capítulo 56).
     2. **Felker GM, Teerlink JR.** *Diagnosis and Management of Decompensated Heart Failure* (Capítulo 57).
-    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction** (Capítulo 58).
+    3. **Diagnosis and Management of Heart Failure Patients with Reduced Ejection Fraction**.
     """)
     
     st.divider()
@@ -787,6 +787,11 @@ with tabs[4]:
 
     st.divider()
 
+    st.subheader("🎥 Artículos y Videos Clave (NEJM)")
+    st.markdown("""
+    * **Assavapokee T, Thadanipon K.** Examination of the Neck Veins. *N Engl J Med*. 2020; 383:e152. doi: 10.1056/NEJMvcm1806474.
+    """)
+
     st.subheader("💻 Recursos Digitales y Simuladores")
     st.markdown("""
     * **[Practical Clinical Skills](https://www.practicalclinicalskills.com/):** Entrenamiento auditivo de ruidos cardíacos y lectura de EKG.
@@ -796,6 +801,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
