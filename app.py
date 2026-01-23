@@ -79,11 +79,11 @@ def create_download_link(val, filename):
     b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
-# --- FUNCIÓN NUEVA: SOLUCIÓN PARA VIDEOS DE RITMOS ---
+# --- FUNCIÓN NUEVA: SOLUCIÓN PARA VIDEOS DE RITMOS (SCREENPAL) ---
 def mostrar_video_ritmo(url):
     """Incrusta videos de ScreenPal usando un Iframe HTML."""
     if url.startswith("http"):
-        # Código HTML para el reproductor
+        # Código HTML para el reproductor responsive
         html_code = f"""
         <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
             <iframe src="{url}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
@@ -96,7 +96,7 @@ def mostrar_video_ritmo(url):
 # --- 4. RECURSOS Y DATA ---
 
 def reproducir_multimedia(ruta):
-    """Reproduce audio o video verificando existencia con manejo de errores."""
+    """Reproduce audio o video LOCAL verificando existencia."""
     if os.path.exists(ruta):
         try:
             if ruta.endswith(".mp4"):
@@ -107,29 +107,24 @@ def reproducir_multimedia(ruta):
         except Exception as e:
             st.error(f"Error formato: {ruta} | {str(e)}")
     else:
-        st.error(f"⚠️ Archivo no encontrado: {ruta}")
+        st.caption(f"⚠️ Archivo no encontrado: {ruta}")
 
 def mostrar_imagen(ruta):
     if os.path.exists(ruta):
         st.image(ruta)
     else:
-        st.error(f"⚠️ Imagen no encontrada: {ruta}")
+        st.warning(f"⚠️ Imagen no encontrada: {ruta}")
 
-# DICCIONARIO DE RECURSOS (Corregido según su lista de archivos)
-# --- 3. RECURSOS Y DATA (Mapeo Exacto a su Carpeta assets) ---
-# --- 4. RECURSOS Y DATA ---
-
-# DICCIONARIO DE RECURSOS (Base correcta + ScreenPal para Ritmos)
+# DICCIONARIO DE RECURSOS 
 recursos = {
-    # IMÁGENES ESTÁTICAS (Locales)
-    "pvc_lewis": "pvc_lewis", 
+    # IMÁGENES ESTÁTICAS (Locales - Nombre Corregido)
+    "pvc_lewis": "assets/pvc_lewis.jpg", 
     
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
-    # RITMOS (VIDEOS EXTERNOS - SCREENPAL)
-    # Reemplace estos textos con sus enlaces reales de ScreenPal
+    # RITMOS (VIDEOS EN LA NUBE - SCREENPAL)
     "ritmo_sinusal": "https://go.screenpal.com/watch/cTVFFNnf1pq",
     "ritmo_fa": "https://go.screenpal.com/watch/cTXDFZnFWGz",
     "ritmo_flutter": "https://go.screenpal.com/watch/cTVFFNnf1pV",
@@ -147,12 +142,13 @@ recursos = {
     "soplo_im": "assets/Regurgitación mitral.mp3",   
     "soplo_ia": "assets/Regurgitación aórtica.mp3",  
     
-    # PULMONAR (Locales .mp4 - Se ven con st.video)
+    # PULMONAR (Locales .mp4)
     "pulm_normal": "assets/Murmullo vesicular normal.mp4",
     "pulm_estertores": "assets/Estertores.mp4",
     "pulm_sibilancias": "assets/Sibilancias.mp4",
     "pulm_roncus": "assets/Roncus.mp4"
 }
+
 municipios_base = sorted(list(set([
     "Abejorral", "Abriaquí", "Acacías", "Acandí", "Acevedo", "Achí", "Agrado", "Agua de Dios", "Aguachica", "Aguada", "Aguadas", "Aguazul", 
     "Alejandría", "Algarrobo", "Algeciras", "Almaguer", "Almeida", "Alpujarra", "Altamira", "Alto Baudó", "Amagá", "Amalfi", "Ambalema", 
@@ -355,28 +351,19 @@ with st.sidebar:
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
-    # Se eliminó la opción "Otro"
+    # Selector de Ritmo
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos"])
     
-    # LÓGICA DE VIDEOS RITMOS (Mapeo corregido)
-    with st.expander("Ver Monitor de Ritmo", expanded=True):
+    # VISUALIZADOR DE VIDEO (Usando la nueva función ScreenPal)
+    with st.expander("📺 Ver Monitor de Ritmo", expanded=True):
         if ritmo == "Sinusal":
-            reproducir_multimedia(recursos["ritmo_sinusal"])
+            mostrar_video_ritmo(recursos["ritmo_sinusal"])
         elif ritmo == "Fibrilación Auricular":
-            reproducir_multimedia(recursos["ritmo_fa"])
+            mostrar_video_ritmo(recursos["ritmo_fa"])
         elif ritmo == "Flutter Atrial":
-            reproducir_multimedia(recursos["ritmo_flutter"])
+            mostrar_video_ritmo(recursos["ritmo_flutter"])
         elif ritmo == "Marcapasos":
-            reproducir_multimedia(recursos["ritmo_mcp"])
-    # LÓGICA DE VIDEOS RITMOS
-    if ritmo == "Sinusal":
-        reproducir_multimedia(recursos["ritmo_sinusal"])
-    elif ritmo == "Fibrilación Auricular":
-        reproducir_multimedia(recursos["ritmo_fa"])
-    elif ritmo == "Flutter Atrial":
-        reproducir_multimedia(recursos["ritmo_flutter"])
-    elif ritmo == "Marcapasos":
-        reproducir_multimedia(recursos["ritmo_mcp"])
+            mostrar_video_ritmo(recursos["ritmo_mcp"])
 
     c_v1, c_v2 = st.columns(2)
     pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
@@ -425,7 +412,7 @@ with st.sidebar:
         with st.expander("🎧 Escuchar Soplo"):
             if "Aórtico" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ia"])
             elif "Mitral" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_em"])
-            elif "Pulmonar" in foco and ciclo == "Diastólico": st.info("Soplo pulmonar diastólico (Graham-Steell) no disponible en audio.") # No hay archivo en lista
+            elif "Pulmonar" in foco and ciclo == "Diastólico": reproducir_multimedia(recursos["soplo_ip"])
             elif "Aórtico" in foco: reproducir_multimedia(recursos["soplo_ea"])
             elif "Mitral" in foco: reproducir_multimedia(recursos["soplo_im"])
 
@@ -444,6 +431,7 @@ with st.sidebar:
 
     st.markdown("🔴 **Extremidades**")
     edema_ex = st.selectbox("Edema", ["Ausente", "Maleolar", "Rodillas", "Muslos"])
+    # Nota: Se eliminó la imagen de Godet para evitar errores si no existe
         
     pulsos = st.selectbox("Pulsos", ["Normales", "Disminuidos", "Filiformes"])
     frialdad = st.radio("Temp. Distal", ["Caliente", "Fría/Húmeda"], horizontal=True)
@@ -649,14 +637,14 @@ with tabs[0]:
                 st.success("🫀 **Fenotipo Cardíaco:** Sobrecarga volumen. **Diuréticos** son clave.")
         elif cuadrante.startswith("C"):
             if pas < 90:
-                st.error("🚨 **Shock Cardiogénico:** **Vasopresor (Norepi)** inmediato.")
+                st.error("🚨 **Shock Cardiogénico:** Hipoperfusión severa. Requiere **Vasopresor (Norepi)** inmediato. Inotrópico después.")
             else:
-                st.warning("📉 **Bajo Gasto Normotenso:** **Inotrópicos** + Diuréticos.")
+                st.warning("📉 **Bajo Gasto Normotenso:** Hipoperfusión con PA preservada. Se beneficia de **Inotrópicos** y Diuréticos.")
         elif cuadrante.startswith("L"):
             if pas < 90:
-                st.error("🩸 **Hipovolemia/Shock:** **Líquidos IV** con cautela -> Vasopresor.")
+                st.error("🩸 **Hipovolemia/Shock:** Requiere **Líquidos IV** con cautela. Si no responde, Vasopresor.")
             else:
-                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** (Reto de fluidos).")
+                st.info("💧 **Perfil Seco/Frío:** Evaluar **Líquidos IV** si no hay congestión. Posible Inotrópico si no mejora.")
 
 # 2. SIMULACIÓN
 with tabs[1]:
