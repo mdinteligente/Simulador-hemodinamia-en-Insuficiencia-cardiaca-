@@ -136,7 +136,7 @@ recursos = {
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
     
     # RITMOS (VIDEOS EN LA NUBE - SCREENPAL)
-    "ritmo_sinusal": "https://go.screenpal.com/watch/cTVFFNnf1pq",
+    "ritmo_sinusal": "https://go.screenpal.com/watch/cTVFFNnf1p2",
     "ritmo_fa": "https://go.screenpal.com/watch/cTXDFZnFWGz",
     "ritmo_flutter": "https://go.screenpal.com/watch/cTVFFNnf1pV",
     "ritmo_mcp": "https://go.screenpal.com/watch/cTVFFNnf1pj",
@@ -760,6 +760,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
