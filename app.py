@@ -105,7 +105,7 @@ def mostrar_imagen(ruta):
 recursos = {
     # IMÁGENES ESTÁTICAS (Nombres exactos de la lista enviada)
     # IMPORTANTE: Si sigue fallando la PVC, renonmbre el archivo a 'pvc.jpg'
-    "pvc_lewis": "assets/pvc", 
+    "pvc": "assets/pvc", 
     "rx_normal": "assets/Rx de tórax normal.jpg",
     "rx_congest": "assets/Rx de tórax con congestion basal.jpg",
     "rx_edema": "assets/Rx de tórax con edema pulmonar.jpg",
@@ -732,5 +732,6 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
