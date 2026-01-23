@@ -20,6 +20,8 @@ st.markdown("""
     div[data-testid="stMetricValue"] { font-size: 1.2rem; }
     .stAlert { padding: 0.5rem; }
     .caption-evidence { font-size: 0.8rem; color: #666; font-style: italic; }
+    /* Ajuste para que el video ocupe el ancho total disponible */
+    .stVideo { width: 100% !important; }
     input[type=number] { -moz-appearance: textfield; }
     </style>
     """, unsafe_allow_html=True)
@@ -79,15 +81,27 @@ def create_download_link(val, filename):
     b64 = base64.b64encode(val)
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">📥 Descargar Reporte PDF</a>'
 
-# --- FUNCIÓN CORREGIDA: VIDEOS GRANDES (ALTURA FIJA) ---
-def mostrar_video_ritmo(url):
-    """Incrusta videos de ScreenPal con altura forzada de 300px."""
+# --- FUNCIÓN DE VIDEO MEJORADA (PANORÁMICA) ---
+def mostrar_video_ritmo(url, titulo_ritmo):
+    """Incrusta video ancho en el panel principal con opción de nueva pestaña."""
     if url.startswith("http"):
-        # Usamos height="300" directamente para obligar a que sea alto
+        # Iframe con ancho 100% para ocupar toda la columna principal
         html_code = f"""
-        <iframe src="{url}" width="100%" height="300" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <div style="background-color: #000; border-radius: 10px; padding: 5px; margin-bottom: 10px;">
+            <iframe src="{url}" width="100%" height="350" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
         """
         st.markdown(html_code, unsafe_allow_html=True)
+        # Botón para abrir en nueva pestaña
+        st.markdown(f'''
+            <a href="{url}" target="_blank" style="text-decoration: none;">
+                <button style="background-color: #4CAF50; border: none; color: white; padding: 8px 16px; 
+                text-align: center; text-decoration: none; display: inline-block; font-size: 14px; 
+                margin: 4px 2px; cursor: pointer; border-radius: 4px;">
+                🔗 Abrir {titulo_ritmo} en Nueva Pestaña (Pantalla Completa)
+                </button>
+            </a>
+            ''', unsafe_allow_html=True)
     else:
         st.info("⚠️ Enlace de video no configurado.")
 
@@ -348,20 +362,9 @@ with st.sidebar:
 
     # 4. Signos Vitales
     st.subheader("4. Signos Vitales")
-    # Selector de Ritmo
+    # Selector de Ritmo (SELECCIÓN AQUÍ, VISUALIZACIÓN EN PANEL PRINCIPAL)
     ritmo = st.selectbox("Ritmo", ["Sinusal", "Fibrilación Auricular", "Flutter Atrial", "Marcapasos"])
     
-    # VISUALIZADOR DE VIDEO (Usando la nueva función ScreenPal con altura fija)
-    with st.expander("📺 Ver Monitor de Ritmo", expanded=True):
-        if ritmo == "Sinusal":
-            mostrar_video_ritmo(recursos["ritmo_sinusal"])
-        elif ritmo == "Fibrilación Auricular":
-            mostrar_video_ritmo(recursos["ritmo_fa"])
-        elif ritmo == "Flutter Atrial":
-            mostrar_video_ritmo(recursos["ritmo_flutter"])
-        elif ritmo == "Marcapasos":
-            mostrar_video_ritmo(recursos["ritmo_mcp"])
-
     c_v1, c_v2 = st.columns(2)
     pas = c_v1.number_input("PAS (mmHg)", value=120, step=1)
     pad = c_v2.number_input("PAD (mmHg)", value=80, step=1)
@@ -541,6 +544,18 @@ else: cuadrante = "A: Seco y Caliente"
 # --- 8. PANEL PRINCIPAL ---
 st.title("🫀 HemoSim: Simulador Clínico")
 st.markdown("**Simulación de Casos en Falla Cardíaca Aguda** | Dr. Javier Rodríguez Prada")
+
+# --- MONITOR CARDÍACO EN CABECERA (PANEL PRINCIPAL) ---
+# Se mueve aquí para que ocupe todo el ancho y se vea el DII completo
+st.markdown("### 🖥️ Monitor de Ritmo Cardíaco (DII)")
+url_ritmo_seleccionado = recursos["ritmo_sinusal"] # Default
+if ritmo == "Fibrilación Auricular": url_ritmo_seleccionado = recursos["ritmo_fa"]
+elif ritmo == "Flutter Atrial": url_ritmo_seleccionado = recursos["ritmo_flutter"]
+elif ritmo == "Marcapasos": url_ritmo_seleccionado = recursos["ritmo_mcp"]
+
+# Mostrar video ancho
+mostrar_video_ritmo(url_ritmo_seleccionado, ritmo)
+st.divider()
 
 # RESUMEN
 with st.expander("📋 **Ficha de Resumen Clínico**", expanded=True):
@@ -745,8 +760,6 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
-
-
 
 
 
