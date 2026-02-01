@@ -285,7 +285,7 @@ zonas_chagas = [
 
 # Antecedentes (Lista Completa)
 antecedentes_lista = sorted([
-    "Apnea del sueño", "Arteritis reumatoide", "Cardiopatía congénita", "Diabetes Mellitus Tipo 2", "Dislipidemia", 
+    "Apnea del sueño", "Artritis reumatoide", "Cardiopatía congénita", "Diabetes Mellitus Tipo 2", "Dislipidemia", 
     "Enfermedad arterial oclusiva crónica", "Enfermedad carotidea", "Enfermedad cerebro-vascular (ACV)", "Enfermedad coronaria", 
     "ERC sin diálisis", "ERC en diálisis", "Hipertensión arterial", "Insuficiencia cardiaca previa", "Lupus eritematoso sistémico", 
     "Obesidad", "Tabaquismo", "VIH"
@@ -801,6 +801,7 @@ with tabs[4]:
 
 st.markdown("---")
 st.caption("Desarrollado por: Javier Rodríguez Prada, MD | Enero 2026")
+
 
 
 
